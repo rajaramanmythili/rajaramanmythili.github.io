@@ -77,7 +77,7 @@
         function myFunction() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("myInput");
-            filter = input.value.replace(' ', '.*');
+            filter = input.value.replaceAll(' ', '.*');
             table = document.getElementById("myTable");
             tr = table.getElementsByTagName("tr");
             for (i = 0; i < tr.length; i++) {
@@ -121,6 +121,12 @@
         }
 
         window.onload = function () {
+            const searchParams = new URLSearchParams(location.search);
+            const myInput = document.getElementById('myInput')
+            if (searchParams.has('q')) {
+                myInput.value = searchParams.get('q');
+                myFunction()
+            }
             document.getElementById("myInput").focus();
         };
     </script>
