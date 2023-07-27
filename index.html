@@ -168,6 +168,7 @@
             if (modal != null) {
                 modal.style.display = "block"
                 player.loadVideoById(videoId)
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
             }
         }
 
@@ -243,7 +244,7 @@
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <img id="whatsapp-icon" src="images/apple-icon-60x60.png" />
+                        <img src="images/apple-icon-60x60.png" />
                     </td>
                     <td width="99%" style="vertical-align: middle;">Mythili Rajaraman</td>
                     <td align="right" style="white-space: nowrap;">
