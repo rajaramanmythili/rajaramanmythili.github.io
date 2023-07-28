@@ -192,6 +192,45 @@
                 opacity: 0;
             }
         }
+
+        /* The Modal (background) */
+        .alert-modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        /* Modal Content */
+        .alert-modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .alert-button {
+            width: 50%;
+            padding: 20px;
+            font-size: 4vh;
+        }
     </style>
 
     <script>
@@ -286,16 +325,30 @@
             }
         }
 
+        function addToQueue(userSelection) {
+            document.getElementById("alertModal").style.display = "none"
+            videoId = document.getElementById("videoId").value
+            if ( userSelection ) {
+                queue.enqueue(videoId)
+                showToast('Added to Queue')
+            } else {
+                player.loadVideoById(videoId)
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }
+        }
+
         function showmodal(videoId) {
             if (modal == null) return;
 
             modal.style.display = "block"
-            if (!queue.isEmpty()) {
-                queue.enqueue(videoId)
-                showToast('Added to Queue')
-            } else if (player.getPlayerState() == YT.PlayerState.PLAYING && confirm("Add to Queue?")) {
-                queue.enqueue(videoId)
-                showToast('Added to Queue')
+            if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+                if (!queue.isEmpty()) {
+                    queue.enqueue(videoId)
+                    showToast('Added to Queue')
+                } else {
+                    document.getElementById("videoId").value = videoId
+                    document.getElementById("alertModal").style.display = "block"
+                }
             } else {
                 player.loadVideoById(videoId)
                 document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -363,6 +416,13 @@
             setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
         }
 
+        function onkeydown_title(event){
+            if (event.keyCode == 13) {
+                event.target.blur();
+                event.preventDefault();
+            }
+        }
+
         window.onload = function () {
             const searchParams = new URLSearchParams(location.search);
             const myInput = document.getElementById('myInput')
@@ -382,6 +442,14 @@
     <center>
         <div style="max-width: 800px">
             <div id="snackbar">Added to Queue</div>
+            <div id="alertModal" class="alert-modal">
+                <input type="hidden" id="videoId">
+                <!-- Modal content -->
+                <div class="alert-modal-content" width="100%">
+                    <button class="alert-button" onclick="addToQueue(true)">Queue</button><button class="alert-button" onclick="addToQueue(false)">Play</button>
+                </div>
+
+            </div>
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
@@ -396,7 +464,7 @@
                 </tr>
             </table>
 
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for titles.."
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for titles.." onkeydown="onkeydown_title(event)"
                 title="Type in a title">
 
             <!-- The Modal -->
