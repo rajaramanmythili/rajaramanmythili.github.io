@@ -105,11 +105,133 @@
             background: red;
             color: white;
         }
+
+        /* The snackbar - position it at the bottom and in the middle of the screen */
+        #snackbar {
+            visibility: hidden;
+            /* Hidden by default. Visible on click */
+            min-width: 250px;
+            /* Set a default minimum width */
+            margin-left: -125px;
+            /* Divide value of min-width by 2 */
+            background-color: #333;
+            /* Black background color */
+            color: #fff;
+            /* White text color */
+            text-align: center;
+            /* Centered text */
+            border-radius: 2px;
+            /* Rounded borders */
+            padding: 16px;
+            /* Padding */
+            position: fixed;
+            /* Sit on top of the screen */
+            z-index: 1;
+            /* Add a z-index if needed */
+            left: 50%;
+            /* Center the snackbar */
+            bottom: 30px;
+            /* 30px from the bottom */
+        }
+
+        /* Show the snackbar when clicking on a button (class added with JavaScript) */
+        #snackbar.show {
+            visibility: visible;
+            /* Show the snackbar */
+            /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        /* Animations to fade the snackbar in and out */
+        @-webkit-keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
     </style>
 
     <script>
         var modal = null
         var modelcontent = null
+
+        class Queue {
+            constructor() {
+                this.items = []
+            }
+            enqueue(item) {
+                this.items.push(item)
+            }
+            dequeue() {
+                // removing element from the queue
+                // returns underflow when called
+                // on empty queue
+                if (this.isEmpty())
+                    return "Underflow";
+                return this.items.shift();
+            }
+            peek() {
+                // returns the Front element of
+                // the queue without removing it.
+                if (this.isEmpty())
+                    return "No elements in Queue";
+                return this.items[0];
+            }
+            print() {
+                return this.items;
+            }
+            isEmpty() {
+                // return true if the queue is empty.
+                return this.items.length == 0;
+            }
+            clear() {
+                this.items.length = 0
+            }
+        }
+        const queue = new Queue()
 
         function myFunction() {
             var input, filter, table, tr, td, i, txtValue;
@@ -165,8 +287,16 @@
         }
 
         function showmodal(videoId) {
-            if (modal != null) {
-                modal.style.display = "block"
+            if (modal == null) return;
+
+            modal.style.display = "block"
+            if (!queue.isEmpty()) {
+                queue.enqueue(videoId)
+                showToast('Added to Queue')
+            } else if (player.getPlayerState() == YT.PlayerState.PLAYING && confirm("Add to Queue?")) {
+                queue.enqueue(videoId)
+                showToast('Added to Queue')
+            } else {
                 player.loadVideoById(videoId)
                 document.body.scrollTop = document.documentElement.scrollTop = 0;
             }
@@ -174,6 +304,7 @@
 
         function hidemodal() {
             modal.style.display = "none"
+            queue.clear()
             stopVideo()
         }
 
@@ -212,15 +343,24 @@
 
         var done = false;
         function onPlayerStateChange(event) {
-            //console.log(event.data)
-            // if (event.data == YT.PlayerState.PLAYING && !done) {
-            //     setTimeout(stopVideo, 6000);
-            //     done = true;
-            // }
+            if (event.data == YT.PlayerState.ENDED && !queue.isEmpty()) {
+                player.loadVideoById(queue.dequeue())
+            }
         }
 
         function stopVideo() {
             player.stopVideo();
+        }
+
+        function showToast(message) {
+            // Get the snackbar DIV
+            var snackbar = document.getElementById("snackbar");
+
+            // Add the "show" class to DIV
+            snackbar.className = "show";
+
+            // After 3 seconds, remove the show class from DIV
+            setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
         }
 
         window.onload = function () {
@@ -241,6 +381,7 @@
 <body>
     <center>
         <div style="max-width: 800px">
+            <div id="snackbar">Added to Queue</div>
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
