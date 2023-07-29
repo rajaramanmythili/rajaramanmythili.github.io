@@ -235,7 +235,6 @@
 
     <script>
         var modal = null
-        var modelcontent = null
 
         class Queue {
             constructor() {
@@ -316,13 +315,6 @@
 
         function openYouTube() {
             window.open("https://www.youtube.com/c/mythilirajaramansg", "_blank");
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target == modelcontent) {
-                hidemodal()
-            }
         }
 
         function addToQueue(userSelection) {
@@ -431,7 +423,6 @@
                 myFunction()
             }
             modal = document.getElementById("myModal");
-            modelcontent = document.getElementById("model-content");
             document.getElementById("myInput").focus();
         };
     </script>
