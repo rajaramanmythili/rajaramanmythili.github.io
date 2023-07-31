@@ -28,7 +28,6 @@
 
         #myTable {
             border-collapse: collapse;
-            width: 100%;
             border: 1px solid #ddd;
         }
 
@@ -85,10 +84,10 @@
 
         .embed-container {
             position: relative;
-            padding-bottom: 50.625%;
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
-            max-width: 90%;
+            max-width: 100%;
         }
 
         .embed-container iframe,
@@ -101,10 +100,20 @@
             height: 100%;
         }
 
+        button.left {
+            float: left;
+            background: greenyellow;
+            color: black;
+            width: 32px;
+            height: 32px;
+        }
+
         button.right {
             float: right;
             background: red;
             color: white;
+            width: 32px;
+            height: 32px;
         }
 
         /* The snackbar - position it at the bottom and in the middle of the screen */
@@ -389,13 +398,29 @@
 
         var done = false;
         function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.ENDED && !queue.isEmpty()) {
-                player.loadVideoById(queue.dequeue())
+            if (event.data == YT.PlayerState.ENDED) {
+                if ( !queue.isEmpty() ){
+                    player.loadVideoById(queue.dequeue())
+                } else {
+                    playPauseToggle()
+                }
             }
         }
 
         function stopVideo() {
             player.stopVideo();
+        }
+
+        function playPauseToggle() {
+            if ( modal.style.display == "block" ) {
+                if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+                    player.pauseVideo()
+                    document.getElementById('playToggle').innerHTML = "&#9654;"
+                } else {
+                    player.playVideo()
+                    document.getElementById('playToggle').innerHTML = "&#9635;"
+                }
+            }
         }
 
         function showToast(message) {
@@ -432,7 +457,7 @@
 
 <body>
     <center>
-        <div style="max-width: 800px">
+        <div style="max-width: 640px; overflow: scroll;">
             <div id="snackbar">Added to Queue</div>
             <div id="alertModal" class="alert-modal">
                 <input type="hidden" id="videoId">
@@ -462,16 +487,16 @@
             <!-- The Modal -->
             <div id="myModal" class="modal">
                 <center id="model-content">
-                    <button onclick="hidemodal()" class="right">&times;</button>
                     <!-- Modal content -->
                     <div class='embed-container'>
                         <div id="player"></div>
                     </div>
+                    <button id="playToggle" onclick="playPauseToggle()" class="left">&#9635;</button>
+                    <button onclick="hidemodal()" class="right">&#9932;</button>
                 </center>
             </div>
 
-            <table id="myTable">
-
+            <table width="100%" id="myTable">
                 <tr><td><img src='https://i.ytimg.com/vi/RENUSupuxQM/default.jpg' width='32px' onclick='showmodal("RENUSupuxQM")'></td><td><a href='http://youtu.be/RENUSupuxQM' target='_blank'>Govinda Shatakam 045 | Bhajare gopalam  |  Danyasi - Adi</a></td></tr>
                 <tr><td><img src='https://i.ytimg.com/vi/CvwwmbkQ6AU/default.jpg' width='32px' onclick='showmodal("CvwwmbkQ6AU")'></td><td><a href='http://youtu.be/CvwwmbkQ6AU' target='_blank'>Adyayam 08 | Dwitiya Skanda parayanam | Srimad Bhagavatham | 02-08</a></td></tr>
                 <tr><td><img src='https://i.ytimg.com/vi/rmkENGP-I9Y/default.jpg' width='32px' onclick='showmodal("rmkENGP-I9Y")'></td><td><a href='http://youtu.be/rmkENGP-I9Y' target='_blank'>Raghava Shatakam 033 | Rajarajendro  |  Atana - Adi</a></td></tr>
