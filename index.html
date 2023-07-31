@@ -402,7 +402,7 @@
                 if ( !queue.isEmpty() ){
                     player.loadVideoById(queue.dequeue())
                 } else {
-                    playPauseToggle()
+                    document.getElementById('playToggle').innerHTML = "&#9654;"
                 }
             }
         }
