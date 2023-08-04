@@ -508,9 +508,8 @@
                         if ( searchParams.has('v') ) {
                             videoIds = document.getElementsByClassName('video_img')
                             i = parseInt(document.getElementById(searchParams.get('v')).getAttribute('tag'))
-                            while ( i - 1 >= 0 ) {
+                            while ( i - 1 > 0 ) {
                                 i-=1
-                                console.log(i, videoIds.length, videoIds.length-i)
                                 if ( videoIds[videoIds.length-i].parentElement.parentElement.style.display == "block" ){
                                     player.loadVideoById(videoIds[videoIds.length-i].getAttribute('id'))
                                     break
@@ -566,6 +565,9 @@
             }
             document.getElementById('autoplay_slider').innerHTML = (checkedState) ? '<i class="fa fa-play"></i>' : '<i class="fa fa-pause"></i>'
             document.getElementById('autoplay_tooltip').innerText = (checkedState) ? 'Auto play is on' : 'Auto play is off'
+            if (typeof (Storage) !== "undefined") {
+                localStorage.setItem('mythilirajaraman.autoPlay', checkedState ? '1' : '0');
+            }
         }
 
         window.onload = function () {
@@ -574,6 +576,11 @@
             if (searchParams.has('q')) {
                 myInput.value = searchParams.get('q');
                 myFunction()
+            }
+            if (typeof (Storage) !== "undefined") {
+                if (localStorage.getItem('mythilirajaraman.autoPlay') != null) {
+                    toggleAutoPlay(localStorage.getItem('mythilirajaraman.autoPlay') == '1' ? true : false)
+                }
             }
             modal = document.getElementById("myModal");
             document.getElementById("myInput").focus();
@@ -633,6 +640,7 @@
 
             <table width="100%" id="myTable">
                 <!-- Video list starts from here -->
+                <tr><td><img class='video_img' id='xbneLRhw2-c' tag='500' src='https://i.ytimg.com/vi/xbneLRhw2-c/default.jpg' width='32px' onclick='showmodal("xbneLRhw2-c")'></td><td><a href='http://youtu.be/xbneLRhw2-c' target='_blank'>Govinda Shatakam 046 | Nrutyati paramatmaa  |  Punnagavarali - Adi</a></td></tr>
                 <tr><td><img class='video_img' id='yx3SvDJ7zw8' tag='499' src='https://i.ytimg.com/vi/yx3SvDJ7zw8/default.jpg' width='32px' onclick='showmodal("yx3SvDJ7zw8")'></td><td><a href='http://youtu.be/yx3SvDJ7zw8' target='_blank'>Raghava Shatakam 035 | Pranavallabha  |  Hindolam - Adi</a></td></tr>
                 <tr><td><img class='video_img' id='T_YOf496tto' tag='498' src='https://i.ytimg.com/vi/T_YOf496tto/default.jpg' width='32px' onclick='showmodal("T_YOf496tto")'></td><td><a href='http://youtu.be/T_YOf496tto' target='_blank'>Adyayam 09 | Dwitiya Skanda parayanam | Srimad Bhagavatham | 02-09</a></td></tr>
                 <tr><td><img class='video_img' id='79gQieNAvrc' tag='497' src='https://i.ytimg.com/vi/79gQieNAvrc/default.jpg' width='32px' onclick='showmodal("79gQieNAvrc")'></td><td><a href='http://youtu.be/79gQieNAvrc' target='_blank'>Raghava Shatakam 034 | Mangalam bhavatu te  |  Surutti - Adi</a></td></tr>
