@@ -3,7 +3,7 @@
 
 <head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3758220358268980"
-    crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Mythili Rajaraman</title>
     <meta charset="utf-8">
@@ -503,15 +503,15 @@
                 if (!queue.isEmpty()) {
                     player.loadVideoById(queue.dequeue())
                 } else {
-                    if ( document.getElementById('autoplay').checked ) {
+                    if (document.getElementById('autoplay').checked) {
                         const searchParams = new URLSearchParams(player.getVideoUrl());
-                        if ( searchParams.has('v') ) {
+                        if (searchParams.has('v')) {
                             videoIds = document.getElementsByClassName('video_img')
                             i = parseInt(document.getElementById(searchParams.get('v')).getAttribute('tag'))
-                            while ( i - 1 > 0 ) {
-                                i-=1
-                                if ( videoIds[videoIds.length-i].parentElement.parentElement.style.display == "block" ){
-                                    player.loadVideoById(videoIds[videoIds.length-i].getAttribute('id'))
+                            while (i - 1 > 0) {
+                                i -= 1
+                                if (videoIds[videoIds.length - i].parentElement.parentElement.style.display == "block") {
+                                    player.loadVideoById(videoIds[videoIds.length - i].getAttribute('id'))
                                     break
                                 }
                             }
@@ -560,7 +560,7 @@
 
         function toggleAutoPlay(checkedState) {
             autoplay = document.getElementById('autoplay')
-            if ( autoplay.checked != checkedState ) {
+            if (autoplay.checked != checkedState) {
                 autoplay.checked = checkedState
             }
             document.getElementById('autoplay_slider').innerHTML = (checkedState) ? '<i class="fa fa-play"></i>' : '<i class="fa fa-pause"></i>'
@@ -625,7 +625,8 @@
                     <div class='embed-container'>
                         <div id="player"></div>
                     </div>
-                    <button id="playToggle" onclick="playPauseToggle()" class="left"><i class="fa fa-pause"></i></button>
+                    <button id="playToggle" onclick="playPauseToggle()" class="left"><i
+                            class="fa fa-pause"></i></button>
                     <span style="padding-left: 10px" class="left">&nbsp;</span>
                     <span class="tooltip left">
                         <span id="autoplay_tooltip" class="tooltiptext">Auto play is on</span>
@@ -640,6 +641,7 @@
 
             <table width="100%" id="myTable">
                 <!-- Video list starts from here -->
+                <tr><td><img class='video_img' id='zcAeuLKea1g' tag='501' src='https://i.ytimg.com/vi/zcAeuLKea1g/default.jpg' width='32px' onclick='showmodal("zcAeuLKea1g")'></td><td><a href='http://youtu.be/zcAeuLKea1g' target='_blank'>mythilirajaraman.com - use to search videos</a></td></tr>
                 <tr><td><img class='video_img' id='xbneLRhw2-c' tag='500' src='https://i.ytimg.com/vi/xbneLRhw2-c/default.jpg' width='32px' onclick='showmodal("xbneLRhw2-c")'></td><td><a href='http://youtu.be/xbneLRhw2-c' target='_blank'>Govinda Shatakam 046 | Nrutyati paramatmaa  |  Punnagavarali - Adi</a></td></tr>
                 <tr><td><img class='video_img' id='yx3SvDJ7zw8' tag='499' src='https://i.ytimg.com/vi/yx3SvDJ7zw8/default.jpg' width='32px' onclick='showmodal("yx3SvDJ7zw8")'></td><td><a href='http://youtu.be/yx3SvDJ7zw8' target='_blank'>Raghava Shatakam 035 | Pranavallabha  |  Hindolam - Adi</a></td></tr>
                 <tr><td><img class='video_img' id='T_YOf496tto' tag='498' src='https://i.ytimg.com/vi/T_YOf496tto/default.jpg' width='32px' onclick='showmodal("T_YOf496tto")'></td><td><a href='http://youtu.be/T_YOf496tto' target='_blank'>Adyayam 09 | Dwitiya Skanda parayanam | Srimad Bhagavatham | 02-09</a></td></tr>
