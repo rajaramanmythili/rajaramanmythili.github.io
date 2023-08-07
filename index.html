@@ -346,6 +346,7 @@
 
     <script>
         var modal = null
+        var snackbar = null
 
         class Queue {
             constructor() {
@@ -385,7 +386,7 @@
         function myFunction() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("myInput");
-            filter = input.value.replaceAll(' ', '.*');
+            filter = input.value.replace(/ /g, '.*');
             table = document.getElementById("myTable");
             tr = table.getElementsByTagName("tr");
             for (i = 0; i < tr.length; i++) {
@@ -548,9 +549,6 @@
         }
 
         function showToast(message) {
-            // Get the snackbar DIV
-            var snackbar = document.getElementById("snackbar");
-
             // Add the "show" class to DIV
             snackbar.className = "show";
 
@@ -589,6 +587,7 @@
                     toggleAutoPlay(localStorage.getItem('mythilirajaraman.autoPlay') == '1' ? true : false)
                 }
             }
+            snackbar = document.getElementById("snackbar");
             modal = document.getElementById("myModal");
             document.getElementById("myInput").focus();
         };
