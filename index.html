@@ -113,10 +113,14 @@
 
         button.right {
             float: right;
-            background: red;
-            color: white;
+            margin-left: 16px;
             width: 32px;
             height: 32px;
+        }
+
+        button.end {
+            background: red;
+            color: white;
         }
 
         /* The snackbar - position it at the bottom and in the middle of the screen */
@@ -340,11 +344,20 @@
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+
+        .videoTitle {
+            background-color: #EBEBEB;
+            padding: 5px;
+            text-align: left;
+            font-size: 2vh;
+        }
     </style>
 
     <script>
         var modal = null
         var snackbar = null
+        var jsonData = null
+        const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>','<i class="fa fa-sort-alpha-asc"></i>']
 
         class Queue {
             constructor() {
@@ -381,7 +394,7 @@
         }
         const queue = new Queue()
 
-        function myFunction() {
+        function filterList() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("myInput");
             filter = input.value.replace(/ /g, '.*');
@@ -411,25 +424,42 @@
                     return response.text();
                 })
                 .then((text) => {
-                    buildPage(text)
+                    jsonData = JSON.parse(text)
+                    buildPage()
                 })
                 .catch((error) => {
                     buildPage('{"1": {"videoId": "Error", "title":"' + error.message + '", "publishedAt": ""}}');
                 });
         }
 
-        function buildPage(strJson) {
+        function buildPage() {
+            if ( jsonData == null ) {
+                return;
+            }
             tab = document.getElementById('myTable')
+            tab.innerHTML = ''
 
-            jsonData = JSON.parse(strJson)
-            keys = Object.keys(jsonData).reverse()
+            const btn = document.getElementById('sortBy')
+            if ( btn.innerHTML == sortVariations[1] ) {
+                keys = Object.keys(jsonData).reverse()
+            } else {
+                const arr = Object.keys(jsonData).map(el => {
+                    return jsonData[el]['title'] + '|' + el;
+                });
+                keys = arr.map(el => {
+                    return el.substring(el.lastIndexOf("|")+1);
+                });
+            }
+
             for ( i = 0; i < keys.length; ++i ) {
                 id = keys[i]
                 data = jsonData[id]
                 tr = document.createElement('tr')
+                tr.id = data['videoId']
                 tab.appendChild(tr)
-                tr.innerHTML = `<td><img class='video_img' id='${data['videoId']}' tag='${id}' src='https://i.ytimg.com/vi/${data['videoId']}/default.jpg' width='32px' onclick='showmodal("${data['videoId']}")'></td><td><a href='http://youtu.be/${data['videoId']}' target='_blank'>${data['title']}</a></td>`
+                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='https://i.ytimg.com/vi/${data['videoId']}/default.jpg' width='32px' onclick='showmodal("${data['videoId']}")'></td><td><a href='http://youtu.be/${data['videoId']}' target='_blank'>${data['title']}</a></td>`
             }
+            filterList()
         }
 
         function loadFBPage() {
@@ -537,21 +567,21 @@
                     if (document.getElementById('autoplay').checked) {
                         const searchParams = new URLSearchParams(player.getVideoUrl());
                         if (searchParams.has('v')) {
-                            videoIds = document.getElementsByClassName('video_img')
-                            currentVideo = parseInt(document.getElementById(searchParams.get('v')).getAttribute('tag'))
-                            i = currentVideo;
-                            while (i - 1 > 0) {
-                                i -= 1
-                                if (videoIds[videoIds.length - i].parentElement.parentElement.style.display != "none") {
-                                    player.loadVideoById(videoIds[videoIds.length - i].getAttribute('id'))
-                                    break
+                            currentRow = document.getElementById(searchParams.get('v'))
+                            tr = document.getElementById(currentRow.id)
+                            tr = tr.nextSibling
+                            while (tr == null || tr.style.display == "none" ) {
+                                if ( tr == null ) {
+                                    tr = document.getElementById('myTable').getElementsByTagName('tr')[0]
+                                } else {
+                                    if (tr.id == currentRow.id) {
+                                        break
+                                    }
+                                    tr = tr.nextSibling
                                 }
-                                if ( i - 1 == 0 ) {
-                                    i = videoIds.length;
-                                }
-                                if ( i == currentVideo ) {
-                                    break;
-                                }
+                            }
+                            if ( tr != null && tr.style.display != "none" ) {
+                                player.loadVideoById(tr.id)
                             }
                         }
                     }
@@ -560,6 +590,7 @@
             } else if (event.data == YT.PlayerState.PAUSED) {
                 document.getElementById('playToggle').innerHTML = "<i class='fa fa-play'></i>"
             } else if (event.data == YT.PlayerState.PLAYING) {
+                document.getElementById('videoTitle').innerText = event.target.videoTitle
                 document.getElementById('playToggle').innerHTML = "<i class='fa fa-pause'></i>"
             }
         }
@@ -605,12 +636,22 @@
             }
         }
 
+        function sortBy() {
+            const btn = document.getElementById('sortBy')
+            if ( btn.innerHTML == sortVariations[0] ) {
+                btn.innerHTML = sortVariations[1]
+            } else {
+                btn.innerHTML = sortVariations[0]
+            }
+            buildPage()
+        }
+
         window.onload = function () {
             const searchParams = new URLSearchParams(location.search);
             const myInput = document.getElementById('myInput')
             if (searchParams.has('q')) {
                 myInput.value = searchParams.get('q');
-                myFunction()
+                filterList()
             }
             if (typeof (Storage) !== "undefined") {
                 if (localStorage.getItem('mythilirajaraman.autoPlay') != null) {
@@ -652,12 +693,13 @@
                 </tr>
             </table>
 
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for titles.."
+            <input type="text" id="myInput" onkeyup="filterList()" placeholder="Search for titles.."
                 onkeydown="onkeydown_title(event)" title="Type in a title">
 
             <!-- The Modal -->
             <div id="myModal" class="modal">
                 <center id="model-content">
+                    <div class='videoTitle' id="videoTitle">Video Title</div>
                     <!-- Modal content -->
                     <div class='embed-container'>
                         <div id="player"></div>
@@ -672,7 +714,8 @@
                             <span id="autoplay_slider" class="slider round"><i class="fa fa-play"></i></span>
                         </label>
                     </span>
-                    <button onclick="hidemodal()" class="right">&#9932;</button>
+                    <button onclick="hidemodal()" class="right end">&#9932;</button>
+                    <button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
                 </center>
             </div>
 
