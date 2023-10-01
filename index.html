@@ -446,7 +446,7 @@
                 const arr = Object.keys(jsonData).map(el => {
                     return jsonData[el]['title'] + '|' + el;
                 });
-                keys = arr.map(el => {
+                keys = arr.sort().map(el => {
                     return el.substring(el.lastIndexOf("|")+1);
                 });
             }
@@ -694,7 +694,20 @@
             </table>
 
             <input type="text" id="myInput" onkeyup="filterList()" placeholder="Search for titles.."
-                onkeydown="onkeydown_title(event)" title="Type in a title">
+                onkeydown="onkeydown_title(event)" title="Type in a title" list="sampleList">
+            <datalist id="sampleList">
+                <option value="^Govinda Shatakam">Govinda Shatakam</option>
+                <option value="^Radhika Shatakam">Radhika Shatakam</option>
+                <option value="^Raghava Shatakam">Raghava Shatakam</option>
+                <option value="^Srimad Bhagavatham Canto\s10">Srimad Bhagavatham Canto 10</option>
+                <option value="^Srimad Bhagavatham Canto\s01">Srimad Bhagavatham Canto 01</option>
+                <option value="^Srimad Bhagavatham Canto\s02">Srimad Bhagavatham Canto 02</option>
+                <option value="^Srimad Bhagavatham Canto\s03">Srimad Bhagavatham Canto 03</option>
+                <option value="Premika Guru Keerthanam">Premika Guru Keerthanam</option>
+                <option value="^Godha Prabhandham">Godha Prabhandham</option>
+                <option value="^Tamil Divyanamam">Tamil Divyanamam</option>
+                <option value="^Pillai Tamil">Pillai Tamil</option>
+            </datalist>
 
             <!-- The Modal -->
             <div id="myModal" class="modal">
