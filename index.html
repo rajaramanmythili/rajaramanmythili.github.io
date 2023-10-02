@@ -357,7 +357,7 @@
         var modal = null
         var snackbar = null
         var jsonData = null
-        const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>','<i class="fa fa-sort-alpha-asc"></i>']
+        const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>', '<i class="fa fa-sort-alpha-asc"></i>']
 
         class Queue {
             constructor() {
@@ -433,25 +433,25 @@
         }
 
         function buildPage() {
-            if ( jsonData == null ) {
+            if (jsonData == null) {
                 return;
             }
             tab = document.getElementById('myTable')
             tab.innerHTML = ''
 
             const btn = document.getElementById('sortBy')
-            if ( btn.innerHTML == sortVariations[1] ) {
+            if (btn.innerHTML == sortVariations[1]) {
                 keys = Object.keys(jsonData).reverse()
             } else {
                 const arr = Object.keys(jsonData).map(el => {
                     return jsonData[el]['title'] + '|' + el;
                 });
                 keys = arr.sort().map(el => {
-                    return el.substring(el.lastIndexOf("|")+1);
+                    return el.substring(el.lastIndexOf("|") + 1);
                 });
             }
 
-            for ( i = 0; i < keys.length; ++i ) {
+            for (i = 0; i < keys.length; ++i) {
                 id = keys[i]
                 data = jsonData[id]
                 tr = document.createElement('tr')
@@ -560,6 +560,7 @@
 
         var done = false;
         function onPlayerStateChange(event) {
+            const playBtn = document.getElementById('playToggle').querySelector('i')
             if (event.data == YT.PlayerState.ENDED) {
                 if (!queue.isEmpty()) {
                     player.loadVideoById(queue.dequeue())
@@ -570,8 +571,8 @@
                             currentRow = document.getElementById(searchParams.get('v'))
                             tr = document.getElementById(currentRow.id)
                             tr = tr.nextSibling
-                            while (tr == null || tr.style.display == "none" ) {
-                                if ( tr == null ) {
+                            while (tr == null || tr.style.display == "none") {
+                                if (tr == null) {
                                     tr = document.getElementById('myTable').getElementsByTagName('tr')[0]
                                 } else {
                                     if (tr.id == currentRow.id) {
@@ -580,18 +581,22 @@
                                     tr = tr.nextSibling
                                 }
                             }
-                            if ( tr != null && tr.style.display != "none" ) {
+                            if (tr != null && tr.style.display != "none") {
                                 player.loadVideoById(tr.id)
                             }
                         }
                     }
                 }
-                document.getElementById('playToggle').innerHTML = "<i class='fa fa-play'></i>"
+                playBtn.classList.remove('fa-pause')
+                playBtn.classList.add('fa-play')
             } else if (event.data == YT.PlayerState.PAUSED) {
+                playBtn.classList.remove('fa-play')
+                playBtn.classList.add('fa-pause')
                 document.getElementById('playToggle').innerHTML = "<i class='fa fa-play'></i>"
             } else if (event.data == YT.PlayerState.PLAYING) {
                 document.getElementById('videoTitle').innerText = event.target.videoTitle
-                document.getElementById('playToggle').innerHTML = "<i class='fa fa-pause'></i>"
+                playBtn.classList.remove('fa-play')
+                playBtn.classList.add('fa-pause')
             }
         }
 
@@ -638,7 +643,7 @@
 
         function sortBy() {
             const btn = document.getElementById('sortBy')
-            if ( btn.innerHTML == sortVariations[0] ) {
+            if (btn.innerHTML == sortVariations[0]) {
                 btn.innerHTML = sortVariations[1]
             } else {
                 btn.innerHTML = sortVariations[0]
@@ -728,10 +733,11 @@
                         </label>
                     </span>
                     <button onclick="hidemodal()" class="right end">&#9932;</button>
-                    <button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
                 </center>
             </div>
 
+            <div><button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
+            </div>
             <table width="100%" id="myTable">
                 <!-- Video list starts from here -->
             </table>
