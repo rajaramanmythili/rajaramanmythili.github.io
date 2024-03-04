@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        div.container {
+            width: 100%
+        }
+
+        .element {
+            width: 100%;
+        }
+
+        body,
+        select,
+        button {
+            font-size: 4vh
+        }
+    </style>
+    <script type="text/javascript">
+        var source = null;
+        function onchangeloop() {
+            if (document.getElementById('playButton').innerText == "Stop Loop") {
+                toggleLoop() // to stop the loop playing
+                toggleLoop() // start the new loop
+            }
+        }
+        function toggleLoop() {
+            if (document.getElementById('playButton').innerText == "Stop Loop") {
+                if (source != null) {
+                    source.stop(0);
+                    source = null;
+                }
+                document.getElementById('playButton').innerText = "Play Loop"
+                return;
+            }
+
+            var url = 'loops/' + document.getElementById('loopList').value;
+
+            //create the context
+            var context = new AudioContext();
+
+            //and the source
+            source = context.createBufferSource();
+
+            //connect it to the destination so you can hear it.
+            source.connect(context.destination);
+
+            // load buffer
+            var request = new XMLHttpRequest();
+
+            //open the request
+            request.open('GET', url, true);
+
+            //webaudio paramaters
+            request.responseType = 'arraybuffer';
+
+            //Once the request has completed... do this
+            request.onload = function () {
+                context.decodeAudioData(request.response, function (response) {
+                    // --- play the sound AFTER the buffer loaded
+                    //set the buffer to the response we just received
+                    source.buffer = response;
+                    //start(0) should play asap.
+                    source.start(0);
+                    source.loop = true;
+                    document.getElementById('playButton').innerText = "Stop Loop"
+                }, function () { console.error('The request failed.'); });
+            }
+
+            //Now that the request has been defined, actually make the request. (send it)
+            request.send();
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="element">
+            <select id="loopList" class="element">
+                <option value="harerama.wav">HareRama-Music</option>
+                <option value="HareRama-Hamsadwani.wav">HareRama-Hamsadwani</option>
+                <option value="HareRama-AnnaTune.wav">HareRama-AnnaTune</option>
+                <option value="HareRama-SindhuBhairavi.wav">HareRama-SindhuBhairavi</option>
+                <option value="HareRama-Sivaranjani.wav">HareRama-Sivaranjani</option>
+                <option value="HareRama-Ahiri-Neelambari.wav">HareRama-Ahiri-Neelambari</option>
+                <option value="HareRama-AnnaTune2.wav">HareRama-AnnaTune2</option>
+                <option value="HareRama-Iskon.wav">HareRama-Iskon</option>
+                <option value="HareRama-Neelamega.wav">HareRama-Neelamega</option>
+                <option value="HareRama-Valaji.wav">HareRama-Valaji</option>
+                <option value="HareRama-Hamsanandi.wav">HareRama-Hamsanandi</option>
+                <option value="HareRama-Panthuvarali.wav">HareRama-Panthuvarali</option>
+                <option value="HareRama-Aarathi.wav">HareRama-Aarathi</option>
+            </select>
+        </div>
+        <div class="element">
+            <button id="playButton" onclick="toggleLoop()" class="element">Play Loop</button>
+        </div>
+    </div>
+</body>
+
+</html>
