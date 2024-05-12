@@ -3,7 +3,9 @@
 import requests
 import json
 from collections import Counter
+import os
 
+API_KEY=os.environ['RAJARAMANMYTHILI_YOUTUBE_API_KEY']
 VIDEOS_JSON_FILE = '/Users/rajaramaniyer/rajaramanmythili.github.io/videos.json'
 
 def get_video_json():
@@ -14,7 +16,7 @@ def get_video_json():
 
 def refresh_videos_list():
     # The API endpoint
-    url = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId=UULbwWE1OTFQyfXT7O3u6pbw&key=<your_api_key>&part=snippet&maxResults=50"
+    url = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId=UULbwWE1OTFQyfXT7O3u6pbw&key="+API_KEY+"&part=snippet&maxResults=50"
 
     response = requests.get(url)
     response_json = response.json()
