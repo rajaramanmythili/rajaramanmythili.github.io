@@ -4,9 +4,22 @@ import requests
 import json
 from collections import Counter
 import os
+import re
 
 API_KEY=os.environ['RAJARAMANMYTHILI_YOUTUBE_API_KEY']
 VIDEOS_JSON_FILE = '/Users/rajaramaniyer/rajaramanmythili.github.io/videos.json'
+
+def list_videos():
+    f = open('/Users/rajaramaniyer/rajaramanmythili.github.io/data.json', 'r', encoding="UTF-8")
+    videos_json = json.load(f)
+    f.close()
+    # videos_json format is: { "12" : { "videoId": "123", "title": "title", "publishedAt": "2021-01-01T00:00:00Z" }, "11" : { "videoId": "123", "title": "title", "publishedAt": "2021-01-01T00:00:00Z" } }
+    # List videos that are not having Srimad Bhagavatam or Yugala Shathakam in title
+    for key in videos_json:
+        if 'title' in videos_json[key]:
+            title = videos_json[key]['title']
+            if not re.search(r'(^Srimad Bhagavatham|^Govinda Shatakam|^Radhika Shatakam|^Raghava Shatakam|^Yugala Shatakam)', title, re.IGNORECASE):
+                print(title)
 
 def get_video_json():
     f = open(VIDEOS_JSON_FILE, 'r', encoding="UTF-8")
@@ -77,5 +90,6 @@ def update_data_json():
     j.write(json.dumps(json_data, indent=2))
     j.close()
 
-refresh_videos_list()
-update_data_json()
+#refresh_videos_list()
+#update_data_json()
+list_videos()

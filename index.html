@@ -111,6 +111,12 @@
             height: 32px;
         }
 
+        button.playlist {
+            float: left;
+            width: 32px;
+            height: 32px;
+        }
+
         button.right {
             float: right;
             margin-left: 16px;
@@ -357,6 +363,7 @@
         var modal = null
         var snackbar = null
         var jsonData = null
+        var displayView = 'video'
         const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>', '<i class="fa fa-sort-alpha-asc"></i>']
 
         class Queue {
@@ -413,6 +420,18 @@
             }
         }
 
+        function toggleView() {
+            if ( displayView == 'video' ) {
+                document.getElementById('viewLabel').innerText = 'List of Playlists'
+                displayView = 'playlist'
+                getPlaylistData()
+            } else {
+                document.getElementById('viewLabel').innerText = 'List of Videos'
+                displayView = 'video'
+                getData()
+            }
+        }
+
         function getData() {
             const apiUrl = '/data.json'
 
@@ -428,7 +447,28 @@
                     buildPage()
                 })
                 .catch((error) => {
-                    buildPage('{"1": {"videoId": "Error", "title":"' + error.message + '", "publishedAt": ""}}');
+                    jsonData = '{"1": {"videoId": "Error", "title":"' + error.message + '", "publishedAt": ""}}'
+                    buildPage();
+                });
+        }
+
+        function getPlaylistData() {
+            const apiUrl = '/playlist.json'
+
+            fetch(apiUrl)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error, status = ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then((text) => {
+                    jsonData = JSON.parse(text)
+                    buildPlaylistPage()
+                })
+                .catch((error) => {
+                    jsonData = '{"1": {"playlistId": "Error", "title":"' + error.message + '", "publishedAt": "", "thumbnail": ""}}'
+                    buildPlaylistPage();
                 });
         }
 
@@ -462,6 +502,36 @@
             filterList()
         }
 
+        function buildPlaylistPage() {
+            if (jsonData == null) {
+                return;
+            }
+            tab = document.getElementById('myTable')
+            tab.innerHTML = ''
+
+            const btn = document.getElementById('sortBy')
+            if (btn.innerHTML == sortVariations[1]) {
+                keys = Object.keys(jsonData).reverse()
+            } else {
+                const arr = Object.keys(jsonData).map(el => {
+                    return jsonData[el]['title'] + '|' + el;
+                });
+                keys = arr.sort().map(el => {
+                    return el.substring(el.lastIndexOf("|") + 1);
+                });
+            }
+
+            for (i = 0; i < keys.length; ++i) {
+                id = keys[i]
+                data = jsonData[id]
+                tr = document.createElement('tr')
+                tr.id = data['playlistId']
+                tab.appendChild(tr)
+                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='${data['thumbnail']}' width='32px')'></td><td><a href='https://www.youtube.com/playlist?list=${data['playlistId']}' target='_blank'>${data['title']}</a></td>`
+            }
+            filterList()
+        }
+
         function loadFBPage() {
             var webUrl = "https://fb.me/mythilirajaraman";
             if (
@@ -486,7 +556,7 @@
         }
 
         function openYouTube() {
-            window.open("https://www.youtube.com/c/mythilirajaramansg", "_blank");
+            window.open("https://www.youtube.com/@mythili.rajaraman", "_blank");
         }
 
         function addToQueue(userSelection) {
@@ -565,7 +635,7 @@
                 if (!queue.isEmpty()) {
                     player.loadVideoById(queue.dequeue())
                 } else {
-                    if (document.getElementById('autoplay').checked) {
+                    if (document.getElementById('autoplay').checked && displayView == 'video') {
                         const searchParams = new URLSearchParams(player.getVideoUrl());
                         if (searchParams.has('v')) {
                             currentRow = document.getElementById(searchParams.get('v'))
@@ -689,7 +759,7 @@
                     <td>
                         <img src="images/apple-icon-60x60.png" />
                     </td>
-                    <td width="99%" style="vertical-align: middle;">Mythili Rajaraman</td>
+                    <td width="99%" style="vertical-align: middle;"><a href="about.html">Mythili Rajaraman</a></td>
                     <td align="right" style="white-space: nowrap;">
                         <img id="whatsapp-icon" height="32px" src="images/whatsapp-icon.png" onclick="openWhatsApp()" />
                         <img id="facebook-icon" height="32px" src="images/facebook-icon.png" onclick="loadFBPage()" />
@@ -704,10 +774,14 @@
                 <option value="^Govinda Shatakam">Govinda Shatakam</option>
                 <option value="^Radhika Shatakam">Radhika Shatakam</option>
                 <option value="^Raghava Shatakam">Raghava Shatakam</option>
+                <option value="^Yugala Shatakam">Yugala Shatakam</option>
+                <option value="Laghu">Laghu Sthotra Mala</option>
                 <option value="^Srimad Bhagavatham Canto\s10">Srimad Bhagavatham Canto 10</option>
                 <option value="^Srimad Bhagavatham Canto\s01">Srimad Bhagavatham Canto 01</option>
                 <option value="^Srimad Bhagavatham Canto\s02">Srimad Bhagavatham Canto 02</option>
                 <option value="^Srimad Bhagavatham Canto\s03">Srimad Bhagavatham Canto 03</option>
+                <option value="^Srimad Bhagavatham Canto\s04">Srimad Bhagavatham Canto 04</option>
+                <option value="^Srimad Bhagavatham Canto\s05">Srimad Bhagavatham Canto 05</option>
                 <option value="Premika Guru Keerthanam">Premika Guru Keerthanam</option>
                 <option value="^Godha Prabhandham">Godha Prabhandham</option>
                 <option value="^Tamil Divyanamam">Tamil Divyanamam</option>
@@ -736,7 +810,10 @@
                 </center>
             </div>
 
-            <div><button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
+            <div>
+                <button id='showplaylist' onclick="toggleView()" class="playlist"><i class="fa fa-file-text-o"></i></button>
+                <label id="viewLabel">List of Videos</label>
+                <button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
             </div>
             <table width="100%" id="myTable">
                 <!-- Video list starts from here -->
