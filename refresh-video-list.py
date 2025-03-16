@@ -90,6 +90,6 @@ def update_data_json():
     j.write(json.dumps(json_data, indent=2))
     j.close()
 
-#refresh_videos_list()
-#update_data_json()
-list_videos()
+refresh_videos_list()
+update_data_json()
+#list_videos()
