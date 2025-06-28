@@ -363,6 +363,7 @@
         var modal = null
         var snackbar = null
         var jsonData = null
+        var playlistJsonData = null
         var displayView = 'video'
         const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>', '<i class="fa fa-sort-alpha-asc"></i>']
 
@@ -422,10 +423,14 @@
 
         function toggleView() {
             if ( displayView == 'video' ) {
+                document.getElementById('viewLabel').innerText = 'List of Shorts'
+                displayView = 'shorts'
+                getData()
+            } else if ( displayView == 'shorts' ) {
                 document.getElementById('viewLabel').innerText = 'List of Playlists'
                 displayView = 'playlist'
                 getPlaylistData()
-            } else {
+            } else if ( displayView == 'playlist' ) {
                 document.getElementById('viewLabel').innerText = 'List of Videos'
                 displayView = 'video'
                 getData()
@@ -434,6 +439,11 @@
 
         function getData() {
             const apiUrl = '/data.json'
+
+            if ( jsonData != null ) {
+                buildPage()
+                return;
+            }
 
             fetch(apiUrl)
                 .then((response) => {
@@ -455,6 +465,11 @@
         function getPlaylistData() {
             const apiUrl = '/playlist.json'
 
+            if (playlistJsonData != null) {
+                buildPlaylistPage()
+                return
+            }
+
             fetch(apiUrl)
                 .then((response) => {
                     if (!response.ok) {
@@ -463,11 +478,11 @@
                     return response.text();
                 })
                 .then((text) => {
-                    jsonData = JSON.parse(text)
+                    playlistJsonData = JSON.parse(text)
                     buildPlaylistPage()
                 })
                 .catch((error) => {
-                    jsonData = '{"1": {"playlistId": "Error", "title":"' + error.message + '", "publishedAt": "", "thumbnail": ""}}'
+                    playlistJsonData = '{"1": {"playlistId": "Error", "title":"' + error.message + '", "publishedAt": "", "thumbnail": ""}}'
                     buildPlaylistPage();
                 });
         }
@@ -479,11 +494,20 @@
             tab = document.getElementById('myTable')
             tab.innerHTML = ''
 
+            keys = Object.keys(jsonData)
+            if (displayView === 'video') {
+                // Exclude items with duration "00:01" if in video view
+                keys = keys.filter(k => jsonData[k].duration !== "00:01")
+            } else if (displayView === 'shorts') {
+                // Include items with duration "00:01" if in shorts view
+                keys = keys.filter(k => jsonData[k].duration == "00:01")
+            }
+
             const btn = document.getElementById('sortBy')
             if (btn.innerHTML == sortVariations[1]) {
-                keys = Object.keys(jsonData).reverse()
+                keys = keys.reverse()
             } else {
-                const arr = Object.keys(jsonData).map(el => {
+                const arr = keys.map(el => {
                     return jsonData[el]['title'] + '|' + el;
                 });
                 keys = arr.sort().map(el => {
@@ -497,13 +521,13 @@
                 tr = document.createElement('tr')
                 tr.id = data['videoId']
                 tab.appendChild(tr)
-                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='https://i.ytimg.com/vi/${data['videoId']}/default.jpg' width='32px' onclick='showmodal("${data['videoId']}")'></td><td><a href='http://youtu.be/${data['videoId']}' target='_blank'>${data['title']}</a></td>`
+                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='https://i.ytimg.com/vi/${data['videoId']}/default.jpg' width='32px' onclick='showmodal("${data['videoId']}")'></td><td><a ${(data['duration'] === "00:01")?`href='https://www.youtube.com/shorts/${data['videoId']}'`:`href='http://youtu.be/${data['videoId']}'`} target='_blank'>${data['title']}</a></td>`
             }
             filterList()
         }
 
         function buildPlaylistPage() {
-            if (jsonData == null) {
+            if (playlistJsonData == null) {
                 return;
             }
             tab = document.getElementById('myTable')
@@ -511,10 +535,10 @@
 
             const btn = document.getElementById('sortBy')
             if (btn.innerHTML == sortVariations[1]) {
-                keys = Object.keys(jsonData).reverse()
+                keys = Object.keys(playlistJsonData).reverse()
             } else {
-                const arr = Object.keys(jsonData).map(el => {
-                    return jsonData[el]['title'] + '|' + el;
+                const arr = Object.keys(playlistJsonData).map(el => {
+                    return playlistJsonData[el]['title'] + '|' + el;
                 });
                 keys = arr.sort().map(el => {
                     return el.substring(el.lastIndexOf("|") + 1);
@@ -523,7 +547,7 @@
 
             for (i = 0; i < keys.length; ++i) {
                 id = keys[i]
-                data = jsonData[id]
+                data = playlistJsonData[id]
                 tr = document.createElement('tr')
                 tr.id = data['playlistId']
                 tab.appendChild(tr)
@@ -718,7 +742,10 @@
             } else {
                 btn.innerHTML = sortVariations[0]
             }
-            buildPage()
+            if (displayView == 'video')
+                buildPage()
+            else if (displayView == 'playlist')
+                buildPlaylistPage()
         }
 
         window.onload = function () {

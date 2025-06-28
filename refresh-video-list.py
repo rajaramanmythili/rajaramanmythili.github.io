@@ -5,6 +5,7 @@ import json
 from collections import Counter
 import os
 import re
+import isodate
 
 API_KEY=os.environ['RAJARAMANMYTHILI_YOUTUBE_API_KEY']
 VIDEOS_JSON_FILE = '/Users/rajaramaniyer/rajaramanmythili.github.io/videos.json'
@@ -26,6 +27,43 @@ def get_video_json():
     videos_json = json.load(f)
     f.close()
     return videos_json
+
+def is_short(duration_iso8601):
+    """
+    Returns True if the duration (ISO 8601 format) is 60 seconds or less.
+    """
+    try:
+        duration = isodate.parse_duration(duration_iso8601)
+        return duration.total_seconds() <= 60
+    except Exception as e:
+        print(f"Error parsing duration: {e}")
+        return False
+
+def just_dump():
+    # The API endpoint
+    url = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId=UULbwWE1OTFQyfXT7O3u6pbw&key="+API_KEY+"&part=snippet,contentDetails&maxResults=50"
+
+    with open(VIDEOS_JSON_FILE, "w", encoding="UTF-8") as write_file:
+        response = requests.get(url)
+        response_json = response.json()
+        while 'nextPageToken' in response_json:
+            json.dump(get_video_details(response_json), write_file, indent=2)
+            response = requests.get(url + "&pageToken=" + response_json['nextPageToken'])
+            response_json = response.json()
+        json.dump(get_video_details(response_json), write_file, indent=2)
+
+def get_video_details(response_json):
+    url = "https://www.googleapis.com/youtube/v3/videos?key="+API_KEY+"&part=snippet,contentDetails&id="
+    first=True
+    for item in response_json['items']:
+        if first:
+            first = False
+        else:
+            url += ","
+        url += item['snippet']['resourceId']['videoId']
+    print("url = " + url)
+    video_details_response = requests.get(url)
+    return video_details_response.json()
 
 def refresh_videos_list():
     # The API endpoint
@@ -90,6 +128,52 @@ def update_data_json():
     j.write(json.dumps(json_data, indent=2))
     j.close()
 
-refresh_videos_list()
-update_data_json()
-#list_videos()
+# enrich data.json
+# read data.json to get list of videoId where duration is not set
+# in batch of 50, get the duration from YouTube API
+# and update data.json
+def enrich_data_json():
+    f = open('/Users/rajaramaniyer/rajaramanmythili.github.io/data.json','r',encoding="UTF-8")
+    response_json = json.loads(f.read())
+    f.close()
+
+    video_ids = []
+    for item in response_json.values():
+        if 'duration' not in item:
+            video_ids.append(item['videoId'])
+
+    for i in range(0, len(video_ids), 50):
+        batch = video_ids[i:i+50]
+        durations = get_video_durations(batch)
+        for video_id, duration in durations.items():
+            for key, item in response_json.items():
+                if isinstance(item, dict) and item.get('videoId') == video_id:
+                    item['duration'] = duration
+
+    # Write updated data.json
+    with open('/Users/rajaramaniyer/rajaramanmythili.github.io/data.json', 'w', encoding="UTF-8") as j:
+        json.dump(response_json, j, indent=2)
+
+def get_video_durations(video_ids):
+    url = "https://www.googleapis.com/youtube/v3/videos?key="+API_KEY+"&part=contentDetails&id=" + ','.join(video_ids)
+    response = requests.get(url)
+    response_json = response.json()
+    
+    durations = {}
+    for item in response_json['items']:
+        video_id = item['id']
+        duration_iso8601 = item['contentDetails']['duration']
+        if is_short(duration_iso8601):
+            durations[video_id] = '00:01'
+        else:
+            durations[video_id] = duration_iso8601
+    return durations
+
+def main():
+    refresh_videos_list()
+    update_data_json()
+    enrich_data_json()
+
+# main()
+enrich_data_json()
+# just_dump()
