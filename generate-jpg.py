@@ -13,16 +13,17 @@ LINES_PER_SLIDE = 5
 SLIDE_WIDTH = 1920
 SLIDE_HEIGHT = 1080
 LINE_SPACING = 100
-MARGIN_TOP_SANSKRIT = 50
-MARGIN_TOP_TAMIL = 580
-ASTRING = "BKS"
+MARGIN_TOP_SANSKRIT = 90
+MARGIN_TOP_TAMIL = 620
+ASTRING = "rama-prathasmaranam"
+SKIP_LINES = 2  # Number of lines to skip at the start of each file
 
 # Load text
-with open("/Users/rajaramaniyer/books/srisrianna/laghustotramala/bhaktakolahala_stotram-sanskrit.txt", "r", encoding="utf-8") as f:
-    sanskrit_lines = [line.strip() for i, line in enumerate(f) if i >= 14]
+with open("/Users/rajaramaniyer/books/srisrianna/laghustotramala/srirama_pratasmaranam-sanskrit.txt", "r", encoding="utf-8") as f:
+    sanskrit_lines = [line.strip() for i, line in enumerate(f) if i >= SKIP_LINES]
 
-with open("/Users/rajaramaniyer/books/srisrianna/laghustotramala/bhaktakolahala_stotram-tamil.txt", "r", encoding="utf-8") as f:
-    tamil_lines = [line.strip() for i, line in enumerate(f) if i >= 14]
+with open("/Users/rajaramaniyer/books/srisrianna/laghustotramala/srirama_pratasmaranam-tamil.txt", "r", encoding="utf-8") as f:
+    tamil_lines = [line.strip() for i, line in enumerate(f) if i >= SKIP_LINES]
 
 assert len(sanskrit_lines) == len(tamil_lines), "Line count mismatch."
 
@@ -48,13 +49,13 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
 
     no_blanks = first_line_title and len(s_chunk) == LINES_PER_SLIDE and all(line.strip() for line in s_chunk)
     for i, line in enumerate(s_chunk):
-        fill = (255, 0, 0) if i == highlight_idx else (0, 0, 0)
+        fill = (0, 255, 255) if i == highlight_idx else (255, 255, 255)
         # is the first line and not highlighted, use blue
         fill = (0, 0, 255) if i == 0 and i != highlight_idx and no_blanks else fill
         draw.text((50, MARGIN_TOP_SANSKRIT + i * LINE_SPACING), line, font=font_sanskrit, fill=fill)
 
     for i, line in enumerate(t_chunk):
-        fill = (255, 0, 0) if i == highlight_idx else (0, 0, 0)
+        fill = (0, 255, 255) if i == highlight_idx else (255, 255, 255)
         # is the first line and not highlighted, use blue
         fill = (0, 0, 255) if i == 0 and i != highlight_idx and no_blanks else fill
         draw.text((50, MARGIN_TOP_TAMIL + i * LINE_SPACING), line, font=font_tamil, fill=fill)

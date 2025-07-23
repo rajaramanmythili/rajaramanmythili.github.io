@@ -52,9 +52,9 @@ def get_label_in_out(filename):
 #
 # Main Code Starts
 #
-ASTRING='BKS'
+ASTRING='rama-prathasmaranam'
 
-wavefilename="/Users/rajaramaniyer/Downloads/" + ASTRING + ".wav"
+wavefilename="/Users/rajaramaniyer/lmms/projects/" + ASTRING + ".wav"
 if not os.path.exists(wavefilename):
     input(wavefilename + " does not exists")
     sys.exit()
