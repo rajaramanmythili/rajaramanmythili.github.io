@@ -174,6 +174,5 @@ def main():
     update_data_json()
     enrich_data_json()
 
-# main()
-enrich_data_json()
+main()
 # just_dump()
