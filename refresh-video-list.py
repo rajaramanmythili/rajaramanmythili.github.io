@@ -169,6 +169,42 @@ def get_video_durations(video_ids):
             durations[video_id] = duration_iso8601
     return durations
 
+import json
+import re
+
+def parse_duration(d):
+    # Handles PT#H#M#S, PT#M#S, PT#S, PT#M, PT#H
+    m = re.match(r'PT((?P<h>\d+)H)?((?P<m>\d+)M)?((?P<s>\d+)S)?', d)
+    h = int(m.group('h') or 0)
+    m_ = int(m.group('m') or 0)
+    s = int(m.group('s') or 0)
+    return h*3600 + m_*60 + s
+
+def calculate_durations():
+    with open('data.json') as f:
+        data = json.load(f)
+
+    canto_durations = {}
+
+    for v in data.values():
+        title = v.get('title', '')
+        duration = v.get('duration', '')
+        if 'Srimad Bhagavatham' in title and duration.startswith('PT'):
+            match = re.search(r'Canto (\d+)', title)
+            if match:
+                canto = int(match.group(1))
+                seconds = parse_duration(duration)
+                canto_durations.setdefault(canto, 0)
+                canto_durations[canto] += seconds
+
+    # Print results
+    for canto in sorted(canto_durations):
+        total = canto_durations[canto]
+        h = total // 3600
+        m = (total % 3600) // 60
+        s = total % 60
+        print(f'Canto {canto:02}: {h:02}:{m:02}:{s:02}')
+
 def main():
     refresh_videos_list()
     update_data_json()
@@ -176,3 +212,4 @@ def main():
 
 main()
 # just_dump()
+# calculate_durations()
