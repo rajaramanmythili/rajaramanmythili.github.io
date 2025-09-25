@@ -10,6 +10,9 @@ import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 import subprocess
 
+# get home folder from os env which works in macOS and Windows powershell too
+HOME = os.path.expanduser("~")
+
 def seconds_to_hms(seconds):
     h = int(seconds // 3600)
     m = int((seconds % 3600) // 60)
@@ -52,9 +55,9 @@ def get_label_in_out(filename):
 #
 # Main Code Starts
 #
-ASTRING='rama-prathasmaranam'
+ASTRING='sriradhastotram'
 
-wavefilename="/Users/rajaramaniyer/lmms/projects/" + ASTRING + ".wav"
+wavefilename=HOME + "/lmms/projects/" + ASTRING + ".wav"
 if not os.path.exists(wavefilename):
     input(wavefilename + " does not exists")
     sys.exit()
@@ -67,7 +70,7 @@ with contextlib.closing(wave.open(wavefilename,'r')) as f:
     durationSeconds = float(frames) / float(rate)
     duration = seconds_to_hms(durationSeconds)
 
-labelTrackFile="/Users/rajaramaniyer/Downloads/" + ASTRING + '.txt'
+labelTrackFile=HOME + "/Downloads/" + ASTRING + '.txt'
 if not os.path.exists(labelTrackFile):
     input(labelTrackFile + " does not exists")
     sys.exit()
@@ -92,7 +95,7 @@ block4.append('    <property name="shotcut:video">1</property>\n')
 block4.append('    <property name="shotcut:name">V1</property>\n')
 
 id=0
-files=sorted(glob.glob("/Users/rajaramaniyer/Downloads/" + ASTRING + "/" + ASTRING + "-Slide????.png"))
+files=sorted(glob.glob(HOME + "/Downloads/" + ASTRING + "/" + ASTRING + "-Slide????.png"))
 
 if len(files) == 0:
     print("Slides are missing. run generate-ppt")
@@ -242,7 +245,7 @@ block4.append('  </tractor>\n')
 block4.append('</mlt>\n')
 
 dir_path = os.path.dirname(os.path.realpath(__file__)).replace("\\","/")
-filename="/Users/rajaramaniyer/Downloads/" + ASTRING + ".mlt"
+filename=HOME + "/Downloads/" + ASTRING + ".mlt"
 f = open(filename, "w")
 
 f.write('<?xml version="1.0" standalone="no"?>\n')
@@ -271,3 +274,10 @@ for block in block4:
     f.write(block)
 f.close();
 
+print("Generated " + filename)
+shotcut_path="/Applications/Shotcut.app/Contents/MacOS/Shotcut"
+if os.name == 'nt': # Windows
+    shotcut_path="C:/Program Files/Shotcut/Shotcut.exe"
+# open subprocess without waiting and redirect all stdout/stderr to /dev/null
+with open(os.devnull, 'wb') as devnull:
+    subprocess.Popen([shotcut_path, filename], stdout=devnull, stderr=devnull)
