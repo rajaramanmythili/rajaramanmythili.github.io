@@ -402,16 +402,48 @@
         }
         const queue = new Queue()
 
+        function normalizeText(input) {
+            let text = input.toLowerCase();
+
+            // Replace common variants
+            text = text.replace(/sh/g, 's');
+            text = text.replace(/ee/g, 'i');
+            text = text.replace(/oo/g, 'u');
+            text = text.replace(/kh/g, 'k');
+            text = text.replace(/gh/g, 'g');
+            text = text.replace(/th/g, 't');
+            text = text.replace(/dh/g, 'd');
+            text = text.replace(/ph/g, 'p');
+            text = text.replace(/bh/g, 'b');
+            text = text.replace(/sv/g, 'sw');
+
+            // Remove extra repeated vowels (e.g., shreee → sri)
+            text = text.replace(/(a)\1+/g, 'a');
+            text = text.replace(/(i)\1+/g, 'i');
+            text = text.replace(/(u)\1+/g, 'u');
+            text = text.replace(/(e)\1+/g, 'e');
+            text = text.replace(/(o)\1+/g, 'o');
+            text = text.replace(/(.)\1+/g, '$1');
+            text = text.replace(/~/g, '');
+
+            // Remove extra spaces
+            text = text.replace(/-/g, ' ').trim();
+            text = text.replace(/\./g, ' ').trim();
+            text = text.replace(/\s+/g, ' ').trim();
+
+            return text;
+        }
+
         function filterList() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("myInput");
-            filter = input.value.replace(/ /g, '.*');
+            filter = normalizeText(input.value).replace(/ /g, '.*');
             table = document.getElementById("myTable");
             tr = table.getElementsByTagName("tr");
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("td")[1];
                 if (td) {
-                    txtValue = td.textContent || td.innerText;
+                    txtValue = normalizeText(td.textContent || td.innerText);
                     if (txtValue.match(new RegExp(filter, 'gmis')) != null) {
                         tr[i].style.display = "block";
                     } else {
