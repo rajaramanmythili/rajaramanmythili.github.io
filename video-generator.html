@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Generator with Audio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="file"],
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        input[type="color"] {
+            padding: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .file-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .file-input-group {
+            flex: 1;
+        }
+
+        .file-inputs label {
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .file-inputs input {
+            margin-bottom: 0;
+        }
+
+        .audio-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .audio-input-group {
+            flex: 1;
+        }
+
+        .audio-inputs label {
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .audio-inputs input {
+            margin-bottom: 0;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .color-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .color-item label {
+            margin-bottom: 5px;
+            font-weight: normal;
+            font-size: 13px;
+        }
+
+        .color-item input {
+            width: 100%;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1976D2;
+        }
+
+        .error {
+            background: #ffebee;
+            padding: 15px;
+            border-left: 4px solid #f44336;
+            border-radius: 4px;
+            margin-top: 15px;
+            color: #c62828;
+            display: none;
+        }
+
+        .success {
+            background: #e8f5e9;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+            margin-top: 15px;
+            color: #2e7d32;
+            display: none;
+        }
+
+        .bg-image-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📊 Slide Generator with Audio Video</h1>
+
+        <div class="info">
+            <strong>How to use:</strong> Upload 1-2 TXT files, an Audacity label file, and a WAV file. The generator
+            will create an MP4 video where each slide duration matches the label timings.
+        </div>
+
+        <div class="section">
+            <label>Upload Text Files:</label>
+            <div class="file-inputs">
+                <div class="file-input-group">
+                    <label>File 1 (Required)</label>
+                    <input type="file" id="file1" accept=".txt" required>
+                </div>
+                <div class="file-input-group">
+                    <label>File 2 (Optional - for 2nd language)</label>
+                    <input type="file" id="file2" accept=".txt">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <label>Upload Audio Files:</label>
+            <div class="audio-inputs">
+                <div class="audio-input-group">
+                    <label>Audacity Label File (Required)</label>
+                    <input type="file" id="labelFile" accept=".txt" required>
+                </div>
+                <div class="audio-input-group">
+                    <label>WAV Audio File (Required)</label>
+                    <input type="file" id="wavFile" accept=".wav" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <label>Background Image (Optional):</label>
+            <input type="file" id="bgImage" accept=".png,.jpg,.jpeg">
+            <p class="bg-image-note">Upload a PNG or JPG to use as background for all slides (instead of solid color)
+            </p>
+        </div>
+
+        <div class="section">
+            <label for="linesPerSlide">Lines per Slide:</label>
+            <input type="number" id="linesPerSlide" value="8" min="1" max="20">
+        </div>
+
+        <div class="section">
+            <label for="copiesPerSlide">Copies per Slide (highlighting variations):</label>
+            <input type="number" id="copiesPerSlide" value="3" min="1" max="10">
+        </div>
+
+        <div class="section">
+            <label for="fontFamily">Font Family:</label>
+            <select id="fontFamily">
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <label for="baseFontSize">Base Font Size (will auto-adjust if needed):</label>
+            <input type="number" id="baseFontSize" value="60" min="10" max="150">
+        </div>
+
+        <div class="section">
+            <label for="lineHeightMultiplier">Line Height Multiplier:</label>
+            <input type="number" id="lineHeightMultiplier" value="1.4" min="0.8" max="3" step="0.1">
+        </div>
+
+        <div class="section">
+            <label for="bgColor">Background Color:</label>
+            <input type="color" id="bgColor" value="#ffffff">
+        </div>
+
+        <div class="section">
+            <label>Text Colors:</label>
+            <div class="color-grid">
+                <div class="color-item">
+                    <label>Before (Dim):</label>
+                    <input type="color" id="colorBefore" value="#999999">
+                </div>
+                <div class="color-item">
+                    <label>Highlighted:</label>
+                    <input type="color" id="colorHighlight" value="#FFD700">
+                </div>
+                <div class="color-item">
+                    <label>After (Normal):</label>
+                    <input type="color" id="colorAfter" value="#000000">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <label for="fps">Video FPS:</label>
+            <input type="number" id="fps" value="30" min="1" max="60">
+        </div>
+
+        <button type="button" onclick="generateVideo()">Generate MP4 Video</button>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FFmpeg/0.12.8/ffmpeg.min.js"></script>
+    <script>
+        const { FFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = new FFmpeg.FFmpeg();
+
+        async function generateVideo() {
+            console.log('Generate video clicked');
+
+            const file1 = document.getElementById('file1').files[0];
+            const file2 = document.getElementById('file2').files[0];
+            const labelFile = document.getElementById('labelFile').files[0];
+            const wavFile = document.getElementById('wavFile').files[0];
+            const bgImageFile = document.getElementById('bgImage').files[0];
+
+            const linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
+            const copiesPerSlide = parseInt(document.getElementById('copiesPerSlide').value) || 3;
+            const bgColor = document.getElementById('bgColor').value || '#ffffff';
+            const colorBefore = document.getElementById('colorBefore').value || '#999999';
+            const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
+            const colorAfter = document.getElementById('colorAfter').value || '#000000';
+            const fontFamily = document.getElementById('fontFamily').value || 'Arial';
+            const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
+            const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
+            const fps = parseInt(document.getElementById('fps').value) || 30;
+
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const progressDiv = document.getElementById('progress');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            try {
+                if (!file1 || !labelFile || !wavFile) {
+                    throw new Error('Please upload text file(s), label file, and WAV file');
+                }
+
+                // Parse text files
+                const text1 = await file1.text();
+                let text2 = null;
+                if (file2) {
+                    text2 = await file2.text();
+                }
+
+                const lines1 = text1.split('\n').filter(l => l.trim());
+                const lines2 = text2 ? text2.split('\n').filter(l => l.trim()) : null;
+
+                if (lines1.length === 0) {
+                    throw new Error('File 1 is empty');
+                }
+
+                if (lines2 && lines2.length !== lines1.length) {
+                    throw new Error(`Both files must have the same number of lines`);
+                }
+
+                // Parse Audacity label file
+                const labelText = await labelFile.text();
+                const labels = parseAudacityLabels(labelText);
+                console.log('Parsed labels:', labels);
+
+                progressDiv.style.display = 'block';
+
+                // Load background image if provided
+                let bgImage = null;
+                if (bgImageFile) {
+                    const bgImageUrl = URL.createObjectURL(bgImageFile);
+                    bgImage = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load background image'));
+                        img.src = bgImageUrl;
+                    });
+                }
+
+                // Create slide groups with durations
+                const slideGroups = [];
+                const totalSlideGroups = Math.ceil(lines1.length / linesPerSlide);
+
+                for (let i = 0; i < totalSlideGroups; i++) {
+                    const startIdx = i * linesPerSlide;
+                    const endIdx = Math.min(startIdx + linesPerSlide, lines1.length);
+                    const slideLines1 = lines1.slice(startIdx, endIdx);
+                    const slideLines2 = lines2 ? lines2.slice(startIdx, endIdx) : null;
+
+                    const duration = labels[i] ? (labels[i].end - labels[i].start) : 1.0;
+
+                    slideGroups.push({
+                        lines1: slideLines1,
+                        lines2: slideLines2,
+                        duration: duration,
+                        isBilingual: !!lines2
+                    });
+                }
+
+                // Create all slide frames
+                const frames = [];
+                for (let groupIdx = 0; groupIdx < slideGroups.length; groupIdx++) {
+                    const group = slideGroups[groupIdx];
+                    const duration = group.duration;
+                    const frameCount = Math.ceil(duration * fps);
+
+                    for (let highlightIdx = 0; highlightIdx < copiesPerSlide; highlightIdx++) {
+                        const canvas = createSlide(
+                            group.lines1,
+                            group.lines2,
+                            highlightIdx,
+                            group.isBilingual,
+                            bgColor, colorBefore, colorHighlight, colorAfter,
+                            fontFamily, baseFontSize, lineHeightMultiplier,
+                            bgImage
+                        );
+
+                        frames.push({
+                            canvas: canvas,
+                            duration: duration,
+                            frameCount: frameCount
+                        });
+                    }
+                }
+
+                console.log('Total frames:', frames.length);
+
+                // Initialize FFmpeg
+                if (!ffmpeg.isLoaded()) {
+                    await ffmpeg.load();
+                }
+
+                // Create image sequence
+                let frameIndex = 0;
+                for (let i = 0; i < frames.length; i++) {
+                    const frame = frames[i];
+                    const frameCount = frame.frameCount;
+
+                    const blob = await new Promise(resolve => frame.canvas.toBlob(resolve));
+                    const imageData = await blob.arrayBuffer();
+
+                    // Write the same frame multiple times for duration
+                    for (let j = 0; j < frameCount; j++) {
+                        ffmpeg.FS('writeFile', `frame_${String(frameIndex).padStart(8, '0')}.png`, new Uint8Array(imageData));
+                        frameIndex++;
+                    }
+
+                    const progress = Math.round((i + 1) / frames.length * 50);
+                    document.getElementById('progressFill').textContent = progress + '%';
+                    document.getElementById('progressFill').style.width = progress + '%';
+                }
+
+                // Write audio file
+                const wavData = await wavFile.arrayBuffer();
+                ffmpeg.FS('writeFile', 'audio.wav', new Uint8Array(wavData));
+
+                // Run FFmpeg command to create video with audio
+                await ffmpeg.run(
+                    '-framerate', fps.toString(),
+                    '-pattern_type', 'glob',
+                    '-i', 'frame_*.png',
+                    '-i', 'audio.wav',
+                    '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p',
+                    '-c:a', 'aac',
+                    '-shortest',
+                    'output.mp4'
+                );
+
+                document.getElementById('progressFill').textContent = '99%';
+                document.getElementById('progressFill').style.width = '99%';
+
+                // Download the output
+                const outputData = ffmpeg.FS('readFile', 'output.mp4');
+                downloadBlob(new Blob([outputData.buffer]), 'video.mp4');
+
+                document.getElementById('progressFill').textContent = '100%';
+                document.getElementById('progressFill').style.width = '100%';
+
+                successDiv.textContent = `✓ Generated MP4 video successfully! Downloaded as video.mp4`;
+                successDiv.style.display = 'block';
+
+                // Clean up
+                ffmpeg.FS('unlink', 'audio.wav');
+                ffmpeg.FS('unlink', 'output.mp4');
+
+            } catch (err) {
+                console.error('Error:', err);
+                errorDiv.textContent = '✗ Error: ' + err.message;
+                errorDiv.style.display = 'block';
+                progressDiv.style.display = 'none';
+            }
+        }
+
+        function parseAudacityLabels(labelText) {
+            const labels = [];
+            const lines = labelText.split('\n').filter(l => l.trim());
+
+            let prevEnd = 0;
+
+            for (const line of lines) {
+                let parts = line.split('\t');
+
+                if (parts.length === 1) {
+                    parts = line.split(/\s+/);
+                }
+
+                if (parts.length >= 1) {
+                    const endTime = parseFloat(parts[0]);
+
+                    if (!isNaN(endTime)) {
+                        const start = prevEnd;
+                        const end = endTime;
+                        labels.push({ start, end });
+                        prevEnd = end;
+                    }
+                }
+            }
+
+            return labels;
+        }
+
+        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1920;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+
+            if (bgImage) {
+                ctx.drawImage(bgImage, 0, 0, 1920, 1080);
+            } else {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, 1920, 1080);
+            }
+
+            const totalLines = lines1.length;
+            const marginPixels = 54;
+            const availableHeight = 1080 - (2 * marginPixels);
+
+            let fontSize = baseFontSize;
+            let lineHeight = fontSize * lineHeightMultiplier;
+            let requiredHeight = totalLines * lineHeight;
+
+            if (requiredHeight > availableHeight) {
+                const scaleFactor = availableHeight / requiredHeight;
+                fontSize = Math.max(12, fontSize * scaleFactor);
+                lineHeight = fontSize * lineHeightMultiplier;
+            }
+
+            ctx.font = `bold ${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'left';
+
+            const startY = marginPixels + fontSize;
+            const leftPadding = marginPixels;
+
+            if (isBilingual) {
+                const halfHeight = 540;
+                let yPos1 = startY;
+                let yPos2 = startY;
+
+                for (let i = 0; i < lines1.length; i++) {
+                    if (i < highlightIdx) {
+                        ctx.fillStyle = colorBefore;
+                    } else if (i === highlightIdx) {
+                        ctx.fillStyle = colorHighlight;
+                    } else {
+                        ctx.fillStyle = colorAfter;
+                    }
+
+                    ctx.fillText(lines1[i], leftPadding, yPos1);
+                    ctx.fillText(lines2[i], leftPadding, halfHeight + yPos2);
+
+                    yPos1 += lineHeight;
+                    yPos2 += lineHeight;
+                }
+            } else {
+                for (let i = 0; i < lines1.length; i++) {
+                    if (i < highlightIdx) {
+                        ctx.fillStyle = colorBefore;
+                    } else if (i === highlightIdx) {
+                        ctx.fillStyle = colorHighlight;
+                    } else {
+                        ctx.fillStyle = colorAfter;
+                    }
+
+                    ctx.fillText(lines1[i], leftPadding, startY + i * lineHeight);
+                }
+            }
+
+            return canvas;
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
