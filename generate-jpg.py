@@ -14,15 +14,15 @@ if os.name == 'nt': # Windows
     FONT_PATH_TAMIL = "C:/Windows/Fonts/Nirmala.ttf"
 FONT_SIZE_SANSKRIT = 55
 FONT_SIZE_TAMIL = 45
-LINES_PER_SLIDE = 4
+LINES_PER_SLIDE = 5
 SLIDE_WIDTH = 1920
 SLIDE_HEIGHT = 1080
 LINE_SPACING = 100
-MARGIN_LEFT = 50
+MARGIN_LEFT = 725
 MARGIN_TOP_SANSKRIT = 90
 MARGIN_TOP_TAMIL = 620
-ASTRING = "sriradhastotram"
-SKIP_LINES = 1  # Number of lines to skip at the start of each file
+ASTRING = "sri-krishna-suprabhatam"
+SKIP_LINES = 2  # Number of lines to skip at the start of each file
 
 # get home folder from os env which works in macOS and Windows powershell too
 HOME = os.path.expanduser("~")
@@ -57,7 +57,7 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
     draw = ImageDraw.Draw(img)
 
     first_line_fill = (0, 0, 255)
-    text_fill = (255, 255, 255)
+    text_fill = (0, 0, 0)
     text_highlight_fill = (0, 255, 255)
     text_shadow_fill = (0, 0, 0)
     text_shadow_highlight_fill = (0, 0, 0)
