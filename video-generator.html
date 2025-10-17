@@ -332,14 +332,28 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FFmpeg/0.12.8/ffmpeg.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.0/dist/util.min.js"></script>
     <script>
-        const { FFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = new FFmpeg.FFmpeg();
+        let FFmpeg;
+        let ffmpeg;
+
+        // Wait for FFmpeg to load
+        window.addEventListener('load', async () => {
+            FFmpeg = FFmpeg || window.FFmpeg;
+            const { FFmpeg: FFmpegClass, fetchFile } = FFmpeg;
+            ffmpeg = new FFmpegClass.FFmpeg();
+            console.log('FFmpeg ready');
+        });
 
         async function generateVideo() {
             console.log('Generate video clicked');
+
+            if (!ffmpeg) {
+                document.getElementById('error').textContent = '✗ Error: FFmpeg is still loading. Please wait a moment and try again.';
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
 
             const file1 = document.getElementById('file1').files[0];
             const file2 = document.getElementById('file2').files[0];
@@ -370,7 +384,6 @@
                     throw new Error('Please upload text file(s), label file, and WAV file');
                 }
 
-                // Parse text files
                 const text1 = await file1.text();
                 let text2 = null;
                 if (file2) {
@@ -388,14 +401,12 @@
                     throw new Error(`Both files must have the same number of lines`);
                 }
 
-                // Parse Audacity label file
                 const labelText = await labelFile.text();
                 const labels = parseAudacityLabels(labelText);
                 console.log('Parsed labels:', labels);
 
                 progressDiv.style.display = 'block';
 
-                // Load background image if provided
                 let bgImage = null;
                 if (bgImageFile) {
                     const bgImageUrl = URL.createObjectURL(bgImageFile);
@@ -407,7 +418,6 @@
                     });
                 }
 
-                // Create slide groups with durations
                 const slideGroups = [];
                 const totalSlideGroups = Math.ceil(lines1.length / linesPerSlide);
 
@@ -427,7 +437,6 @@
                     });
                 }
 
-                // Create all slide frames
                 const frames = [];
                 for (let groupIdx = 0; groupIdx < slideGroups.length; groupIdx++) {
                     const group = slideGroups[groupIdx];
@@ -455,12 +464,10 @@
 
                 console.log('Total frames:', frames.length);
 
-                // Initialize FFmpeg
                 if (!ffmpeg.isLoaded()) {
                     await ffmpeg.load();
                 }
 
-                // Create image sequence
                 let frameIndex = 0;
                 for (let i = 0; i < frames.length; i++) {
                     const frame = frames[i];
@@ -469,22 +476,22 @@
                     const blob = await new Promise(resolve => frame.canvas.toBlob(resolve));
                     const imageData = await blob.arrayBuffer();
 
-                    // Write the same frame multiple times for duration
                     for (let j = 0; j < frameCount; j++) {
                         ffmpeg.FS('writeFile', `frame_${String(frameIndex).padStart(8, '0')}.png`, new Uint8Array(imageData));
                         frameIndex++;
                     }
 
-                    const progress = Math.round((i + 1) / frames.length * 50);
+                    const progress = Math.round((i + 1) / frames.length * 40);
                     document.getElementById('progressFill').textContent = progress + '%';
                     document.getElementById('progressFill').style.width = progress + '%';
                 }
 
-                // Write audio file
                 const wavData = await wavFile.arrayBuffer();
                 ffmpeg.FS('writeFile', 'audio.wav', new Uint8Array(wavData));
 
-                // Run FFmpeg command to create video with audio
+                document.getElementById('progressFill').textContent = '60%';
+                document.getElementById('progressFill').style.width = '60%';
+
                 await ffmpeg.run(
                     '-framerate', fps.toString(),
                     '-pattern_type', 'glob',
@@ -497,10 +504,9 @@
                     'output.mp4'
                 );
 
-                document.getElementById('progressFill').textContent = '99%';
-                document.getElementById('progressFill').style.width = '99%';
+                document.getElementById('progressFill').textContent = '95%';
+                document.getElementById('progressFill').style.width = '95%';
 
-                // Download the output
                 const outputData = ffmpeg.FS('readFile', 'output.mp4');
                 downloadBlob(new Blob([outputData.buffer]), 'video.mp4');
 
@@ -509,10 +515,6 @@
 
                 successDiv.textContent = `✓ Generated MP4 video successfully! Downloaded as video.mp4`;
                 successDiv.style.display = 'block';
-
-                // Clean up
-                ffmpeg.FS('unlink', 'audio.wav');
-                ffmpeg.FS('unlink', 'output.mp4');
 
             } catch (err) {
                 console.error('Error:', err);
