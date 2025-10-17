@@ -245,7 +245,7 @@
 
         <div class="info">
             <strong>How to use:</strong> Upload 1-2 TXT files and preview slides before generating a ZIP file with all
-            slide variations.
+            slide variations. Optionally add an Audacity label file to generate FFmpeg concat instructions.
         </div>
 
         <div class="section">
@@ -260,6 +260,12 @@
                     <input type="file" id="file2" accept=".txt">
                 </div>
             </div>
+        </div>
+
+        <div class="section">
+            <label>Audacity Label File (Optional):</label>
+            <input type="file" id="labelFile" accept=".txt">
+            <p class="bg-image-note">Upload an Audacity label file to generate FFmpeg concat.txt with durations</p>
         </div>
 
         <div class="section">
@@ -295,6 +301,17 @@
         <div class="section">
             <label for="lineHeightMultiplier">Line Height Multiplier:</label>
             <input type="number" id="lineHeightMultiplier" value="1.4" min="0.8" max="3" step="0.1">
+        </div>
+
+        <div class="section">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <input type="checkbox" id="enableIndent" checked>
+                <label for="enableIndent" style="margin: 0; font-weight: bold; color: #555;">Enable Indent for Lines 2 &
+                    4</label>
+            </div>
+            <label for="indentOffset">Indent Offset (pixels):</label>
+            <input type="number" id="indentOffset" value="100" min="0" max="500">
+            <p class="bg-image-note">Add indentation to 2nd and 4th lines of each 4-line stanza</p>
         </div>
 
         <div class="section">
@@ -356,11 +373,50 @@
         let cachedLines1 = [];
         let cachedLines2 = [];
         let cachedBgImage = null;
+        let cachedLabelData = null;
+
+        function parseAudacityLabels(labelText) {
+            const lines = labelText.split('\n').filter(l => l.trim());
+            const timestamps = [];
+
+            for (const line of lines) {
+                const parts = line.trim().split(/\t/);
+                if (parts.length >= 2) {
+                    const end = parseFloat(parts[1]);
+                    if (!isNaN(end)) {
+                        timestamps.push(end);
+                    }
+                }
+            }
+
+            return timestamps;
+        }
+
+        function generateFfmpegConcat(timestamps) {
+            const concatLines = [];
+
+            for (let i = 0; i < timestamps.length; i++) {
+                const fileNumber = String(i).padStart(6, '0');
+                concatLines.push(`file 'slide_${fileNumber}.png'`);
+
+                let duration;
+                if (i === 0) {
+                    duration = timestamps[i].toFixed(2);
+                } else {
+                    duration = (timestamps[i] - timestamps[i - 1]).toFixed(2);
+                }
+
+                concatLines.push(`duration ${duration}`);
+            }
+
+            return concatLines.join('\n');
+        }
 
         async function loadFiles() {
             const file1 = document.getElementById('file1').files[0];
             const file2 = document.getElementById('file2').files[0];
             const bgImageFile = document.getElementById('bgImage').files[0];
+            const labelFile = document.getElementById('labelFile').files[0];
 
             if (!file1) {
                 throw new Error('Please upload at least text file 1');
@@ -381,6 +437,16 @@
 
             if (cachedLines2 && cachedLines2.length !== cachedLines1.length) {
                 throw new Error(`Both files must have the same number of lines`);
+            }
+
+            if (labelFile) {
+                const labelText = await labelFile.text();
+                cachedLabelData = parseAudacityLabels(labelText);
+                if (cachedLabelData.length === 0) {
+                    throw new Error('Label file is empty or invalid format');
+                }
+            } else {
+                cachedLabelData = null;
             }
 
             if (bgImageFile) {
@@ -428,6 +494,8 @@
             const fontFamily = document.getElementById('fontFamily').value || 'Arial';
             const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
             const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
+            const enableIndent = document.getElementById('enableIndent').checked;
+            const indentOffset = enableIndent ? parseInt(document.getElementById('indentOffset').value) || 0 : 0;
 
             const startIdx = currentPreviewSlideGroup * linesPerSlide;
             const endIdx = Math.min(startIdx + linesPerSlide, cachedLines1.length);
@@ -435,7 +503,7 @@
             const slideLines2 = cachedLines2 ? cachedLines2.slice(startIdx, endIdx) : null;
             const isBilingual = !!cachedLines2;
 
-            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, indentOffset);
 
             const previewCanvas = document.getElementById('previewCanvas');
             const ctx = previewCanvas.getContext('2d');
@@ -497,7 +565,9 @@
                     const isBilingual = !!cachedLines2;
 
                     for (let highlightIdx = 0; highlightIdx < linesPerSlide; highlightIdx++) {
-                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+                        const enableIndent = document.getElementById('enableIndent').checked;
+                        const indentOffset = enableIndent ? parseInt(document.getElementById('indentOffset').value) || 0 : 0;
+                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, indentOffset);
 
                         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
                         const filename = `slide_${String(frameIndex).padStart(6, '0')}.png`;
@@ -510,13 +580,70 @@
                     }
                 }
 
+                // Generate FFmpeg concat file if label data exists
+                if (cachedLabelData && cachedLabelData.length > 0) {
+                    const concatContent = generateFfmpegConcat(cachedLabelData);
+                    zip.file('concat.txt', concatContent);
+
+                    // Generate Python script for MP4 generation
+                    const pythonScript = `#!/usr/bin/env python3
+import subprocess
+import os
+import sys
+
+def main():
+    wav_file = input("Enter the WAV file path (e.g., ../07-15.wav): ").strip()
+    
+    if not os.path.exists(wav_file):
+        print(f"Error: WAV file '{wav_file}' not found")
+        sys.exit(1)
+    
+    if not os.path.exists('concat.txt'):
+        print("Error: concat.txt not found in current directory")
+        sys.exit(1)
+    
+    cmd = [
+        'ffmpeg',
+        '-f', 'concat',
+        '-safe', '0',
+        '-i', 'concat.txt',
+        '-i', wav_file,
+        '-c:v', 'libx264',
+        '-tune', 'stillimage',
+        '-c:a', 'aac',
+        '-b:a', '192k',
+        '-pix_fmt', 'yuv420p',
+        '-shortest',
+        'output.mp4'
+    ]
+    
+    print(f"Running command: {' '.join(cmd)}")
+    print("This may take a while...")
+    
+    try:
+        subprocess.run(cmd, check=True)
+        print("✓ MP4 generated successfully as output.mp4")
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Error: ffmpeg command failed with exit code {e.returncode}")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("✗ Error: ffmpeg not found. Please install ffmpeg and add it to PATH")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
+`;
+                    zip.file('generate_mp4.py', pythonScript);
+                }
+
                 const zipBlob = await zip.generateAsync({ type: 'blob' });
                 downloadBlob(zipBlob, 'slides.zip');
 
                 document.getElementById('progressFill').textContent = '100%';
                 document.getElementById('progressFill').style.width = '100%';
 
-                successDiv.textContent = `✓ Generated ${frameIndex} slide images as slides.zip!`;
+                const concatMsg = cachedLabelData ? ' + concat.txt' : '';
+                successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as slides.zip!`;
                 successDiv.style.display = 'block';
 
             } catch (err) {
@@ -527,7 +654,7 @@
             }
         }
 
-        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage) {
+        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage, indentOffset) {
             const canvas = document.createElement('canvas');
             canvas.width = 1920;
             canvas.height = 1080;
@@ -574,8 +701,12 @@
                         ctx.fillStyle = colorAfter;
                     }
 
-                    ctx.fillText(lines1[i], leftPadding, yPos1);
-                    ctx.fillText(lines2[i], leftPadding, halfHeight + yPos2);
+                    // Calculate indent for 2nd and 4th lines in 4-line stanzas
+                    const lineInStanza = i % 4;
+                    const xOffset = (lineInStanza === 1 || lineInStanza === 3) ? indentOffset : 0;
+
+                    ctx.fillText(lines1[i], leftPadding + xOffset, yPos1);
+                    ctx.fillText(lines2[i], leftPadding + xOffset, halfHeight + yPos2);
 
                     yPos1 += lineHeight;
                     yPos2 += lineHeight;
@@ -590,7 +721,11 @@
                         ctx.fillStyle = colorAfter;
                     }
 
-                    ctx.fillText(lines1[i], leftPadding, startY + i * lineHeight);
+                    // Calculate indent for 2nd and 4th lines in 4-line stanzas
+                    const lineInStanza = i % 4;
+                    const xOffset = (lineInStanza === 1 || lineInStanza === 3) ? indentOffset : 0;
+
+                    ctx.fillText(lines1[i], leftPadding + xOffset, startY + i * lineHeight);
                 }
             }
 
@@ -614,61 +749,127 @@
             return dataTransfer.files;
         }
 
+        async function loadFileFromUrl(fileUrl) {
+            try {
+                // Convert file:/// URLs to relative paths for web server
+                let url = fileUrl;
+                if (fileUrl.startsWith('file:///')) {
+                    // Extract the path after file://
+                    const filePath = fileUrl.replace('file://', '');
+                    url = filePath;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Failed to load file: ${response.status} ${response.statusText}. URL: ${url}`);
+                }
+                const blob = await response.blob();
+                const filename = url.split('/').pop() || 'file';
+                const file = new File([blob], filename, { type: blob.type });
+                return file;
+            } catch (error) {
+                throw new Error(`Cannot load file from URL: ${error.message}`);
+            }
+        }
+
         window.slideGeneratorAPI = {
             setFile1: function (file) {
                 document.getElementById('file1').files = createFileList([file]);
-                console.log('File 1 set');
+                console.log('✓ File 1 set');
             },
             setFile2: function (file) {
                 document.getElementById('file2').files = createFileList([file]);
-                console.log('File 2 set');
+                console.log('✓ File 2 set');
+            },
+            setLabelFile: function (file) {
+                document.getElementById('labelFile').files = createFileList([file]);
+                console.log('✓ Label file set');
             },
             setBgImage: function (file) {
                 document.getElementById('bgImage').files = createFileList([file]);
-                console.log('Background image set');
+                console.log('✓ Background image set');
+            },
+            setFile1Url: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setFile1(file);
+                } catch (error) {
+                    console.error('✗ Error loading File 1:', error.message);
+                }
+            },
+            setFile2Url: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setFile2(file);
+                } catch (error) {
+                    console.error('✗ Error loading File 2:', error.message);
+                }
+            },
+            setLabelFileUrl: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setLabelFile(file);
+                } catch (error) {
+                    console.error('✗ Error loading Label file:', error.message);
+                }
+            },
+            setBgImageUrl: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setBgImage(file);
+                } catch (error) {
+                    console.error('✗ Error loading Background image:', error.message);
+                }
             },
             setLinesPerSlide: function (value) {
                 document.getElementById('linesPerSlide').value = value;
-                console.log('Lines per slide set to ' + value);
+                console.log('✓ Lines per slide set to ' + value);
             },
             setFontFamily: function (value) {
                 document.getElementById('fontFamily').value = value;
-                console.log('Font family set to ' + value);
+                console.log('✓ Font family set to ' + value);
             },
             setBaseFontSize: function (value) {
                 document.getElementById('baseFontSize').value = value;
-                console.log('Base font size set to ' + value);
+                console.log('✓ Base font size set to ' + value);
             },
             setLineHeightMultiplier: function (value) {
                 document.getElementById('lineHeightMultiplier').value = value;
-                console.log('Line height multiplier set to ' + value);
+                console.log('✓ Line height multiplier set to ' + value);
             },
             setBgColor: function (color) {
                 document.getElementById('bgColor').value = color;
-                console.log('Background color set to ' + color);
+                console.log('✓ Background color set to ' + color);
             },
             setColorBefore: function (color) {
                 document.getElementById('colorBefore').value = color;
-                console.log('Before color set to ' + color);
+                console.log('✓ Before color set to ' + color);
             },
             setColorHighlight: function (color) {
                 document.getElementById('colorHighlight').value = color;
-                console.log('Highlight color set to ' + color);
+                console.log('✓ Highlight color set to ' + color);
             },
             setColorAfter: function (color) {
                 document.getElementById('colorAfter').value = color;
-                console.log('After color set to ' + color);
+                console.log('✓ After color set to ' + color);
+            },
+            setIndentOffset: function (value) {
+                document.getElementById('indentOffset').value = value;
+                console.log('✓ Indent offset set to ' + value);
+            },
+            enableIndent: function (enabled) {
+                document.getElementById('enableIndent').checked = enabled;
+                console.log('✓ Indent ' + (enabled ? 'enabled' : 'disabled'));
             },
             preview: function () {
                 previewSlide();
+                console.log('✓ Preview started');
             },
             generate: function () {
                 generateSlideZip();
+                console.log('✓ Generation started');
             },
-            setAll: function (config) {
-                if (config.file1) this.setFile1(config.file1);
-                if (config.file2) this.setFile2(config.file2);
-                if (config.bgImage) this.setBgImage(config.bgImage);
+            applySettings: function (config) {
                 if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
                 if (config.fontFamily) this.setFontFamily(config.fontFamily);
                 if (config.baseFontSize) this.setBaseFontSize(config.baseFontSize);
@@ -677,7 +878,23 @@
                 if (config.colorBefore) this.setColorBefore(config.colorBefore);
                 if (config.colorHighlight) this.setColorHighlight(config.colorHighlight);
                 if (config.colorAfter) this.setColorAfter(config.colorAfter);
-                console.log('All configuration set');
+                if (config.indentOffset !== undefined) this.setIndentOffset(config.indentOffset);
+                if (config.enableIndent !== undefined) this.enableIndent(config.enableIndent);
+                console.log('✓ All settings applied');
+            },
+            setAll: function (config) {
+                if (config.file1) this.setFile1(config.file1);
+                if (config.file2) this.setFile2(config.file2);
+                if (config.labelFile) this.setLabelFile(config.labelFile);
+                if (config.bgImage) this.setBgImage(config.bgImage);
+                this.applySettings(config);
+            },
+            setAllUrl: async function (config) {
+                if (config.file1Url) await this.setFile1Url(config.file1Url);
+                if (config.file2Url) await this.setFile2Url(config.file2Url);
+                if (config.labelFileUrl) await this.setLabelFileUrl(config.labelFileUrl);
+                if (config.bgImageUrl) await this.setBgImageUrl(config.bgImageUrl);
+                this.applySettings(config);
             }
         };
     </script>
