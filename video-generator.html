@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slide Generator with Audio</title>
+    <title>Slide Generator</title>
     <style>
         * {
             margin: 0;
@@ -89,26 +89,6 @@
             margin-bottom: 0;
         }
 
-        .audio-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .audio-input-group {
-            flex: 1;
-        }
-
-        .audio-inputs label {
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-
-        .audio-inputs input {
-            margin-bottom: 0;
-        }
-
         .color-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -150,6 +130,35 @@
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .preview-controls {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-controls button {
+            padding: 10px 20px;
+        }
+
+        .preview-controls input {
+            margin: 0;
+        }
+
+        .preview-controls label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 14px;
         }
 
         .progress {
@@ -212,16 +221,31 @@
             color: #666;
             margin-top: 5px;
         }
+
+        .preview {
+            display: none;
+            margin-top: 20px;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #previewCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: white;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>📊 Slide Generator with Audio Video</h1>
+        <h1>📊 Slide Generator</h1>
 
         <div class="info">
-            <strong>How to use:</strong> Upload 1-2 TXT files, an Audacity label file, and a WAV file. The generator
-            will create an MP4 video where each slide duration matches the label timings.
+            <strong>How to use:</strong> Upload 1-2 TXT files and preview slides before generating a ZIP file with all
+            slide variations.
         </div>
 
         <div class="section">
@@ -239,20 +263,6 @@
         </div>
 
         <div class="section">
-            <label>Upload Audio Files:</label>
-            <div class="audio-inputs">
-                <div class="audio-input-group">
-                    <label>Audacity Label File (Required)</label>
-                    <input type="file" id="labelFile" accept=".txt" required>
-                </div>
-                <div class="audio-input-group">
-                    <label>WAV Audio File (Required)</label>
-                    <input type="file" id="wavFile" accept=".wav" required>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
             <label>Background Image (Optional):</label>
             <input type="file" id="bgImage" accept=".png,.jpg,.jpeg">
             <p class="bg-image-note">Upload a PNG or JPG to use as background for all slides (instead of solid color)
@@ -262,11 +272,6 @@
         <div class="section">
             <label for="linesPerSlide">Lines per Slide:</label>
             <input type="number" id="linesPerSlide" value="8" min="1" max="20">
-        </div>
-
-        <div class="section">
-            <label for="copiesPerSlide">Copies per Slide (highlighting variations):</label>
-            <input type="number" id="copiesPerSlide" value="3" min="1" max="10">
         </div>
 
         <div class="section">
@@ -315,12 +320,22 @@
             </div>
         </div>
 
-        <div class="section">
-            <label for="fps">Video FPS:</label>
-            <input type="number" id="fps" value="30" min="1" max="60">
+        <div class="button-group">
+            <button type="button" onclick="previewSlide()">Preview Slide</button>
+            <button type="button" onclick="generateSlideZip()">Generate Slides ZIP</button>
         </div>
 
-        <button type="button" onclick="generateVideo()">Generate MP4 Video</button>
+        <div id="preview" class="preview">
+            <div class="preview-controls">
+                <button type="button" onclick="previousSlide()">&lt; Previous</button>
+                <div style="text-align: center;">
+                    <label>Slide <span id="currentSlideNum">1</span> / <span id="totalSlides">1</span> | Highlight <span
+                            id="currentHighlight">1</span> / <span id="totalHighlights">1</span></label>
+                </div>
+                <button type="button" onclick="nextSlide()">Next &gt;</button>
+            </div>
+            <canvas id="previewCanvas" width="1920" height="1080"></canvas>
+        </div>
 
         <div class="error" id="error"></div>
         <div class="success" id="success"></div>
@@ -332,37 +347,80 @@
         </div>
     </div>
 
-    <script async src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.0/dist/util.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        let FFmpeg;
-        let ffmpeg;
+        let currentPreviewSlideGroup = 0;
+        let currentPreviewHighlight = 0;
+        let totalSlideGroups = 0;
+        let linesPerSlide = 8;
+        let cachedLines1 = [];
+        let cachedLines2 = [];
+        let cachedBgImage = null;
 
-        // Wait for FFmpeg to load
-        window.addEventListener('load', async () => {
-            FFmpeg = FFmpeg || window.FFmpeg;
-            const { FFmpeg: FFmpegClass, fetchFile } = FFmpeg;
-            ffmpeg = new FFmpegClass.FFmpeg();
-            console.log('FFmpeg ready');
-        });
-
-        async function generateVideo() {
-            console.log('Generate video clicked');
-
-            if (!ffmpeg) {
-                document.getElementById('error').textContent = '✗ Error: FFmpeg is still loading. Please wait a moment and try again.';
-                document.getElementById('error').style.display = 'block';
-                return;
-            }
-
+        async function loadFiles() {
             const file1 = document.getElementById('file1').files[0];
             const file2 = document.getElementById('file2').files[0];
-            const labelFile = document.getElementById('labelFile').files[0];
-            const wavFile = document.getElementById('wavFile').files[0];
             const bgImageFile = document.getElementById('bgImage').files[0];
 
-            const linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
-            const copiesPerSlide = parseInt(document.getElementById('copiesPerSlide').value) || 3;
+            if (!file1) {
+                throw new Error('Please upload at least text file 1');
+            }
+
+            const text1 = await file1.text();
+            let text2 = null;
+            if (file2) {
+                text2 = await file2.text();
+            }
+
+            cachedLines1 = text1.split('\n').filter(l => l.trim());
+            cachedLines2 = text2 ? text2.split('\n').filter(l => l.trim()) : null;
+
+            if (cachedLines1.length === 0) {
+                throw new Error('File 1 is empty');
+            }
+
+            if (cachedLines2 && cachedLines2.length !== cachedLines1.length) {
+                throw new Error(`Both files must have the same number of lines`);
+            }
+
+            if (bgImageFile) {
+                const bgImageUrl = URL.createObjectURL(bgImageFile);
+                cachedBgImage = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('Failed to load background image'));
+                    img.src = bgImageUrl;
+                });
+            }
+
+            linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
+            totalSlideGroups = Math.ceil(cachedLines1.length / linesPerSlide);
+            currentPreviewSlideGroup = 0;
+            currentPreviewHighlight = 0;
+
+            document.getElementById('totalSlides').textContent = totalSlideGroups;
+            document.getElementById('totalHighlights').textContent = linesPerSlide;
+        }
+
+        async function previewSlide() {
+            const errorDiv = document.getElementById('error');
+            const previewDiv = document.getElementById('preview');
+
+            errorDiv.style.display = 'none';
+            previewDiv.style.display = 'none';
+
+            try {
+                await loadFiles();
+                updatePreview();
+                previewDiv.style.display = 'block';
+            } catch (err) {
+                console.error('Error:', err);
+                errorDiv.textContent = '✗ Error: ' + err.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function updatePreview() {
             const bgColor = document.getElementById('bgColor').value || '#ffffff';
             const colorBefore = document.getElementById('colorBefore').value || '#999999';
             const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
@@ -370,8 +428,44 @@
             const fontFamily = document.getElementById('fontFamily').value || 'Arial';
             const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
             const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
-            const fps = parseInt(document.getElementById('fps').value) || 30;
 
+            const startIdx = currentPreviewSlideGroup * linesPerSlide;
+            const endIdx = Math.min(startIdx + linesPerSlide, cachedLines1.length);
+            const slideLines1 = cachedLines1.slice(startIdx, endIdx);
+            const slideLines2 = cachedLines2 ? cachedLines2.slice(startIdx, endIdx) : null;
+            const isBilingual = !!cachedLines2;
+
+            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+
+            const previewCanvas = document.getElementById('previewCanvas');
+            const ctx = previewCanvas.getContext('2d');
+            ctx.drawImage(canvas, 0, 0);
+
+            document.getElementById('currentSlideNum').textContent = currentPreviewSlideGroup + 1;
+            document.getElementById('currentHighlight').textContent = currentPreviewHighlight + 1;
+        }
+
+        function nextSlide() {
+            if (currentPreviewHighlight < linesPerSlide - 1) {
+                currentPreviewHighlight++;
+            } else if (currentPreviewSlideGroup < totalSlideGroups - 1) {
+                currentPreviewSlideGroup++;
+                currentPreviewHighlight = 0;
+            }
+            updatePreview();
+        }
+
+        function previousSlide() {
+            if (currentPreviewHighlight > 0) {
+                currentPreviewHighlight--;
+            } else if (currentPreviewSlideGroup > 0) {
+                currentPreviewSlideGroup--;
+                currentPreviewHighlight = linesPerSlide - 1;
+            }
+            updatePreview();
+        }
+
+        async function generateSlideZip() {
             const errorDiv = document.getElementById('error');
             const successDiv = document.getElementById('success');
             const progressDiv = document.getElementById('progress');
@@ -380,140 +474,49 @@
             successDiv.style.display = 'none';
 
             try {
-                if (!file1 || !labelFile || !wavFile) {
-                    throw new Error('Please upload text file(s), label file, and WAV file');
-                }
-
-                const text1 = await file1.text();
-                let text2 = null;
-                if (file2) {
-                    text2 = await file2.text();
-                }
-
-                const lines1 = text1.split('\n').filter(l => l.trim());
-                const lines2 = text2 ? text2.split('\n').filter(l => l.trim()) : null;
-
-                if (lines1.length === 0) {
-                    throw new Error('File 1 is empty');
-                }
-
-                if (lines2 && lines2.length !== lines1.length) {
-                    throw new Error(`Both files must have the same number of lines`);
-                }
-
-                const labelText = await labelFile.text();
-                const labels = parseAudacityLabels(labelText);
-                console.log('Parsed labels:', labels);
+                await loadFiles();
 
                 progressDiv.style.display = 'block';
 
-                let bgImage = null;
-                if (bgImageFile) {
-                    const bgImageUrl = URL.createObjectURL(bgImageFile);
-                    bgImage = await new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => resolve(img);
-                        img.onerror = () => reject(new Error('Failed to load background image'));
-                        img.src = bgImageUrl;
-                    });
-                }
+                const bgColor = document.getElementById('bgColor').value || '#ffffff';
+                const colorBefore = document.getElementById('colorBefore').value || '#999999';
+                const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
+                const colorAfter = document.getElementById('colorAfter').value || '#000000';
+                const fontFamily = document.getElementById('fontFamily').value || 'Arial';
+                const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
+                const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
 
-                const slideGroups = [];
-                const totalSlideGroups = Math.ceil(lines1.length / linesPerSlide);
-
-                for (let i = 0; i < totalSlideGroups; i++) {
-                    const startIdx = i * linesPerSlide;
-                    const endIdx = Math.min(startIdx + linesPerSlide, lines1.length);
-                    const slideLines1 = lines1.slice(startIdx, endIdx);
-                    const slideLines2 = lines2 ? lines2.slice(startIdx, endIdx) : null;
-
-                    const duration = labels[i] ? (labels[i].end - labels[i].start) : 1.0;
-
-                    slideGroups.push({
-                        lines1: slideLines1,
-                        lines2: slideLines2,
-                        duration: duration,
-                        isBilingual: !!lines2
-                    });
-                }
-
-                const frames = [];
-                for (let groupIdx = 0; groupIdx < slideGroups.length; groupIdx++) {
-                    const group = slideGroups[groupIdx];
-                    const duration = group.duration;
-                    const frameCount = Math.ceil(duration * fps);
-
-                    for (let highlightIdx = 0; highlightIdx < copiesPerSlide; highlightIdx++) {
-                        const canvas = createSlide(
-                            group.lines1,
-                            group.lines2,
-                            highlightIdx,
-                            group.isBilingual,
-                            bgColor, colorBefore, colorHighlight, colorAfter,
-                            fontFamily, baseFontSize, lineHeightMultiplier,
-                            bgImage
-                        );
-
-                        frames.push({
-                            canvas: canvas,
-                            duration: duration,
-                            frameCount: frameCount
-                        });
-                    }
-                }
-
-                console.log('Total frames:', frames.length);
-
-                if (!ffmpeg.isLoaded()) {
-                    await ffmpeg.load();
-                }
-
+                const zip = new JSZip();
                 let frameIndex = 0;
-                for (let i = 0; i < frames.length; i++) {
-                    const frame = frames[i];
-                    const frameCount = frame.frameCount;
 
-                    const blob = await new Promise(resolve => frame.canvas.toBlob(resolve));
-                    const imageData = await blob.arrayBuffer();
+                for (let slideIdx = 0; slideIdx < totalSlideGroups; slideIdx++) {
+                    const startIdx = slideIdx * linesPerSlide;
+                    const endIdx = Math.min(startIdx + linesPerSlide, cachedLines1.length);
+                    const slideLines1 = cachedLines1.slice(startIdx, endIdx);
+                    const slideLines2 = cachedLines2 ? cachedLines2.slice(startIdx, endIdx) : null;
+                    const isBilingual = !!cachedLines2;
 
-                    for (let j = 0; j < frameCount; j++) {
-                        ffmpeg.FS('writeFile', `frame_${String(frameIndex).padStart(8, '0')}.png`, new Uint8Array(imageData));
+                    for (let highlightIdx = 0; highlightIdx < linesPerSlide; highlightIdx++) {
+                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                        const filename = `slide_${String(frameIndex).padStart(6, '0')}.png`;
+                        zip.file(filename, blob);
                         frameIndex++;
-                    }
 
-                    const progress = Math.round((i + 1) / frames.length * 40);
-                    document.getElementById('progressFill').textContent = progress + '%';
-                    document.getElementById('progressFill').style.width = progress + '%';
+                        const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalSlideGroups * linesPerSlide) * 100);
+                        document.getElementById('progressFill').textContent = progress + '%';
+                        document.getElementById('progressFill').style.width = progress + '%';
+                    }
                 }
 
-                const wavData = await wavFile.arrayBuffer();
-                ffmpeg.FS('writeFile', 'audio.wav', new Uint8Array(wavData));
-
-                document.getElementById('progressFill').textContent = '60%';
-                document.getElementById('progressFill').style.width = '60%';
-
-                await ffmpeg.run(
-                    '-framerate', fps.toString(),
-                    '-pattern_type', 'glob',
-                    '-i', 'frame_*.png',
-                    '-i', 'audio.wav',
-                    '-c:v', 'libx264',
-                    '-pix_fmt', 'yuv420p',
-                    '-c:a', 'aac',
-                    '-shortest',
-                    'output.mp4'
-                );
-
-                document.getElementById('progressFill').textContent = '95%';
-                document.getElementById('progressFill').style.width = '95%';
-
-                const outputData = ffmpeg.FS('readFile', 'output.mp4');
-                downloadBlob(new Blob([outputData.buffer]), 'video.mp4');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                downloadBlob(zipBlob, 'slides.zip');
 
                 document.getElementById('progressFill').textContent = '100%';
                 document.getElementById('progressFill').style.width = '100%';
 
-                successDiv.textContent = `✓ Generated MP4 video successfully! Downloaded as video.mp4`;
+                successDiv.textContent = `✓ Generated ${frameIndex} slide images as slides.zip!`;
                 successDiv.style.display = 'block';
 
             } catch (err) {
@@ -522,34 +525,6 @@
                 errorDiv.style.display = 'block';
                 progressDiv.style.display = 'none';
             }
-        }
-
-        function parseAudacityLabels(labelText) {
-            const labels = [];
-            const lines = labelText.split('\n').filter(l => l.trim());
-
-            let prevEnd = 0;
-
-            for (const line of lines) {
-                let parts = line.split('\t');
-
-                if (parts.length === 1) {
-                    parts = line.split(/\s+/);
-                }
-
-                if (parts.length >= 1) {
-                    const endTime = parseFloat(parts[0]);
-
-                    if (!isNaN(endTime)) {
-                        const start = prevEnd;
-                        const end = endTime;
-                        labels.push({ start, end });
-                        prevEnd = end;
-                    }
-                }
-            }
-
-            return labels;
         }
 
         function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage) {
@@ -632,11 +607,83 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+
+        function createFileList(files) {
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            return dataTransfer.files;
+        }
+
+        window.slideGeneratorAPI = {
+            setFile1: function (file) {
+                document.getElementById('file1').files = createFileList([file]);
+                console.log('File 1 set');
+            },
+            setFile2: function (file) {
+                document.getElementById('file2').files = createFileList([file]);
+                console.log('File 2 set');
+            },
+            setBgImage: function (file) {
+                document.getElementById('bgImage').files = createFileList([file]);
+                console.log('Background image set');
+            },
+            setLinesPerSlide: function (value) {
+                document.getElementById('linesPerSlide').value = value;
+                console.log('Lines per slide set to ' + value);
+            },
+            setFontFamily: function (value) {
+                document.getElementById('fontFamily').value = value;
+                console.log('Font family set to ' + value);
+            },
+            setBaseFontSize: function (value) {
+                document.getElementById('baseFontSize').value = value;
+                console.log('Base font size set to ' + value);
+            },
+            setLineHeightMultiplier: function (value) {
+                document.getElementById('lineHeightMultiplier').value = value;
+                console.log('Line height multiplier set to ' + value);
+            },
+            setBgColor: function (color) {
+                document.getElementById('bgColor').value = color;
+                console.log('Background color set to ' + color);
+            },
+            setColorBefore: function (color) {
+                document.getElementById('colorBefore').value = color;
+                console.log('Before color set to ' + color);
+            },
+            setColorHighlight: function (color) {
+                document.getElementById('colorHighlight').value = color;
+                console.log('Highlight color set to ' + color);
+            },
+            setColorAfter: function (color) {
+                document.getElementById('colorAfter').value = color;
+                console.log('After color set to ' + color);
+            },
+            preview: function () {
+                previewSlide();
+            },
+            generate: function () {
+                generateSlideZip();
+            },
+            setAll: function (config) {
+                if (config.file1) this.setFile1(config.file1);
+                if (config.file2) this.setFile2(config.file2);
+                if (config.bgImage) this.setBgImage(config.bgImage);
+                if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
+                if (config.fontFamily) this.setFontFamily(config.fontFamily);
+                if (config.baseFontSize) this.setBaseFontSize(config.baseFontSize);
+                if (config.lineHeightMultiplier) this.setLineHeightMultiplier(config.lineHeightMultiplier);
+                if (config.bgColor) this.setBgColor(config.bgColor);
+                if (config.colorBefore) this.setColorBefore(config.colorBefore);
+                if (config.colorHighlight) this.setColorHighlight(config.colorHighlight);
+                if (config.colorAfter) this.setColorAfter(config.colorAfter);
+                console.log('All configuration set');
+            }
+        };
     </script>
 </body>
 
 </html>
-
 <!--
 
 Individual setters:
@@ -648,6 +695,9 @@ slideGeneratorAPI.setBgColor('#ffffff');
 slideGeneratorAPI.setColorHighlight('#FFD700');
 slideGeneratorAPI.setFPS(30);
 slideGeneratorAPI.generate();
+
+// Preview slide 5
+slideGeneratorAPI.preview(5);
 
 Or use setAll() for everything at once:
 
