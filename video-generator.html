@@ -636,3 +636,58 @@
 </body>
 
 </html>
+
+<!--
+
+Individual setters:
+
+slideGeneratorAPI.setFile1(fileObject);
+slideGeneratorAPI.setLinesPerSlide(8);
+slideGeneratorAPI.setFontFamily('Arial');
+slideGeneratorAPI.setBgColor('#ffffff');
+slideGeneratorAPI.setColorHighlight('#FFD700');
+slideGeneratorAPI.setFPS(30);
+slideGeneratorAPI.generate();
+
+Or use setAll() for everything at once:
+
+slideGeneratorAPI.setAll({
+    file1: file1Obj,
+    labelFile: labelFileObj,
+    wavFile: wavFileObj,
+    linesPerSlide: 8,
+    copiesPerSlide: 3,
+    fontFamily: 'Arial',
+    baseFontSize: 60,
+    lineHeightMultiplier: 1.4,
+    bgColor: '#ffffff',
+    colorBefore: '#999999',
+    colorHighlight: '#FFD700',
+    colorAfter: '#000000',
+    fps: 30
+});
+slideGeneratorAPI.generate();
+
+Available methods:
+
+setFile1(file) - Set text file 1
+setFile2(file) - Set text file 2
+setLabelFile(file) - Set Audacity label file
+setWavFile(file) - Set WAV audio file
+setBgImage(file) - Set background image
+setLinesPerSlide(value)
+setCopiesPerSlide(value)
+setFontFamily(value)
+setBaseFontSize(value)
+setLineHeightMultiplier(value)
+setBgColor(color) - hex color like '#ffffff'
+setColorBefore(color) - hex color for before lines
+setColorHighlight(color) - hex color for highlighted line
+setColorAfter(color) - hex color for after lines
+setFPS(value)
+generate() - Start video generation
+setAll(config) - Set all parameters at once
+
+Now you can fully automate the process from the console!
+
+-->
