@@ -57,10 +57,11 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
     draw = ImageDraw.Draw(img)
 
     first_line_fill = (0, 0, 255)
-    text_fill = (0, 0, 0)
-    text_highlight_fill = (0, 255, 255)
+    text_fill = (255, 255, 255)
+    text_highlight_fill = (255, 255, 0)
     text_shadow_fill = (0, 0, 0)
     text_shadow_highlight_fill = (0, 0, 0)
+    text_highlight_background = False
 
     no_blanks = first_line_title and len(s_chunk) == LINES_PER_SLIDE and all(line.strip() for line in s_chunk)
     def draw_lines(chunk, font, margin_top):
@@ -73,7 +74,7 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
             #     draw.text((MARGIN_LEFT+2, margin_top + i * LINE_SPACING + 2), line, font=font, fill=shadow_fill)
             fill = first_line_fill if i == 0 and i != highlight_idx and no_blanks else fill
             # draw a rounded corner box around the text if it's the highlighted line
-            if i == highlight_idx:
+            if i == highlight_idx and text_highlight_background:
                 bbox = font.getbbox(line)
                 width = bbox[2] - bbox[0]
                 height = bbox[3] - bbox[1]
