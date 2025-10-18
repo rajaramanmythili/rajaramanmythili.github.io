@@ -246,6 +246,8 @@
         <div class="info">
             <strong>How to use:</strong> Upload 1-2 TXT files and preview slides before generating a ZIP file with all
             slide variations. Optionally add an Audacity label file to generate FFmpeg concat instructions.
+            <br><strong>Stanza Detection:</strong> 4-line stanzas separated by blank lines will have lines 2 & 4
+            indented.
         </div>
 
         <div class="section">
@@ -305,13 +307,21 @@
 
         <div class="section">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <input type="checkbox" id="preserveBlankLines">
+                <label for="preserveBlankLines" style="margin: 0; font-weight: bold; color: #555;">Preserve Blank
+                    Lines</label>
+            </div>
+            <p class="bg-image-note">Keep blank lines as-is in slides (counts towards lines per slide). Lines with just
+                spaces are always preserved for visual gaps.</p>
+        </div>
+
+        <div class="section">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                 <input type="checkbox" id="enableIndent" checked>
                 <label for="enableIndent" style="margin: 0; font-weight: bold; color: #555;">Enable Indent for Lines 2 &
                     4</label>
             </div>
-            <label for="indentOffset">Indent Offset (pixels):</label>
-            <input type="number" id="indentOffset" value="100" min="0" max="500">
-            <p class="bg-image-note">Add indentation to 2nd and 4th lines of each 4-line stanza</p>
+            <p class="bg-image-note">Add indentation to 2nd and 4th lines of detected 4-line stanzas</p>
         </div>
 
         <div class="section">
@@ -345,9 +355,14 @@
         <div id="preview" class="preview">
             <div class="preview-controls">
                 <button type="button" onclick="previousSlide()">&lt; Previous</button>
-                <div style="text-align: center;">
-                    <label>Slide <span id="currentSlideNum">1</span> / <span id="totalSlides">1</span> | Highlight <span
-                            id="currentHighlight">1</span> / <span id="totalHighlights">1</span></label>
+                <div
+                    style="text-align: center; display: flex; gap: 10px; align-items: center; justify-content: center;">
+                    <label>Slide:</label>
+                    <select id="slideSelector" onchange="jumpToSlide()"
+                        style="width: auto; min-width: 80px; margin: 0;"></select>
+                    <label>| Highlight:</label>
+                    <select id="highlightSelector" onchange="jumpToHighlight()"
+                        style="width: auto; min-width: 80px; margin: 0;"></select>
                 </div>
                 <button type="button" onclick="nextSlide()">Next &gt;</button>
             </div>
@@ -412,11 +427,52 @@
             return concatLines.join('\n');
         }
 
+        function applyStanzaIndent(lines, enableIndent) {
+            if (!enableIndent) return lines;
+
+            const result = [];
+            let i = 0;
+
+            while (i < lines.length) {
+                const line1 = lines[i];
+                const isBlank1 = line1.trim().length === 0;
+
+                if (!isBlank1 && i + 4 < lines.length) {
+                    const line2 = lines[i + 1];
+                    const line3 = lines[i + 2];
+                    const line4 = lines[i + 3];
+                    const nextLine = lines[i + 4];
+
+                    const isBlank2 = line2.trim().length === 0;
+                    const isBlank3 = line3.trim().length === 0;
+                    const isBlank4 = line4.trim().length === 0;
+                    const nextIsBlank = nextLine.trim().length === 0;
+
+                    if (!isBlank2 && !isBlank3 && !isBlank4 && nextIsBlank) {
+                        result.push(line1);
+                        result.push('    ' + line2);
+                        result.push(line3);
+                        result.push('    ' + line4);
+                        result.push(nextLine);
+                        i += 5;
+                        continue;
+                    }
+                }
+
+                result.push(line1);
+                i++;
+            }
+
+            return result;
+        }
+
         async function loadFiles() {
             const file1 = document.getElementById('file1').files[0];
             const file2 = document.getElementById('file2').files[0];
             const bgImageFile = document.getElementById('bgImage').files[0];
             const labelFile = document.getElementById('labelFile').files[0];
+            const enableIndent = document.getElementById('enableIndent').checked;
+            const shouldPreserveBlankLines = document.getElementById('preserveBlankLines').checked;
 
             if (!file1) {
                 throw new Error('Please upload at least text file 1');
@@ -428,15 +484,36 @@
                 text2 = await file2.text();
             }
 
-            cachedLines1 = text1.split('\n').filter(l => l.trim());
-            cachedLines2 = text2 ? text2.split('\n').filter(l => l.trim()) : null;
+            let lines1 = text1.split('\n');
+            lines1 = applyStanzaIndent(lines1, enableIndent);
 
-            if (cachedLines1.length === 0) {
+            cachedLines1 = lines1.map(line => {
+                if (line.length > 0) return line;
+                return shouldPreserveBlankLines ? '' : null;
+            }).filter(line => line !== null);
+
+            if (text2) {
+                let lines2 = text2.split('\n');
+                lines2 = applyStanzaIndent(lines2, enableIndent);
+                cachedLines2 = lines2.map(line => {
+                    if (line.length > 0) return line;
+                    return shouldPreserveBlankLines ? '' : null;
+                }).filter(line => line !== null);
+            } else {
+                cachedLines2 = null;
+            }
+
+            const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+
+            if (nonEmptyLines1.length === 0) {
                 throw new Error('File 1 is empty');
             }
 
-            if (cachedLines2 && cachedLines2.length !== cachedLines1.length) {
-                throw new Error(`Both files must have the same number of lines`);
+            if (cachedLines2) {
+                const nonEmptyLines2 = cachedLines2.filter(l => l.trim().length > 0);
+                if (nonEmptyLines2.length !== nonEmptyLines1.length) {
+                    throw new Error(`Both files must have the same number of non-empty lines`);
+                }
             }
 
             if (labelFile) {
@@ -460,12 +537,46 @@
             }
 
             linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
-            totalSlideGroups = Math.ceil(cachedLines1.length / linesPerSlide);
+
+            const nonEmptyCount = cachedLines1.filter(l => l.trim().length > 0).length;
+            totalSlideGroups = Math.ceil(nonEmptyCount / linesPerSlide);
             currentPreviewSlideGroup = 0;
             currentPreviewHighlight = 0;
+        }
 
-            document.getElementById('totalSlides').textContent = totalSlideGroups;
-            document.getElementById('totalHighlights').textContent = linesPerSlide;
+        function populateDropdowns() {
+            const slideSelector = document.getElementById('slideSelector');
+            const highlightSelector = document.getElementById('highlightSelector');
+
+            slideSelector.innerHTML = '';
+            highlightSelector.innerHTML = '';
+
+            for (let i = 0; i < totalSlideGroups; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i + 1} / ${totalSlideGroups}`;
+                slideSelector.appendChild(option);
+            }
+
+            for (let i = 0; i < linesPerSlide; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i + 1} / ${linesPerSlide}`;
+                highlightSelector.appendChild(option);
+            }
+
+            slideSelector.value = currentPreviewSlideGroup;
+            highlightSelector.value = currentPreviewHighlight;
+        }
+
+        function jumpToSlide() {
+            currentPreviewSlideGroup = parseInt(document.getElementById('slideSelector').value);
+            updatePreview();
+        }
+
+        function jumpToHighlight() {
+            currentPreviewHighlight = parseInt(document.getElementById('highlightSelector').value);
+            updatePreview();
         }
 
         async function previewSlide() {
@@ -477,6 +588,7 @@
 
             try {
                 await loadFiles();
+                populateDropdowns();
                 updatePreview();
                 previewDiv.style.display = 'block';
             } catch (err) {
@@ -494,23 +606,24 @@
             const fontFamily = document.getElementById('fontFamily').value || 'Arial';
             const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
             const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
-            const enableIndent = document.getElementById('enableIndent').checked;
-            const indentOffset = enableIndent ? parseInt(document.getElementById('indentOffset').value) || 0 : 0;
+
+            const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+            const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
 
             const startIdx = currentPreviewSlideGroup * linesPerSlide;
-            const endIdx = Math.min(startIdx + linesPerSlide, cachedLines1.length);
-            const slideLines1 = cachedLines1.slice(startIdx, endIdx);
-            const slideLines2 = cachedLines2 ? cachedLines2.slice(startIdx, endIdx) : null;
+            const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyLines1.length);
+            const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
+            const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
             const isBilingual = !!cachedLines2;
 
-            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, indentOffset);
+            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
 
             const previewCanvas = document.getElementById('previewCanvas');
             const ctx = previewCanvas.getContext('2d');
             ctx.drawImage(canvas, 0, 0);
 
-            document.getElementById('currentSlideNum').textContent = currentPreviewSlideGroup + 1;
-            document.getElementById('currentHighlight').textContent = currentPreviewHighlight + 1;
+            document.getElementById('slideSelector').value = currentPreviewSlideGroup;
+            document.getElementById('highlightSelector').value = currentPreviewHighlight;
         }
 
         function nextSlide() {
@@ -557,35 +670,36 @@
                 const zip = new JSZip();
                 let frameIndex = 0;
 
-                for (let slideIdx = 0; slideIdx < totalSlideGroups; slideIdx++) {
+                const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
+                const nonEmptyCount = nonEmptyLines1.length;
+                const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
+
+                for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
                     const startIdx = slideIdx * linesPerSlide;
-                    const endIdx = Math.min(startIdx + linesPerSlide, cachedLines1.length);
-                    const slideLines1 = cachedLines1.slice(startIdx, endIdx);
-                    const slideLines2 = cachedLines2 ? cachedLines2.slice(startIdx, endIdx) : null;
+                    const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyCount);
+                    const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
+                    const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
                     const isBilingual = !!cachedLines2;
 
                     for (let highlightIdx = 0; highlightIdx < linesPerSlide; highlightIdx++) {
-                        const enableIndent = document.getElementById('enableIndent').checked;
-                        const indentOffset = enableIndent ? parseInt(document.getElementById('indentOffset').value) || 0 : 0;
-                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, indentOffset);
+                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
 
                         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
                         const filename = `slide_${String(frameIndex).padStart(6, '0')}.png`;
                         zip.file(filename, blob);
                         frameIndex++;
 
-                        const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalSlideGroups * linesPerSlide) * 100);
+                        const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalGroups * linesPerSlide) * 100);
                         document.getElementById('progressFill').textContent = progress + '%';
                         document.getElementById('progressFill').style.width = progress + '%';
                     }
                 }
 
-                // Generate FFmpeg concat file if label data exists
                 if (cachedLabelData && cachedLabelData.length > 0) {
                     const concatContent = generateFfmpegConcat(cachedLabelData);
                     zip.file('concat.txt', concatContent);
 
-                    // Generate Python script for MP4 generation
                     const pythonScript = `#!/usr/bin/env python3
 import subprocess
 import os
@@ -645,6 +759,7 @@ if __name__ == '__main__':
                 const concatMsg = cachedLabelData ? ' + concat.txt' : '';
                 successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as slides.zip!`;
                 successDiv.style.display = 'block';
+                progressDiv.style.display = 'none';
 
             } catch (err) {
                 console.error('Error:', err);
@@ -654,7 +769,7 @@ if __name__ == '__main__':
             }
         }
 
-        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage, indentOffset) {
+        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage) {
             const canvas = document.createElement('canvas');
             canvas.width = 1920;
             canvas.height = 1080;
@@ -701,12 +816,8 @@ if __name__ == '__main__':
                         ctx.fillStyle = colorAfter;
                     }
 
-                    // Calculate indent for 2nd and 4th lines in 4-line stanzas
-                    const lineInStanza = i % 4;
-                    const xOffset = (lineInStanza === 1 || lineInStanza === 3) ? indentOffset : 0;
-
-                    ctx.fillText(lines1[i], leftPadding + xOffset, yPos1);
-                    ctx.fillText(lines2[i], leftPadding + xOffset, halfHeight + yPos2);
+                    ctx.fillText(lines1[i], leftPadding, yPos1);
+                    ctx.fillText(lines2[i], leftPadding, halfHeight + yPos2);
 
                     yPos1 += lineHeight;
                     yPos2 += lineHeight;
@@ -721,11 +832,7 @@ if __name__ == '__main__':
                         ctx.fillStyle = colorAfter;
                     }
 
-                    // Calculate indent for 2nd and 4th lines in 4-line stanzas
-                    const lineInStanza = i % 4;
-                    const xOffset = (lineInStanza === 1 || lineInStanza === 3) ? indentOffset : 0;
-
-                    ctx.fillText(lines1[i], leftPadding + xOffset, startY + i * lineHeight);
+                    ctx.fillText(lines1[i], leftPadding, startY + i * lineHeight);
                 }
             }
 
@@ -751,10 +858,8 @@ if __name__ == '__main__':
 
         async function loadFileFromUrl(fileUrl) {
             try {
-                // Convert file:/// URLs to relative paths for web server
                 let url = fileUrl;
                 if (fileUrl.startsWith('file:///')) {
-                    // Extract the path after file://
                     const filePath = fileUrl.replace('file://', '');
                     url = filePath;
                 }
@@ -853,13 +958,13 @@ if __name__ == '__main__':
                 document.getElementById('colorAfter').value = color;
                 console.log('✓ After color set to ' + color);
             },
-            setIndentOffset: function (value) {
-                document.getElementById('indentOffset').value = value;
-                console.log('✓ Indent offset set to ' + value);
-            },
             enableIndent: function (enabled) {
                 document.getElementById('enableIndent').checked = enabled;
                 console.log('✓ Indent ' + (enabled ? 'enabled' : 'disabled'));
+            },
+            setPreserveBlankLines: function (enabled) {
+                document.getElementById('preserveBlankLines').checked = enabled;
+                console.log('✓ Preserve blank lines ' + (enabled ? 'enabled' : 'disabled'));
             },
             preview: function () {
                 previewSlide();
@@ -878,8 +983,8 @@ if __name__ == '__main__':
                 if (config.colorBefore) this.setColorBefore(config.colorBefore);
                 if (config.colorHighlight) this.setColorHighlight(config.colorHighlight);
                 if (config.colorAfter) this.setColorAfter(config.colorAfter);
-                if (config.indentOffset !== undefined) this.setIndentOffset(config.indentOffset);
                 if (config.enableIndent !== undefined) this.enableIndent(config.enableIndent);
+                if (config.preserveBlankLines !== undefined) this.setPreserveBlankLines(config.preserveBlankLines);
                 console.log('✓ All settings applied');
             },
             setAll: function (config) {
