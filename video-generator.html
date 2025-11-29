@@ -278,8 +278,23 @@
         </div>
 
         <div class="section">
+            <label for="skipLines">Skip First N Lines from Source:</label>
+            <input type="number" id="skipLines" value="0" min="0" max="1000">
+        </div>
+
+        <div class="section">
             <label for="linesPerSlide">Lines per Slide:</label>
             <input type="number" id="linesPerSlide" value="8" min="1" max="20">
+        </div>
+
+        <div class="section">
+            <label for="topMargin">Top Margin (pixels):</label>
+            <input type="number" id="topMargin" value="54" min="0" max="500">
+        </div>
+
+        <div class="section">
+            <label for="leftMargin">Left Margin (pixels):</label>
+            <input type="number" id="leftMargin" value="54" min="0" max="500">
         </div>
 
         <div class="section">
@@ -468,11 +483,13 @@
 
         async function loadFiles() {
             const file1 = document.getElementById('file1').files[0];
+            console.log(file1)
             const file2 = document.getElementById('file2').files[0];
             const bgImageFile = document.getElementById('bgImage').files[0];
             const labelFile = document.getElementById('labelFile').files[0];
             const enableIndent = document.getElementById('enableIndent').checked;
             const shouldPreserveBlankLines = document.getElementById('preserveBlankLines').checked;
+            const skipLines = parseInt(document.getElementById('skipLines').value) || 0;
 
             if (!file1) {
                 throw new Error('Please upload at least text file 1');
@@ -485,6 +502,12 @@
             }
 
             let lines1 = text1.split('\n');
+
+            // Skip first N lines
+            if (skipLines > 0) {
+                lines1 = lines1.slice(skipLines);
+            }
+
             lines1 = applyStanzaIndent(lines1, enableIndent);
 
             cachedLines1 = lines1.map(line => {
@@ -494,6 +517,12 @@
 
             if (text2) {
                 let lines2 = text2.split('\n');
+
+                // Skip first N lines from file 2 as well
+                if (skipLines > 0) {
+                    lines2 = lines2.slice(skipLines);
+                }
+
                 lines2 = applyStanzaIndent(lines2, enableIndent);
                 cachedLines2 = lines2.map(line => {
                     if (line.length > 0) return line;
@@ -606,6 +635,8 @@
             const fontFamily = document.getElementById('fontFamily').value || 'Arial';
             const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
             const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
+            const topMargin = parseInt(document.getElementById('topMargin').value) || 54;
+            const leftMargin = parseInt(document.getElementById('leftMargin').value) || 54;
 
             const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
             const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
@@ -616,7 +647,7 @@
             const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
             const isBilingual = !!cachedLines2;
 
-            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
 
             const previewCanvas = document.getElementById('previewCanvas');
             const ctx = previewCanvas.getContext('2d');
@@ -666,6 +697,8 @@
                 const fontFamily = document.getElementById('fontFamily').value || 'Arial';
                 const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
                 const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
+                const topMargin = parseInt(document.getElementById('topMargin').value) || 54;
+                const leftMargin = parseInt(document.getElementById('leftMargin').value) || 54;
 
                 const zip = new JSZip();
                 let frameIndex = 0;
@@ -683,7 +716,7 @@
                     const isBilingual = !!cachedLines2;
 
                     for (let highlightIdx = 0; highlightIdx < linesPerSlide; highlightIdx++) {
-                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage);
+                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
 
                         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
                         const filename = `slide_${String(frameIndex).padStart(6, '0')}.png`;
@@ -769,7 +802,7 @@ if __name__ == '__main__':
             }
         }
 
-        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage) {
+        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage, topMargin, leftMargin) {
             const canvas = document.createElement('canvas');
             canvas.width = 1920;
             canvas.height = 1080;
@@ -783,13 +816,11 @@ if __name__ == '__main__':
             }
 
             const totalLines = lines1.length;
-            const marginPixels = 54;
-            const availableHeight = 1080 - (2 * marginPixels);
+            const availableHeight = 1080 - (2 * topMargin);
 
             let fontSize = baseFontSize;
             let lineHeight = fontSize * lineHeightMultiplier;
             let requiredHeight = totalLines * lineHeight;
-
             if (requiredHeight > availableHeight) {
                 const scaleFactor = availableHeight / requiredHeight;
                 fontSize = Math.max(12, fontSize * scaleFactor);
@@ -799,8 +830,7 @@ if __name__ == '__main__':
             ctx.font = `bold ${fontSize}px ${fontFamily}`;
             ctx.textAlign = 'left';
 
-            const startY = marginPixels + fontSize;
-            const leftPadding = marginPixels;
+            const startY = topMargin + fontSize;
 
             if (isBilingual) {
                 const halfHeight = 540;
@@ -816,8 +846,8 @@ if __name__ == '__main__':
                         ctx.fillStyle = colorAfter;
                     }
 
-                    ctx.fillText(lines1[i], leftPadding, yPos1);
-                    ctx.fillText(lines2[i], leftPadding, halfHeight + yPos2);
+                    ctx.fillText(lines1[i], leftMargin, yPos1);
+                    ctx.fillText(lines2[i], leftMargin, halfHeight + yPos2);
 
                     yPos1 += lineHeight;
                     yPos2 += lineHeight;
@@ -832,7 +862,7 @@ if __name__ == '__main__':
                         ctx.fillStyle = colorAfter;
                     }
 
-                    ctx.fillText(lines1[i], leftPadding, startY + i * lineHeight);
+                    ctx.fillText(lines1[i], leftMargin, startY + i * lineHeight);
                 }
             }
 
@@ -926,9 +956,21 @@ if __name__ == '__main__':
                     console.error('✗ Error loading Background image:', error.message);
                 }
             },
+            setSkipLines: function (value) {
+                document.getElementById('skipLines').value = value;
+                console.log('✓ Skip lines set to ' + value);
+            },
             setLinesPerSlide: function (value) {
                 document.getElementById('linesPerSlide').value = value;
                 console.log('✓ Lines per slide set to ' + value);
+            },
+            setTopMargin: function (value) {
+                document.getElementById('topMargin').value = value;
+                console.log('✓ Top margin set to ' + value);
+            },
+            setLeftMargin: function (value) {
+                document.getElementById('leftMargin').value = value;
+                console.log('✓ Left margin set to ' + value);
             },
             setFontFamily: function (value) {
                 document.getElementById('fontFamily').value = value;
@@ -975,7 +1017,10 @@ if __name__ == '__main__':
                 console.log('✓ Generation started');
             },
             applySettings: function (config) {
+                if (config.skipLines !== undefined) this.setSkipLines(config.skipLines);
                 if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
+                if (config.topMargin !== undefined) this.setTopMargin(config.topMargin);
+                if (config.leftMargin !== undefined) this.setLeftMargin(config.leftMargin);
                 if (config.fontFamily) this.setFontFamily(config.fontFamily);
                 if (config.baseFontSize) this.setBaseFontSize(config.baseFontSize);
                 if (config.lineHeightMultiplier) this.setLineHeightMultiplier(config.lineHeightMultiplier);
@@ -1006,6 +1051,7 @@ if __name__ == '__main__':
 </body>
 
 </html>
+
 <!--
 
 Individual setters:
@@ -1061,5 +1107,4 @@ generate() - Start video generation
 setAll(config) - Set all parameters at once
 
 Now you can fully automate the process from the console!
-
 -->
