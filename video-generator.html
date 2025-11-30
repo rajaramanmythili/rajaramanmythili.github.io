@@ -278,8 +278,25 @@
         </div>
 
         <div class="section">
+            <label>Custom Start Slide (Optional):</label>
+            <input type="file" id="startSlide" accept=".png,.jpg,.jpeg">
+            <p class="bg-image-note">Upload a custom start slide (1920x1080 recommended)</p>
+        </div>
+
+        <div class="section">
+            <label>Custom End Slide (Optional):</label>
+            <input type="file" id="endSlide" accept=".png,.jpg,.jpeg">
+            <p class="bg-image-note">Upload a custom end slide (1920x1080 recommended)</p>
+        </div>
+
+        <div class="section">
             <label for="skipLines">Skip First N Lines from Source:</label>
-            <input type="number" id="skipLines" value="0" min="0" max="1000">
+            <input type="number" id="skipLines" value="0" min="1" max="1000">
+        </div>
+
+        <div class="section">
+            <label for="skipLastLines">Skip Last N Lines from Source:</label>
+            <input type="number" id="skipLastLines" value="0" min="1" max="1000">
         </div>
 
         <div class="section">
@@ -289,12 +306,12 @@
 
         <div class="section">
             <label for="topMargin">Top Margin (pixels):</label>
-            <input type="number" id="topMargin" value="54" min="0" max="500">
+            <input type="number" id="topMargin" value="70" min="0" max="500">
         </div>
 
         <div class="section">
             <label for="leftMargin">Left Margin (pixels):</label>
-            <input type="number" id="leftMargin" value="54" min="0" max="500">
+            <input type="number" id="leftMargin" value="120" min="0" max="500">
         </div>
 
         <div class="section">
@@ -307,6 +324,7 @@
                 <option value="Georgia">Georgia</option>
                 <option value="Verdana">Verdana</option>
                 <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Shobhika">Shobhika</option>
             </select>
         </div>
 
@@ -317,7 +335,7 @@
 
         <div class="section">
             <label for="lineHeightMultiplier">Line Height Multiplier:</label>
-            <input type="number" id="lineHeightMultiplier" value="1.4" min="0.8" max="3" step="0.1">
+            <input type="number" id="lineHeightMultiplier" value="2" min="0.8" max="3" step="0.1">
         </div>
 
         <div class="section">
@@ -353,11 +371,11 @@
                 </div>
                 <div class="color-item">
                     <label>Highlighted:</label>
-                    <input type="color" id="colorHighlight" value="#FFD700">
+                    <input type="color" id="colorHighlight" value="#FFFF00">
                 </div>
                 <div class="color-item">
                     <label>After (Normal):</label>
-                    <input type="color" id="colorAfter" value="#000000">
+                    <input type="color" id="colorAfter" value="#FFFFFF">
                 </div>
             </div>
         </div>
@@ -404,6 +422,54 @@
         let cachedLines2 = [];
         let cachedBgImage = null;
         let cachedLabelData = null;
+        let cachedStartSlide = null;
+        let cachedEndSlide = null;
+        let labelFileName = null;
+
+        function saveSettings() {
+            const settings = {
+                skipLines: document.getElementById('skipLines').value,
+                skipLastLines: document.getElementById('skipLastLines').value,
+                linesPerSlide: document.getElementById('linesPerSlide').value,
+                topMargin: document.getElementById('topMargin').value,
+                leftMargin: document.getElementById('leftMargin').value,
+                fontFamily: document.getElementById('fontFamily').value,
+                baseFontSize: document.getElementById('baseFontSize').value,
+                lineHeightMultiplier: document.getElementById('lineHeightMultiplier').value,
+                preserveBlankLines: document.getElementById('preserveBlankLines').checked,
+                enableIndent: document.getElementById('enableIndent').checked,
+                bgColor: document.getElementById('bgColor').value,
+                colorBefore: document.getElementById('colorBefore').value,
+                colorHighlight: document.getElementById('colorHighlight').value,
+                colorAfter: document.getElementById('colorAfter').value
+            };
+            localStorage.setItem('slideGeneratorSettings', JSON.stringify(settings));
+        }
+
+        function loadSavedSettings() {
+            const saved = localStorage.getItem('slideGeneratorSettings');
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    if (settings.skipLines !== undefined) document.getElementById('skipLines').value = settings.skipLines;
+                    if (settings.skipLastLines !== undefined) document.getElementById('skipLastLines').value = settings.skipLastLines;
+                    if (settings.linesPerSlide !== undefined) document.getElementById('linesPerSlide').value = settings.linesPerSlide;
+                    if (settings.topMargin !== undefined) document.getElementById('topMargin').value = settings.topMargin;
+                    if (settings.leftMargin !== undefined) document.getElementById('leftMargin').value = settings.leftMargin;
+                    if (settings.fontFamily) document.getElementById('fontFamily').value = settings.fontFamily;
+                    if (settings.baseFontSize !== undefined) document.getElementById('baseFontSize').value = settings.baseFontSize;
+                    if (settings.lineHeightMultiplier !== undefined) document.getElementById('lineHeightMultiplier').value = settings.lineHeightMultiplier;
+                    if (settings.preserveBlankLines !== undefined) document.getElementById('preserveBlankLines').checked = settings.preserveBlankLines;
+                    if (settings.enableIndent !== undefined) document.getElementById('enableIndent').checked = settings.enableIndent;
+                    if (settings.bgColor) document.getElementById('bgColor').value = settings.bgColor;
+                    if (settings.colorBefore) document.getElementById('colorBefore').value = settings.colorBefore;
+                    if (settings.colorHighlight) document.getElementById('colorHighlight').value = settings.colorHighlight;
+                    if (settings.colorAfter) document.getElementById('colorAfter').value = settings.colorAfter;
+                } catch (e) {
+                    console.error('Error loading saved settings:', e);
+                }
+            }
+        }
 
         function parseAudacityLabels(labelText) {
             const lines = labelText.split('\n').filter(l => l.trim());
@@ -426,8 +492,8 @@
             const concatLines = [];
 
             for (let i = 0; i < timestamps.length; i++) {
-                const fileNumber = String(i).padStart(6, '0');
-                concatLines.push(`file 'slide_${fileNumber}.png'`);
+                const frameIndex = i;
+                concatLines.push(`file '${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png'`);
 
                 let duration;
                 if (i === 0) {
@@ -437,6 +503,11 @@
                 }
 
                 concatLines.push(`duration ${duration}`);
+
+                if ( i + 1 == timestamps.length ) {
+                    concatLines.push(`file '${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png'`);
+                    concatLines.push(`duration ${duration}`);
+                }
             }
 
             return concatLines.join('\n');
@@ -483,13 +554,13 @@
 
         async function loadFiles() {
             const file1 = document.getElementById('file1').files[0];
-            console.log(file1)
             const file2 = document.getElementById('file2').files[0];
             const bgImageFile = document.getElementById('bgImage').files[0];
             const labelFile = document.getElementById('labelFile').files[0];
             const enableIndent = document.getElementById('enableIndent').checked;
             const shouldPreserveBlankLines = document.getElementById('preserveBlankLines').checked;
             const skipLines = parseInt(document.getElementById('skipLines').value) || 0;
+            const skipLastLines = parseInt(document.getElementById('skipLastLines').value) || 0;
 
             if (!file1) {
                 throw new Error('Please upload at least text file 1');
@@ -508,6 +579,10 @@
                 lines1 = lines1.slice(skipLines);
             }
 
+            if (skipLastLines > 0) {
+                lines1 = lines1.slice(0, -skipLastLines);
+            }
+
             lines1 = applyStanzaIndent(lines1, enableIndent);
 
             cachedLines1 = lines1.map(line => {
@@ -521,6 +596,10 @@
                 // Skip first N lines from file 2 as well
                 if (skipLines > 0) {
                     lines2 = lines2.slice(skipLines);
+                }
+
+                if (skipLastLines > 0) {
+                    lines2 = lines2.slice(0, -skipLastLines);
                 }
 
                 lines2 = applyStanzaIndent(lines2, enableIndent);
@@ -551,8 +630,11 @@
                 if (cachedLabelData.length === 0) {
                     throw new Error('Label file is empty or invalid format');
                 }
+                // Extract filename without extension
+                labelFileName = labelFile.name.replace(/\.[^/.]+$/, "");
             } else {
                 cachedLabelData = null;
+                labelFileName = null;
             }
 
             if (bgImageFile) {
@@ -563,6 +645,32 @@
                     img.onerror = () => reject(new Error('Failed to load background image'));
                     img.src = bgImageUrl;
                 });
+            }
+
+            const startSlideFile = document.getElementById('startSlide').files[0];
+            if (startSlideFile) {
+                const startSlideUrl = URL.createObjectURL(startSlideFile);
+                cachedStartSlide = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('Failed to load start slide'));
+                    img.src = startSlideUrl;
+                });
+            } else {
+                cachedStartSlide = null;
+            }
+
+            const endSlideFile = document.getElementById('endSlide').files[0];
+            if (endSlideFile) {
+                const endSlideUrl = URL.createObjectURL(endSlideFile);
+                cachedEndSlide = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('Failed to load end slide'));
+                    img.src = endSlideUrl;
+                });
+            } else {
+                cachedEndSlide = null;
             }
 
             linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
@@ -703,6 +811,20 @@
                 const zip = new JSZip();
                 let frameIndex = 0;
 
+                // Add custom start slide if provided
+                if (cachedStartSlide) {
+                    const startCanvas = document.createElement('canvas');
+                    startCanvas.width = 1920;
+                    startCanvas.height = 1080;
+                    const startCtx = startCanvas.getContext('2d');
+                    startCtx.drawImage(cachedStartSlide, 0, 0, 1920, 1080);
+
+                    const startBlob = await new Promise(resolve => startCanvas.toBlob(resolve, 'image/png', 0.95));
+                    const startFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                    zip.file(startFilename, startBlob);
+                    frameIndex++;
+                }
+
                 const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
                 const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
                 const nonEmptyCount = nonEmptyLines1.length;
@@ -715,11 +837,13 @@
                     const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
                     const isBilingual = !!cachedLines2;
 
-                    for (let highlightIdx = 0; highlightIdx < linesPerSlide; highlightIdx++) {
+                    const actualLinesInThisSlide = slideLines1.length;
+
+                    for (let highlightIdx = 0; highlightIdx < actualLinesInThisSlide; highlightIdx++) {
                         const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
 
                         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
-                        const filename = `slide_${String(frameIndex).padStart(6, '0')}.png`;
+                        const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
                         zip.file(filename, blob);
                         frameIndex++;
 
@@ -729,17 +853,37 @@
                     }
                 }
 
+                // Add custom end slide if provided
+                if (cachedEndSlide) {
+                    const endCanvas = document.createElement('canvas');
+                    endCanvas.width = 1920;
+                    endCanvas.height = 1080;
+                    const endCtx = endCanvas.getContext('2d');
+                    endCtx.drawImage(cachedEndSlide, 0, 0, 1920, 1080);
+
+                    const endBlob = await new Promise(resolve => endCanvas.toBlob(resolve, 'image/png', 0.95));
+                    const endFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                    zip.file(endFilename, endBlob);
+                    frameIndex++;
+                }
+
                 if (cachedLabelData && cachedLabelData.length > 0) {
                     const concatContent = generateFfmpegConcat(cachedLabelData);
                     zip.file('concat.txt', concatContent);
 
+                    const wavFileName = `/Volumes/samsung/bhagavatham/audio/${labelFileName.replace('SB-', '')}.wav`
                     const pythonScript = `#!/usr/bin/env python3
 import subprocess
 import os
 import sys
 
 def main():
-    wav_file = input("Enter the WAV file path (e.g., ../07-15.wav): ").strip()
+    if len(sys.argv) > 1:
+        wav_file = sys.argv[1]
+    else:
+        wav_file = input("Enter the WAV file full path (${wavFileName}): ").strip()
+        if wav_file == "":
+            wav_file = "${wavFileName}"
     
     if not os.path.exists(wav_file):
         print(f"Error: WAV file '{wav_file}' not found")
@@ -761,7 +905,8 @@ def main():
         '-b:a', '192k',
         '-pix_fmt', 'yuv420p',
         '-shortest',
-        'output.mp4'
+        '-y',
+        '${labelFileName}.mp4'
     ]
     
     print(f"Running command: {' '.join(cmd)}")
@@ -769,7 +914,7 @@ def main():
     
     try:
         subprocess.run(cmd, check=True)
-        print("✓ MP4 generated successfully as output.mp4")
+        print("✓ MP4 generated successfully as ${labelFileName}.mp4")
     except subprocess.CalledProcessError as e:
         print(f"✗ Error: ffmpeg command failed with exit code {e.returncode}")
         sys.exit(1)
@@ -784,13 +929,14 @@ if __name__ == '__main__':
                 }
 
                 const zipBlob = await zip.generateAsync({ type: 'blob' });
-                downloadBlob(zipBlob, 'slides.zip');
+                const zipFileName = labelFileName ? `${labelFileName}.zip` : 'slides.zip';
+                downloadBlob(zipBlob, zipFileName);
 
                 document.getElementById('progressFill').textContent = '100%';
                 document.getElementById('progressFill').style.width = '100%';
 
                 const concatMsg = cachedLabelData ? ' + concat.txt' : '';
-                successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as slides.zip!`;
+                successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as ${zipFileName}!`;
                 successDiv.style.display = 'block';
                 progressDiv.style.display = 'none';
 
@@ -907,6 +1053,20 @@ if __name__ == '__main__':
             }
         }
 
+        window.addEventListener('DOMContentLoaded', function () {
+            loadSavedSettings();
+
+            const inputs = ['skipLines', 'skipLastLines', 'linesPerSlide', 'topMargin', 'leftMargin', 'fontFamily',
+                'baseFontSize', 'lineHeightMultiplier', 'preserveBlankLines', 'enableIndent',
+                'bgColor', 'colorBefore', 'colorHighlight', 'colorAfter'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', saveSettings);
+                }
+            });
+        });
+
         window.slideGeneratorAPI = {
             setFile1: function (file) {
                 document.getElementById('file1').files = createFileList([file]);
@@ -956,9 +1116,37 @@ if __name__ == '__main__':
                     console.error('✗ Error loading Background image:', error.message);
                 }
             },
+            setStartSlide: function (file) {
+                document.getElementById('startSlide').files = createFileList([file]);
+                console.log('✓ Start slide set');
+            },
+            setEndSlide: function (file) {
+                document.getElementById('endSlide').files = createFileList([file]);
+                console.log('✓ End slide set');
+            },
+            setStartSlideUrl: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setStartSlide(file);
+                } catch (error) {
+                    console.error('✗ Error loading Start slide:', error.message);
+                }
+            },
+            setEndSlideUrl: async function (fileUrl) {
+                try {
+                    const file = await loadFileFromUrl(fileUrl);
+                    this.setEndSlide(file);
+                } catch (error) {
+                    console.error('✗ Error loading End slide:', error.message);
+                }
+            },
             setSkipLines: function (value) {
                 document.getElementById('skipLines').value = value;
                 console.log('✓ Skip lines set to ' + value);
+            },
+            setSkipLastLines: function (value) {
+                document.getElementById('skipLastLines').value = value;
+                console.log('✓ Skip last lines set to ' + value);
             },
             setLinesPerSlide: function (value) {
                 document.getElementById('linesPerSlide').value = value;
@@ -1018,6 +1206,7 @@ if __name__ == '__main__':
             },
             applySettings: function (config) {
                 if (config.skipLines !== undefined) this.setSkipLines(config.skipLines);
+                if (config.skipLastLines !== undefined) this.setSkipLines(config.skipLastLines);
                 if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
                 if (config.topMargin !== undefined) this.setTopMargin(config.topMargin);
                 if (config.leftMargin !== undefined) this.setLeftMargin(config.leftMargin);
@@ -1037,6 +1226,8 @@ if __name__ == '__main__':
                 if (config.file2) this.setFile2(config.file2);
                 if (config.labelFile) this.setLabelFile(config.labelFile);
                 if (config.bgImage) this.setBgImage(config.bgImage);
+                if (config.startSlide) this.setStartSlide(config.startSlide);
+                if (config.endSlide) this.setEndSlide(config.endSlide);
                 this.applySettings(config);
             },
             setAllUrl: async function (config) {
@@ -1044,6 +1235,8 @@ if __name__ == '__main__':
                 if (config.file2Url) await this.setFile2Url(config.file2Url);
                 if (config.labelFileUrl) await this.setLabelFileUrl(config.labelFileUrl);
                 if (config.bgImageUrl) await this.setBgImageUrl(config.bgImageUrl);
+                if (config.startSlideUrl) await this.setStartSlideUrl(config.startSlideUrl);
+                if (config.endSlideUrl) await this.setEndSlideUrl(config.endSlideUrl);
                 this.applySettings(config);
             }
         };
