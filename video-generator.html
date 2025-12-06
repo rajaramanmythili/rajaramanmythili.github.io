@@ -44,6 +44,7 @@
         }
 
         input[type="file"],
+        input[type="text"],
         input[type="number"] {
             padding: 10px;
             border: 1px solid #ddd;
@@ -300,504 +301,695 @@
         </div>
 
         <div class="section">
-            <label for="linesPerSlide">Lines per Slide:</label>
-            <input type="number" id="linesPerSlide" value="8" min="1" max="20">
-        </div>
-
-        <div class="section">
-            <label for="topMargin">Top Margin (pixels):</label>
-            <input type="number" id="topMargin" value="70" min="0" max="500">
-        </div>
-
-        <div class="section">
-            <label for="leftMargin">Left Margin (pixels):</label>
-            <input type="number" id="leftMargin" value="120" min="0" max="500">
-        </div>
-
-        <div class="section">
-            <label for="fontFamily">Font Family:</label>
-            <select id="fontFamily">
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Comic Sans MS">Comic Sans MS</option>
-                <option value="Shobhika">Shobhika</option>
-            </select>
-        </div>
-
-        <div class="section">
-            <label for="baseFontSize">Base Font Size (will auto-adjust if needed):</label>
-            <input type="number" id="baseFontSize" value="60" min="10" max="150">
-        </div>
-
-        <div class="section">
-            <label for="lineHeightMultiplier">Line Height Multiplier:</label>
-            <input type="number" id="lineHeightMultiplier" value="2" min="0.8" max="3" step="0.1">
-        </div>
-
-        <div class="section">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <input type="checkbox" id="preserveBlankLines">
-                <label for="preserveBlankLines" style="margin: 0; font-weight: bold; color: #555;">Preserve Blank
-                    Lines</label>
-            </div>
-            <p class="bg-image-note">Keep blank lines as-is in slides (counts towards lines per slide). Lines with just
-                spaces are always preserved for visual gaps.</p>
-        </div>
-
-        <div class="section">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <input type="checkbox" id="enableIndent" checked>
-                <label for="enableIndent" style="margin: 0; font-weight: bold; color: #555;">Enable Indent for Lines 2 &
-                    4</label>
-            </div>
-            <p class="bg-image-note">Add indentation to 2nd and 4th lines of detected 4-line stanzas</p>
-        </div>
-
-        <div class="section">
-            <label for="bgColor">Background Color:</label>
-            <input type="color" id="bgColor" value="#ffffff">
-        </div>
-
-        <div class="section">
-            <label>Text Colors:</label>
-            <div class="color-grid">
-                <div class="color-item">
-                    <label>Before (Dim):</label>
-                    <input type="color" id="colorBefore" value="#999999">
+            <label>Canto & Chapter Information:</label>
+            <div class="file-inputs">
+                <div class="file-input-group">
+                    <label>Canto Number</label>
+                    <input type="number" id="cantoNumber" min="1" max="12" placeholder="e.g., 1">
                 </div>
-                <div class="color-item">
-                    <label>Highlighted:</label>
-                    <input type="color" id="colorHighlight" value="#FFFF00">
-                </div>
-                <div class="color-item">
-                    <label>After (Normal):</label>
-                    <input type="color" id="colorAfter" value="#FFFFFF">
+                <div class="file-input-group">
+                    <label>Chapter Number</label>
+                    <input type="number" id="chapterNumber" min="1" max="100" placeholder="e.g., 5">
                 </div>
             </div>
-        </div>
-
-        <div class="button-group">
-            <button type="button" onclick="previewSlide()">Preview Slide</button>
-            <button type="button" onclick="generateSlideZip()">Generate Slides ZIP</button>
-        </div>
-
-        <div id="preview" class="preview">
-            <div class="preview-controls">
-                <button type="button" onclick="previousSlide()">&lt; Previous</button>
-                <div
-                    style="text-align: center; display: flex; gap: 10px; align-items: center; justify-content: center;">
-                    <label>Slide:</label>
-                    <select id="slideSelector" onchange="jumpToSlide()"
-                        style="width: auto; min-width: 80px; margin: 0;"></select>
-                    <label>| Highlight:</label>
-                    <select id="highlightSelector" onchange="jumpToHighlight()"
-                        style="width: auto; min-width: 80px; margin: 0;"></select>
+            <div class="file-inputs">
+                <div class="file-input-group">
+                    <label>Canto Name</label>
+                    <input type="text" id="cantoName" placeholder="Canto Name (e.g., Creation)"
+                        style="margin-bottom: 10px;">
                 </div>
-                <button type="button" onclick="nextSlide()">Next &gt;</button>
+                <div class="file-input-group">
+                    <label>Chapter Name</label>
+                    <input type="text" id="chapterName"
+                        placeholder="Chapter Name (e.g., The Activities of Maharaja Prthu)"
+                        style="margin-bottom: 10px;">
+                </div>
             </div>
-            <canvas id="previewCanvas" width="1920" height="1080"></canvas>
+
+            <div class="section">
+                <label>Chapter Image (for first slide):</label>
+                <input type="file" id="chapterImage" accept=".png,.jpg,.jpeg">
+                <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1.15 ratio)</p>
+            </div>
+
+            <div class="section">
+                <label for="linesPerSlide">Lines per Slide:</label>
+                <input type="number" id="linesPerSlide" value="8" min="1" max="20">
+            </div>
+
+            <div class="section">
+                <label for="topMargin">Top Margin (pixels):</label>
+                <input type="number" id="topMargin" value="70" min="0" max="500">
+            </div>
+
+            <div class="section">
+                <label for="leftMargin">Left Margin (pixels):</label>
+                <input type="number" id="leftMargin" value="120" min="0" max="500">
+            </div>
+
+            <div class="section">
+                <label for="fontFamily">Font Family:</label>
+                <select id="fontFamily">
+                    <option value="Arial">Arial</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Shobhika">Shobhika</option>
+                </select>
+            </div>
+
+            <div class="section">
+                <label for="baseFontSize">Base Font Size (will auto-adjust if needed):</label>
+                <input type="number" id="baseFontSize" value="60" min="10" max="150">
+            </div>
+
+            <div class="section">
+                <label for="lineHeightMultiplier">Line Height Multiplier:</label>
+                <input type="number" id="lineHeightMultiplier" value="2" min="0.8" max="3" step="0.1">
+            </div>
+
+            <div class="section">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="checkbox" id="preserveBlankLines">
+                    <label for="preserveBlankLines" style="margin: 0; font-weight: bold; color: #555;">Preserve Blank
+                        Lines</label>
+                </div>
+                <p class="bg-image-note">Keep blank lines as-is in slides (counts towards lines per slide). Lines with
+                    just
+                    spaces are always preserved for visual gaps.</p>
+            </div>
+
+            <div class="section">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="checkbox" id="enableIndent" checked>
+                    <label for="enableIndent" style="margin: 0; font-weight: bold; color: #555;">Enable Indent for Lines
+                        2 &
+                        4</label>
+                </div>
+                <p class="bg-image-note">Add indentation to 2nd and 4th lines of detected 4-line stanzas</p>
+            </div>
+
+            <div class="section">
+                <label for="bgColor">Background Color:</label>
+                <input type="color" id="bgColor" value="#ffffff">
+            </div>
+
+            <div class="section">
+                <label>Text Colors:</label>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <label>Before (Dim):</label>
+                        <input type="color" id="colorBefore" value="#999999">
+                    </div>
+                    <div class="color-item">
+                        <label>Highlighted:</label>
+                        <input type="color" id="colorHighlight" value="#FFFF00">
+                    </div>
+                    <div class="color-item">
+                        <label>After (Normal):</label>
+                        <input type="color" id="colorAfter" value="#FFFFFF">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" onclick="previewSlide()">Preview Slide</button>
+                <button type="button" onclick="generateSlideZip()">Generate Slides ZIP</button>
+            </div>
+
+            <div id="preview" class="preview">
+                <div class="preview-controls">
+                    <button type="button" onclick="previousSlide()">&lt; Previous</button>
+                    <div
+                        style="text-align: center; display: flex; gap: 10px; align-items: center; justify-content: center;">
+                        <label>Slide:</label>
+                        <select id="slideSelector" onchange="jumpToSlide()"
+                            style="width: auto; min-width: 80px; margin: 0;"></select>
+                        <label>| Highlight:</label>
+                        <select id="highlightSelector" onchange="jumpToHighlight()"
+                            style="width: auto; min-width: 80px; margin: 0;"></select>
+                    </div>
+                    <button type="button" onclick="nextSlide()">Next &gt;</button>
+                </div>
+                <canvas id="previewCanvas" width="1920" height="1080"></canvas>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+
+            <div class="progress" id="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+            </div>
         </div>
 
-        <div class="error" id="error"></div>
-        <div class="success" id="success"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script>
+            let currentPreviewSlideGroup = 0;
+            let currentPreviewHighlight = 0;
+            let totalSlideGroups = 0;
+            let linesPerSlide = 8;
+            let cachedLines1 = [];
+            let cachedLines2 = [];
+            let cachedBgImage = null;
+            let cachedLabelData = null;
+            let cachedStartSlide = null;
+            let cachedEndSlide = null;
+            let labelFileName = null;
+            let cachedChapterImage = null;
+            let cantoNumber = '';
+            let chapterNumber = '';
+            let cantoName = '';
+            let chapterName = '';
 
-        <div class="progress" id="progress">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill">0%</div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        let currentPreviewSlideGroup = 0;
-        let currentPreviewHighlight = 0;
-        let totalSlideGroups = 0;
-        let linesPerSlide = 8;
-        let cachedLines1 = [];
-        let cachedLines2 = [];
-        let cachedBgImage = null;
-        let cachedLabelData = null;
-        let cachedStartSlide = null;
-        let cachedEndSlide = null;
-        let labelFileName = null;
-
-        function saveSettings() {
-            const settings = {
-                skipLines: document.getElementById('skipLines').value,
-                skipLastLines: document.getElementById('skipLastLines').value,
-                linesPerSlide: document.getElementById('linesPerSlide').value,
-                topMargin: document.getElementById('topMargin').value,
-                leftMargin: document.getElementById('leftMargin').value,
-                fontFamily: document.getElementById('fontFamily').value,
-                baseFontSize: document.getElementById('baseFontSize').value,
-                lineHeightMultiplier: document.getElementById('lineHeightMultiplier').value,
-                preserveBlankLines: document.getElementById('preserveBlankLines').checked,
-                enableIndent: document.getElementById('enableIndent').checked,
-                bgColor: document.getElementById('bgColor').value,
-                colorBefore: document.getElementById('colorBefore').value,
-                colorHighlight: document.getElementById('colorHighlight').value,
-                colorAfter: document.getElementById('colorAfter').value
-            };
-            localStorage.setItem('slideGeneratorSettings', JSON.stringify(settings));
-        }
-
-        function loadSavedSettings() {
-            const saved = localStorage.getItem('slideGeneratorSettings');
-            if (saved) {
-                try {
-                    const settings = JSON.parse(saved);
-                    if (settings.skipLines !== undefined) document.getElementById('skipLines').value = settings.skipLines;
-                    if (settings.skipLastLines !== undefined) document.getElementById('skipLastLines').value = settings.skipLastLines;
-                    if (settings.linesPerSlide !== undefined) document.getElementById('linesPerSlide').value = settings.linesPerSlide;
-                    if (settings.topMargin !== undefined) document.getElementById('topMargin').value = settings.topMargin;
-                    if (settings.leftMargin !== undefined) document.getElementById('leftMargin').value = settings.leftMargin;
-                    if (settings.fontFamily) document.getElementById('fontFamily').value = settings.fontFamily;
-                    if (settings.baseFontSize !== undefined) document.getElementById('baseFontSize').value = settings.baseFontSize;
-                    if (settings.lineHeightMultiplier !== undefined) document.getElementById('lineHeightMultiplier').value = settings.lineHeightMultiplier;
-                    if (settings.preserveBlankLines !== undefined) document.getElementById('preserveBlankLines').checked = settings.preserveBlankLines;
-                    if (settings.enableIndent !== undefined) document.getElementById('enableIndent').checked = settings.enableIndent;
-                    if (settings.bgColor) document.getElementById('bgColor').value = settings.bgColor;
-                    if (settings.colorBefore) document.getElementById('colorBefore').value = settings.colorBefore;
-                    if (settings.colorHighlight) document.getElementById('colorHighlight').value = settings.colorHighlight;
-                    if (settings.colorAfter) document.getElementById('colorAfter').value = settings.colorAfter;
-                } catch (e) {
-                    console.error('Error loading saved settings:', e);
-                }
+            function saveSettings() {
+                const settings = {
+                    skipLines: document.getElementById('skipLines').value,
+                    skipLastLines: document.getElementById('skipLastLines').value,
+                    linesPerSlide: document.getElementById('linesPerSlide').value,
+                    topMargin: document.getElementById('topMargin').value,
+                    leftMargin: document.getElementById('leftMargin').value,
+                    fontFamily: document.getElementById('fontFamily').value,
+                    baseFontSize: document.getElementById('baseFontSize').value,
+                    lineHeightMultiplier: document.getElementById('lineHeightMultiplier').value,
+                    preserveBlankLines: document.getElementById('preserveBlankLines').checked,
+                    enableIndent: document.getElementById('enableIndent').checked,
+                    bgColor: document.getElementById('bgColor').value,
+                    colorBefore: document.getElementById('colorBefore').value,
+                    colorHighlight: document.getElementById('colorHighlight').value,
+                    colorAfter: document.getElementById('colorAfter').value,
+                    cantoNumber: document.getElementById('cantoNumber').value,
+                    chapterNumber: document.getElementById('chapterNumber').value,
+                    cantoName: document.getElementById('cantoName').value,
+                    chapterName: document.getElementById('chapterName').value,
+                };
+                localStorage.setItem('slideGeneratorSettings', JSON.stringify(settings));
             }
-        }
 
-        function parseAudacityLabels(labelText) {
-            const lines = labelText.split('\n').filter(l => l.trim());
-            const timestamps = [];
-
-            for (const line of lines) {
-                const parts = line.trim().split(/\t/);
-                if (parts.length >= 2) {
-                    const end = parseFloat(parts[1]);
-                    if (!isNaN(end)) {
-                        timestamps.push(end);
+            function loadSavedSettings() {
+                const saved = localStorage.getItem('slideGeneratorSettings');
+                if (saved) {
+                    try {
+                        const settings = JSON.parse(saved);
+                        if (settings.skipLines !== undefined) document.getElementById('skipLines').value = settings.skipLines;
+                        if (settings.skipLastLines !== undefined) document.getElementById('skipLastLines').value = settings.skipLastLines;
+                        if (settings.linesPerSlide !== undefined) document.getElementById('linesPerSlide').value = settings.linesPerSlide;
+                        if (settings.topMargin !== undefined) document.getElementById('topMargin').value = settings.topMargin;
+                        if (settings.leftMargin !== undefined) document.getElementById('leftMargin').value = settings.leftMargin;
+                        if (settings.fontFamily) document.getElementById('fontFamily').value = settings.fontFamily;
+                        if (settings.baseFontSize !== undefined) document.getElementById('baseFontSize').value = settings.baseFontSize;
+                        if (settings.lineHeightMultiplier !== undefined) document.getElementById('lineHeightMultiplier').value = settings.lineHeightMultiplier;
+                        if (settings.preserveBlankLines !== undefined) document.getElementById('preserveBlankLines').checked = settings.preserveBlankLines;
+                        if (settings.enableIndent !== undefined) document.getElementById('enableIndent').checked = settings.enableIndent;
+                        if (settings.bgColor) document.getElementById('bgColor').value = settings.bgColor;
+                        if (settings.colorBefore) document.getElementById('colorBefore').value = settings.colorBefore;
+                        if (settings.colorHighlight) document.getElementById('colorHighlight').value = settings.colorHighlight;
+                        if (settings.colorAfter) document.getElementById('colorAfter').value = settings.colorAfter;
+                        if (settings.cantoNumber !== undefined) document.getElementById('cantoNumber').value = settings.cantoNumber;
+                        if (settings.chapterNumber !== undefined) document.getElementById('chapterNumber').value = settings.chapterNumber;
+                        if (settings.cantoName !== undefined) document.getElementById('cantoName').value = settings.cantoName;
+                        if (settings.chapterName !== undefined) document.getElementById('chapterName').value = settings.chapterName;
+                    } catch (e) {
+                        console.error('Error loading saved settings:', e);
                     }
                 }
             }
 
-            return timestamps;
-        }
+            function parseAudacityLabels(labelText) {
+                const lines = labelText.split('\n').filter(l => l.trim());
+                const timestamps = [];
 
-        function generateFfmpegConcat(timestamps) {
-            const concatLines = [];
-
-            for (let i = 0; i < timestamps.length; i++) {
-                const frameIndex = i;
-                concatLines.push(`file '${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png'`);
-
-                let duration;
-                if (i === 0) {
-                    duration = timestamps[i].toFixed(2);
-                } else {
-                    duration = (timestamps[i] - timestamps[i - 1]).toFixed(2);
+                for (const line of lines) {
+                    const parts = line.trim().split(/\t/);
+                    if (parts.length >= 2) {
+                        const end = parseFloat(parts[1]);
+                        if (!isNaN(end)) {
+                            timestamps.push(end);
+                        }
+                    }
                 }
 
-                concatLines.push(`duration ${duration}`);
+                return timestamps;
+            }
 
-                if ( i + 1 == timestamps.length ) {
+            function generateFfmpegConcat(timestamps) {
+                const concatLines = [];
+
+                for (let i = 0; i < timestamps.length; i++) {
+                    const frameIndex = i;
                     concatLines.push(`file '${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png'`);
+
+                    let duration;
+                    if (i === 0) {
+                        duration = timestamps[i].toFixed(2);
+                    } else {
+                        duration = (timestamps[i] - timestamps[i - 1]).toFixed(2);
+                    }
+
                     concatLines.push(`duration ${duration}`);
-                }
-            }
 
-            return concatLines.join('\n');
-        }
-
-        function applyStanzaIndent(lines, enableIndent) {
-            if (!enableIndent) return lines;
-
-            const result = [];
-            let i = 0;
-
-            while (i < lines.length) {
-                const line1 = lines[i];
-                const isBlank1 = line1.trim().length === 0;
-
-                if (!isBlank1 && i + 4 < lines.length) {
-                    const line2 = lines[i + 1];
-                    const line3 = lines[i + 2];
-                    const line4 = lines[i + 3];
-                    const nextLine = lines[i + 4];
-
-                    const isBlank2 = line2.trim().length === 0;
-                    const isBlank3 = line3.trim().length === 0;
-                    const isBlank4 = line4.trim().length === 0;
-                    const nextIsBlank = nextLine.trim().length === 0;
-
-                    if (!isBlank2 && !isBlank3 && !isBlank4 && nextIsBlank) {
-                        result.push(line1);
-                        result.push('    ' + line2);
-                        result.push(line3);
-                        result.push('    ' + line4);
-                        result.push(nextLine);
-                        i += 5;
-                        continue;
+                    if (i + 1 == timestamps.length) {
+                        concatLines.push(`file '${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png'`);
+                        concatLines.push(`duration ${duration}`);
                     }
                 }
 
-                result.push(line1);
-                i++;
+                return concatLines.join('\n');
             }
 
-            return result;
-        }
+            function applyStanzaIndent(lines, enableIndent) {
+                if (!enableIndent) return lines;
 
-        async function loadFiles() {
-            const file1 = document.getElementById('file1').files[0];
-            const file2 = document.getElementById('file2').files[0];
-            const bgImageFile = document.getElementById('bgImage').files[0];
-            const labelFile = document.getElementById('labelFile').files[0];
-            const enableIndent = document.getElementById('enableIndent').checked;
-            const shouldPreserveBlankLines = document.getElementById('preserveBlankLines').checked;
-            const skipLines = parseInt(document.getElementById('skipLines').value) || 0;
-            const skipLastLines = parseInt(document.getElementById('skipLastLines').value) || 0;
+                const result = [];
+                let i = 0;
 
-            if (!file1) {
-                throw new Error('Please upload at least text file 1');
+                while (i < lines.length) {
+                    const line1 = lines[i];
+                    const isBlank1 = line1.trim().length === 0;
+
+                    if (!isBlank1 && i + 4 < lines.length) {
+                        const line2 = lines[i + 1];
+                        const line3 = lines[i + 2];
+                        const line4 = lines[i + 3];
+                        const nextLine = lines[i + 4];
+
+                        const isBlank2 = line2.trim().length === 0;
+                        const isBlank3 = line3.trim().length === 0;
+                        const isBlank4 = line4.trim().length === 0;
+                        const nextIsBlank = nextLine.trim().length === 0;
+
+                        if (!isBlank2 && !isBlank3 && !isBlank4 && nextIsBlank) {
+                            result.push(line1);
+                            result.push('    ' + line2);
+                            result.push(line3);
+                            result.push('    ' + line4);
+                            result.push(nextLine);
+                            i += 5;
+                            continue;
+                        }
+                    }
+
+                    result.push(line1);
+                    i++;
+                }
+
+                return result;
             }
 
-            const text1 = await file1.text();
-            let text2 = null;
-            if (file2) {
-                text2 = await file2.text();
-            }
+            async function loadFiles() {
+                const file1 = document.getElementById('file1').files[0];
+                const file2 = document.getElementById('file2').files[0];
+                const bgImageFile = document.getElementById('bgImage').files[0];
+                const labelFile = document.getElementById('labelFile').files[0];
+                const enableIndent = document.getElementById('enableIndent').checked;
+                const shouldPreserveBlankLines = document.getElementById('preserveBlankLines').checked;
+                const skipLines = parseInt(document.getElementById('skipLines').value) || 0;
+                const skipLastLines = parseInt(document.getElementById('skipLastLines').value) || 0;
 
-            let lines1 = text1.split('\n');
+                if (!file1) {
+                    throw new Error('Please upload at least text file 1');
+                }
 
-            // Skip first N lines
-            if (skipLines > 0) {
-                lines1 = lines1.slice(skipLines);
-            }
+                const text1 = await file1.text();
+                let text2 = null;
+                if (file2) {
+                    text2 = await file2.text();
+                }
 
-            if (skipLastLines > 0) {
-                lines1 = lines1.slice(0, -skipLastLines);
-            }
+                let lines1 = text1.split('\n');
 
-            lines1 = applyStanzaIndent(lines1, enableIndent);
-
-            cachedLines1 = lines1.map(line => {
-                if (line.length > 0) return line;
-                return shouldPreserveBlankLines ? '' : null;
-            }).filter(line => line !== null);
-
-            if (text2) {
-                let lines2 = text2.split('\n');
-
-                // Skip first N lines from file 2 as well
+                // Skip first N lines
                 if (skipLines > 0) {
-                    lines2 = lines2.slice(skipLines);
+                    lines1 = lines1.slice(skipLines);
                 }
 
                 if (skipLastLines > 0) {
-                    lines2 = lines2.slice(0, -skipLastLines);
+                    lines1 = lines1.slice(0, -skipLastLines);
                 }
 
-                lines2 = applyStanzaIndent(lines2, enableIndent);
-                cachedLines2 = lines2.map(line => {
+                lines1 = applyStanzaIndent(lines1, enableIndent);
+
+                cachedLines1 = lines1.map(line => {
                     if (line.length > 0) return line;
                     return shouldPreserveBlankLines ? '' : null;
                 }).filter(line => line !== null);
-            } else {
-                cachedLines2 = null;
-            }
 
-            const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                if (text2) {
+                    let lines2 = text2.split('\n');
 
-            if (nonEmptyLines1.length === 0) {
-                throw new Error('File 1 is empty');
-            }
+                    // Skip first N lines from file 2 as well
+                    if (skipLines > 0) {
+                        lines2 = lines2.slice(skipLines);
+                    }
 
-            if (cachedLines2) {
-                const nonEmptyLines2 = cachedLines2.filter(l => l.trim().length > 0);
-                if (nonEmptyLines2.length !== nonEmptyLines1.length) {
-                    throw new Error(`Both files must have the same number of non-empty lines`);
+                    if (skipLastLines > 0) {
+                        lines2 = lines2.slice(0, -skipLastLines);
+                    }
+
+                    lines2 = applyStanzaIndent(lines2, enableIndent);
+                    cachedLines2 = lines2.map(line => {
+                        if (line.length > 0) return line;
+                        return shouldPreserveBlankLines ? '' : null;
+                    }).filter(line => line !== null);
+                } else {
+                    cachedLines2 = null;
                 }
-            }
 
-            if (labelFile) {
-                const labelText = await labelFile.text();
-                cachedLabelData = parseAudacityLabels(labelText);
-                if (cachedLabelData.length === 0) {
-                    throw new Error('Label file is empty or invalid format');
+                const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+
+                if (nonEmptyLines1.length === 0) {
+                    throw new Error('File 1 is empty');
                 }
-                // Extract filename without extension
-                labelFileName = labelFile.name.replace(/\.[^/.]+$/, "");
-            } else {
-                cachedLabelData = null;
-                labelFileName = null;
-            }
 
-            if (bgImageFile) {
-                const bgImageUrl = URL.createObjectURL(bgImageFile);
-                cachedBgImage = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = () => reject(new Error('Failed to load background image'));
-                    img.src = bgImageUrl;
-                });
-            }
+                if (cachedLines2) {
+                    const nonEmptyLines2 = cachedLines2.filter(l => l.trim().length > 0);
+                    if (nonEmptyLines2.length !== nonEmptyLines1.length) {
+                        throw new Error(`Both files must have the same number of non-empty lines`);
+                    }
+                }
 
-            const startSlideFile = document.getElementById('startSlide').files[0];
-            if (startSlideFile) {
-                const startSlideUrl = URL.createObjectURL(startSlideFile);
-                cachedStartSlide = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = () => reject(new Error('Failed to load start slide'));
-                    img.src = startSlideUrl;
-                });
-            } else {
-                cachedStartSlide = null;
-            }
+                if (labelFile) {
+                    const labelText = await labelFile.text();
+                    cachedLabelData = parseAudacityLabels(labelText);
+                    if (cachedLabelData.length === 0) {
+                        throw new Error('Label file is empty or invalid format');
+                    }
+                    // Extract filename without extension
+                    labelFileName = labelFile.name.replace(/\.[^/.]+$/, "");
+                } else {
+                    cachedLabelData = null;
+                    labelFileName = null;
+                }
 
-            const endSlideFile = document.getElementById('endSlide').files[0];
-            if (endSlideFile) {
-                const endSlideUrl = URL.createObjectURL(endSlideFile);
-                cachedEndSlide = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = () => reject(new Error('Failed to load end slide'));
-                    img.src = endSlideUrl;
-                });
-            } else {
-                cachedEndSlide = null;
-            }
+                if (bgImageFile) {
+                    const bgImageUrl = URL.createObjectURL(bgImageFile);
+                    cachedBgImage = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load background image'));
+                        img.src = bgImageUrl;
+                    });
+                }
 
-            linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
+                const startSlideFile = document.getElementById('startSlide').files[0];
+                if (startSlideFile) {
+                    const startSlideUrl = URL.createObjectURL(startSlideFile);
+                    cachedStartSlide = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load start slide'));
+                        img.src = startSlideUrl;
+                    });
+                } else {
+                    cachedStartSlide = null;
+                }
 
-            const nonEmptyCount = cachedLines1.filter(l => l.trim().length > 0).length;
-            totalSlideGroups = Math.ceil(nonEmptyCount / linesPerSlide);
-            currentPreviewSlideGroup = 0;
-            currentPreviewHighlight = 0;
-        }
+                const endSlideFile = document.getElementById('endSlide').files[0];
+                if (endSlideFile) {
+                    const endSlideUrl = URL.createObjectURL(endSlideFile);
+                    cachedEndSlide = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load end slide'));
+                        img.src = endSlideUrl;
+                    });
+                } else {
+                    cachedEndSlide = null;
+                }
 
-        function populateDropdowns() {
-            const slideSelector = document.getElementById('slideSelector');
-            const highlightSelector = document.getElementById('highlightSelector');
+                linesPerSlide = parseInt(document.getElementById('linesPerSlide').value) || 8;
 
-            slideSelector.innerHTML = '';
-            highlightSelector.innerHTML = '';
-
-            for (let i = 0; i < totalSlideGroups; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `${i + 1} / ${totalSlideGroups}`;
-                slideSelector.appendChild(option);
-            }
-
-            for (let i = 0; i < linesPerSlide; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `${i + 1} / ${linesPerSlide}`;
-                highlightSelector.appendChild(option);
-            }
-
-            slideSelector.value = currentPreviewSlideGroup;
-            highlightSelector.value = currentPreviewHighlight;
-        }
-
-        function jumpToSlide() {
-            currentPreviewSlideGroup = parseInt(document.getElementById('slideSelector').value);
-            updatePreview();
-        }
-
-        function jumpToHighlight() {
-            currentPreviewHighlight = parseInt(document.getElementById('highlightSelector').value);
-            updatePreview();
-        }
-
-        async function previewSlide() {
-            const errorDiv = document.getElementById('error');
-            const previewDiv = document.getElementById('preview');
-
-            errorDiv.style.display = 'none';
-            previewDiv.style.display = 'none';
-
-            try {
-                await loadFiles();
-                populateDropdowns();
-                updatePreview();
-                previewDiv.style.display = 'block';
-            } catch (err) {
-                console.error('Error:', err);
-                errorDiv.textContent = '✗ Error: ' + err.message;
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        function updatePreview() {
-            const bgColor = document.getElementById('bgColor').value || '#ffffff';
-            const colorBefore = document.getElementById('colorBefore').value || '#999999';
-            const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
-            const colorAfter = document.getElementById('colorAfter').value || '#000000';
-            const fontFamily = document.getElementById('fontFamily').value || 'Arial';
-            const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
-            const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
-            const topMargin = parseInt(document.getElementById('topMargin').value) || 54;
-            const leftMargin = parseInt(document.getElementById('leftMargin').value) || 54;
-
-            const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
-            const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
-
-            const startIdx = currentPreviewSlideGroup * linesPerSlide;
-            const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyLines1.length);
-            const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
-            const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
-            const isBilingual = !!cachedLines2;
-
-            const canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
-
-            const previewCanvas = document.getElementById('previewCanvas');
-            const ctx = previewCanvas.getContext('2d');
-            ctx.drawImage(canvas, 0, 0);
-
-            document.getElementById('slideSelector').value = currentPreviewSlideGroup;
-            document.getElementById('highlightSelector').value = currentPreviewHighlight;
-        }
-
-        function nextSlide() {
-            if (currentPreviewHighlight < linesPerSlide - 1) {
-                currentPreviewHighlight++;
-            } else if (currentPreviewSlideGroup < totalSlideGroups - 1) {
-                currentPreviewSlideGroup++;
+                const nonEmptyCount = cachedLines1.filter(l => l.trim().length > 0).length;
+                totalSlideGroups = Math.ceil(nonEmptyCount / linesPerSlide);
+                currentPreviewSlideGroup = 0;
                 currentPreviewHighlight = 0;
+
+                // Load chapter metadata
+                cantoNumber = document.getElementById('cantoNumber').value || '';
+                chapterNumber = document.getElementById('chapterNumber').value || '';
+                cantoName = document.getElementById('cantoName').value || '';
+                chapterName = document.getElementById('chapterName').value || '';
+
+                // Load chapter image
+                const chapterImageFile = document.getElementById('chapterImage').files[0];
+                if (chapterImageFile) {
+                    const chapterImageUrl = URL.createObjectURL(chapterImageFile);
+                    cachedChapterImage = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load chapter image'));
+                        img.src = chapterImageUrl;
+                    });
+                } else {
+                    cachedChapterImage = null;
+                }
             }
-            updatePreview();
-        }
 
-        function previousSlide() {
-            if (currentPreviewHighlight > 0) {
-                currentPreviewHighlight--;
-            } else if (currentPreviewSlideGroup > 0) {
-                currentPreviewSlideGroup--;
-                currentPreviewHighlight = linesPerSlide - 1;
+            function createFirstSlide(firstLine, bgColor, fontFamily, bgImage) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1920;
+                canvas.height = 1080;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                if (bgImage) {
+                    ctx.drawImage(bgImage, 0, 0, 1920, 1080);
+                } else {
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, 1920, 1080);
+                }
+
+                // Layout: Left side for image, right side for text
+                const leftWidth = 800;
+                const rightWidth = 1120;
+                const rightX = 800;
+                const textLeftPadding = 80; // Space between image area and text
+
+                // Draw chapter image if available (1:1.15 ratio, cropped to fit)
+                if (cachedChapterImage) {
+                    const targetRatio = 1 / 1.15; // width / height
+                    const leftMarginImg = 70;
+                    const maxHeight = 900;
+                    const maxWidth = leftWidth - leftMarginImg - 50; // Leave some right padding too
+
+                    // Calculate target dimensions
+                    let targetHeight = maxHeight;
+                    let targetWidth = targetHeight * targetRatio;
+
+                    if (targetWidth > maxWidth) {
+                        targetWidth = maxWidth;
+                        targetHeight = targetWidth / targetRatio;
+                    }
+
+                    // Calculate source crop dimensions (center crop from original image)
+                    const sourceRatio = cachedChapterImage.width / cachedChapterImage.height;
+                    let sourceX = 0;
+                    let sourceY = 0;
+                    let sourceWidth = cachedChapterImage.width;
+                    let sourceHeight = cachedChapterImage.height;
+
+                    if (sourceRatio > targetRatio) {
+                        // Image is wider than target - crop sides
+                        sourceWidth = cachedChapterImage.height * targetRatio;
+                        sourceX = (cachedChapterImage.width - sourceWidth) / 2;
+                    } else {
+                        // Image is taller than target - crop top/bottom
+                        sourceHeight = cachedChapterImage.width / targetRatio;
+                        sourceY = (cachedChapterImage.height - sourceHeight) / 2;
+                    }
+
+                    const imgX = leftMarginImg;
+                    const imgY = (1080 - targetHeight) / 2;
+
+                    ctx.drawImage(
+                        cachedChapterImage,
+                        sourceX, sourceY, sourceWidth, sourceHeight, // Source crop
+                        imgX, imgY, targetWidth, targetHeight // Destination
+                    );
+                }
+
+                // Text styling
+                ctx.fillStyle = '#333333';
+
+                // Check alignment preference (add this to your HTML settings if needed)
+                const textAlign = 'left'; // center or right
+                ctx.textAlign = textAlign;
+
+                let yPos = 200;
+                const lineSpacing = 80;
+                const textX = textAlign === 'center' ? rightX + (rightWidth / 2) : rightX + textLeftPadding;
+                const maxWidth = rightWidth - (textLeftPadding * 2);
+
+                // "Srimad Bhagavatham"
+                ctx.font = `bold 56px ${fontFamily}`;
+                ctx.fillText('Srimad Bhagavatham', textX, yPos);
+                yPos += lineSpacing;
+
+                // "Canto X - Chapter Y"
+                if (cantoNumber && chapterNumber) {
+                    ctx.font = `bold 48px ${fontFamily}`;
+                    ctx.fillText(`Canto ${cantoNumber} - Chapter ${chapterNumber}`, textX, yPos);
+                    yPos += lineSpacing;
+                }
+
+                // Canto Name
+                if (cantoName) {
+                    ctx.font = `italic 40px ${fontFamily}`;
+                    ctx.fillText(cantoName, textX, yPos);
+                    yPos += lineSpacing * 0.8;
+                }
+
+                // Chapter Name (may wrap)
+                if (chapterName || firstLine) {
+                    ctx.font = `bold 44px ${fontFamily}`;
+                    const chapterText = chapterName || firstLine;
+                    const words = chapterText.split(' ');
+                    let line = '';
+
+                    for (let word of words) {
+                        const testLine = line + word + ' ';
+                        const metrics = ctx.measureText(testLine);
+                        const lineWidth = textAlign === 'center' ? maxWidth : maxWidth - textLeftPadding;
+
+                        if (metrics.width > lineWidth && line !== '') {
+                            ctx.fillText(line, textX, yPos);
+                            line = word + ' ';
+                            yPos += lineSpacing * 0.9;
+                        } else {
+                            line = testLine;
+                        }
+                    }
+                    ctx.fillText(line, textX, yPos);
+                }
+
+                return canvas;
             }
-            updatePreview();
-        }
 
-        async function generateSlideZip() {
-            const errorDiv = document.getElementById('error');
-            const successDiv = document.getElementById('success');
-            const progressDiv = document.getElementById('progress');
+            function createLastSlide(lastLine, bgColor, fontFamily, bgImage) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1920;
+                canvas.height = 1080;
+                const ctx = canvas.getContext('2d');
 
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
+                // Background
+                if (bgImage) {
+                    ctx.drawImage(bgImage, 0, 0, 1920, 1080);
+                } else {
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, 1920, 1080);
+                }
 
-            try {
-                await loadFiles();
+                // Center the last line
+                ctx.fillStyle = '#333333';
+                ctx.textAlign = 'center';
+                ctx.font = `bold 56px ${fontFamily}`;
 
-                progressDiv.style.display = 'block';
+                // Word wrap if needed
+                const maxWidth = 1600;
+                const words = lastLine.split(' ');
+                const lines = [];
+                let currentLine = '';
 
+                for (let word of words) {
+                    const testLine = currentLine + word + ' ';
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && currentLine !== '') {
+                        lines.push(currentLine);
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                lines.push(currentLine);
+
+                // Draw centered lines
+                const lineHeight = 80;
+                const totalHeight = lines.length * lineHeight;
+                let yPos = (1080 - totalHeight) / 2 + 56;
+
+                for (let line of lines) {
+                    ctx.fillText(line.trim(), 960, yPos);
+                    yPos += lineHeight;
+                }
+
+                return canvas;
+            }
+
+            function populateDropdowns() {
+                const slideSelector = document.getElementById('slideSelector');
+                const highlightSelector = document.getElementById('highlightSelector');
+
+                slideSelector.innerHTML = '';
+                highlightSelector.innerHTML = '';
+
+                // Add "First Slide" option
+                const firstOption = document.createElement('option');
+                firstOption.value = -1;
+                firstOption.textContent = 'First Slide';
+                slideSelector.appendChild(firstOption);
+
+                // Add regular slides
+                for (let i = 0; i < totalSlideGroups; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `Slide ${i + 1} / ${totalSlideGroups}`;
+                    slideSelector.appendChild(option);
+                }
+
+                // Add "Last Slide" option
+                const lastOption = document.createElement('option');
+                lastOption.value = -2;
+                lastOption.textContent = 'Last Slide';
+                slideSelector.appendChild(lastOption);
+
+                // Populate highlight selector
+                for (let i = 0; i < linesPerSlide; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i + 1} / ${linesPerSlide}`;
+                    highlightSelector.appendChild(option);
+                }
+
+                slideSelector.value = currentPreviewSlideGroup;
+                highlightSelector.value = currentPreviewHighlight;
+            }
+
+            function jumpToSlide() {
+                currentPreviewSlideGroup = parseInt(document.getElementById('slideSelector').value);
+                updatePreview();
+            }
+
+            function jumpToHighlight() {
+                currentPreviewHighlight = parseInt(document.getElementById('highlightSelector').value);
+                updatePreview();
+            }
+
+            async function previewSlide() {
+                const errorDiv = document.getElementById('error');
+                const previewDiv = document.getElementById('preview');
+
+                errorDiv.style.display = 'none';
+                previewDiv.style.display = 'none';
+
+                try {
+                    await loadFiles();
+                    currentPreviewSlideGroup = -1; // Start with first slide
+                    currentPreviewHighlight = 0;
+                    populateDropdowns();
+                    updatePreview();
+                    previewDiv.style.display = 'block';
+                } catch (err) {
+                    console.error('Error:', err);
+                    errorDiv.textContent = '✗ Error: ' + err.message;
+                    errorDiv.style.display = 'block';
+                }
+            }
+
+            function updatePreview() {
                 const bgColor = document.getElementById('bgColor').value || '#ffffff';
                 const colorBefore = document.getElementById('colorBefore').value || '#999999';
                 const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
@@ -808,71 +1000,224 @@
                 const topMargin = parseInt(document.getElementById('topMargin').value) || 54;
                 const leftMargin = parseInt(document.getElementById('leftMargin').value) || 54;
 
-                const zip = new JSZip();
-                let frameIndex = 0;
+                const previewCanvas = document.getElementById('previewCanvas');
+                const ctx = previewCanvas.getContext('2d');
 
-                // Add custom start slide if provided
-                if (cachedStartSlide) {
-                    const startCanvas = document.createElement('canvas');
-                    startCanvas.width = 1920;
-                    startCanvas.height = 1080;
-                    const startCtx = startCanvas.getContext('2d');
-                    startCtx.drawImage(cachedStartSlide, 0, 0, 1920, 1080);
+                let canvas;
 
-                    const startBlob = await new Promise(resolve => startCanvas.toBlob(resolve, 'image/png', 0.95));
-                    const startFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
-                    zip.file(startFilename, startBlob);
-                    frameIndex++;
+                // Check if showing first slide
+                if (currentPreviewSlideGroup === -1) {
+                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                    const firstLine = nonEmptyLines1.length > 0 ? nonEmptyLines1[0] : '';
+
+                    if (cachedStartSlide) {
+                        canvas = document.createElement('canvas');
+                        canvas.width = 1920;
+                        canvas.height = 1080;
+                        const tempCtx = canvas.getContext('2d');
+                        tempCtx.drawImage(cachedStartSlide, 0, 0, 1920, 1080);
+                    } else {
+                        canvas = createFirstSlide(firstLine, bgColor, fontFamily, cachedBgImage);
+                    }
+
+                    // Disable highlight selector for first slide
+                    document.getElementById('highlightSelector').disabled = true;
                 }
+                // Check if showing last slide
+                else if (currentPreviewSlideGroup === -2) {
+                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                    const lastLine = nonEmptyLines1.length > 0 ? nonEmptyLines1[nonEmptyLines1.length - 1] : '';
 
-                const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
-                const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
-                const nonEmptyCount = nonEmptyLines1.length;
-                const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
+                    if (cachedEndSlide) {
+                        canvas = document.createElement('canvas');
+                        canvas.width = 1920;
+                        canvas.height = 1080;
+                        const tempCtx = canvas.getContext('2d');
+                        tempCtx.drawImage(cachedEndSlide, 0, 0, 1920, 1080);
+                    } else {
+                        canvas = createLastSlide(lastLine, bgColor, fontFamily, cachedBgImage);
+                    }
 
-                for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
-                    const startIdx = slideIdx * linesPerSlide;
-                    const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyCount);
+                    // Disable highlight selector for last slide
+                    document.getElementById('highlightSelector').disabled = true;
+                }
+                // Regular content slides
+                else {
+                    // Enable highlight selector for content slides
+                    document.getElementById('highlightSelector').disabled = false;
+
+                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                    const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
+
+                    const startIdx = currentPreviewSlideGroup * linesPerSlide;
+                    const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyLines1.length);
                     const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
                     const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
                     const isBilingual = !!cachedLines2;
 
-                    const actualLinesInThisSlide = slideLines1.length;
+                    canvas = createSlide(slideLines1, slideLines2, currentPreviewHighlight, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
+                }
 
-                    for (let highlightIdx = 0; highlightIdx < actualLinesInThisSlide; highlightIdx++) {
-                        const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
+                ctx.drawImage(canvas, 0, 0);
 
-                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
-                        const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
-                        zip.file(filename, blob);
-                        frameIndex++;
+                document.getElementById('slideSelector').value = currentPreviewSlideGroup;
+                document.getElementById('highlightSelector').value = currentPreviewHighlight;
+            }
 
-                        const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalGroups * linesPerSlide) * 100);
-                        document.getElementById('progressFill').textContent = progress + '%';
-                        document.getElementById('progressFill').style.width = progress + '%';
+            function nextSlide() {
+                // If on first slide, go to first content slide
+                if (currentPreviewSlideGroup === -1) {
+                    currentPreviewSlideGroup = 0;
+                    currentPreviewHighlight = 0;
+                }
+                // If on content slides
+                else if (currentPreviewSlideGroup >= 0 && currentPreviewSlideGroup < totalSlideGroups) {
+                    if (currentPreviewHighlight < linesPerSlide - 1) {
+                        currentPreviewHighlight++;
+                    } else if (currentPreviewSlideGroup < totalSlideGroups - 1) {
+                        currentPreviewSlideGroup++;
+                        currentPreviewHighlight = 0;
+                    } else {
+                        // Go to last slide
+                        currentPreviewSlideGroup = -2;
+                        currentPreviewHighlight = 0;
                     }
                 }
+                // Already on last slide, do nothing
 
-                // Add custom end slide if provided
-                if (cachedEndSlide) {
-                    const endCanvas = document.createElement('canvas');
-                    endCanvas.width = 1920;
-                    endCanvas.height = 1080;
-                    const endCtx = endCanvas.getContext('2d');
-                    endCtx.drawImage(cachedEndSlide, 0, 0, 1920, 1080);
+                updatePreview();
+            }
 
-                    const endBlob = await new Promise(resolve => endCanvas.toBlob(resolve, 'image/png', 0.95));
-                    const endFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
-                    zip.file(endFilename, endBlob);
-                    frameIndex++;
+            function previousSlide() {
+                // If on last slide, go to last content slide
+                if (currentPreviewSlideGroup === -2) {
+                    currentPreviewSlideGroup = totalSlideGroups - 1;
+                    currentPreviewHighlight = linesPerSlide - 1;
                 }
+                // If on content slides
+                else if (currentPreviewSlideGroup >= 0) {
+                    if (currentPreviewHighlight > 0) {
+                        currentPreviewHighlight--;
+                    } else if (currentPreviewSlideGroup > 0) {
+                        currentPreviewSlideGroup--;
+                        currentPreviewHighlight = linesPerSlide - 1;
+                    } else {
+                        // Go to first slide
+                        currentPreviewSlideGroup = -1;
+                        currentPreviewHighlight = 0;
+                    }
+                }
+                // Already on first slide, do nothing
 
-                if (cachedLabelData && cachedLabelData.length > 0) {
-                    const concatContent = generateFfmpegConcat(cachedLabelData);
-                    zip.file('concat.txt', concatContent);
+                updatePreview();
+            }
 
-                    const wavFileName = `/Volumes/samsung/bhagavatham/audio/${labelFileName.replace('SB-', '')}.wav`
-                    const pythonScript = `#!/usr/bin/env python3
+            async function generateSlideZip() {
+                const errorDiv = document.getElementById('error');
+                const successDiv = document.getElementById('success');
+                const progressDiv = document.getElementById('progress');
+
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                try {
+                    await loadFiles();
+
+                    progressDiv.style.display = 'block';
+
+                    const bgColor = document.getElementById('bgColor').value || '#ffffff';
+                    const colorBefore = document.getElementById('colorBefore').value || '#999999';
+                    const colorHighlight = document.getElementById('colorHighlight').value || '#FFD700';
+                    const colorAfter = document.getElementById('colorAfter').value || '#000000';
+                    const fontFamily = document.getElementById('fontFamily').value || 'Arial';
+                    const baseFontSize = parseInt(document.getElementById('baseFontSize').value) || 60;
+                    const lineHeightMultiplier = parseFloat(document.getElementById('lineHeightMultiplier').value) || 1.4;
+                    const topMargin = parseInt(document.getElementById('topMargin').value) || 54;
+                    const leftMargin = parseInt(document.getElementById('leftMargin').value) || 54;
+
+                    const zip = new JSZip();
+                    let frameIndex = 0;
+
+                    // Add custom start slide if provided
+                    // Add custom start slide OR generated first slide
+                    if (cachedStartSlide) {
+                        const startCanvas = document.createElement('canvas');
+                        startCanvas.width = 1920;
+                        startCanvas.height = 1080;
+                        const startCtx = startCanvas.getContext('2d');
+                        startCtx.drawImage(cachedStartSlide, 0, 0, 1920, 1080);
+
+                        const startBlob = await new Promise(resolve => startCanvas.toBlob(resolve, 'image/png', 0.95));
+                        const startFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                        zip.file(startFilename, startBlob);
+                        frameIndex++;
+                    } else if (nonEmptyLines1.length > 0) {
+                        // Generate first slide with metadata
+                        const firstLine = nonEmptyLines1[0];
+                        const firstSlideCanvas = createFirstSlide(firstLine, bgColor, fontFamily, cachedBgImage);
+                        const firstSlideBlob = await new Promise(resolve => firstSlideCanvas.toBlob(resolve, 'image/png', 0.95));
+                        const firstSlideFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                        zip.file(firstSlideFilename, firstSlideBlob);
+                        frameIndex++;
+                    }
+
+                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                    const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
+                    const nonEmptyCount = nonEmptyLines1.length;
+                    const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
+
+                    for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
+                        const startIdx = slideIdx * linesPerSlide;
+                        const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyCount);
+                        const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
+                        const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
+                        const isBilingual = !!cachedLines2;
+
+                        const actualLinesInThisSlide = slideLines1.length;
+
+                        for (let highlightIdx = 0; highlightIdx < actualLinesInThisSlide; highlightIdx++) {
+                            const canvas = createSlide(slideLines1, slideLines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
+
+                            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                            const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                            zip.file(filename, blob);
+                            frameIndex++;
+
+                            const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalGroups * linesPerSlide) * 100);
+                            document.getElementById('progressFill').textContent = progress + '%';
+                            document.getElementById('progressFill').style.width = progress + '%';
+                        }
+                    }
+
+                    // Add custom end slide if provided
+                    // Add custom end slide OR generated last slide
+                    if (cachedEndSlide) {
+                        const endCanvas = document.createElement('canvas');
+                        endCanvas.width = 1920;
+                        endCanvas.height = 1080;
+                        const endCtx = endCanvas.getContext('2d');
+                        endCtx.drawImage(cachedEndSlide, 0, 0, 1920, 1080);
+
+                        const endBlob = await new Promise(resolve => endCanvas.toBlob(resolve, 'image/png', 0.95));
+                        const endFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                        zip.file(endFilename, endBlob);
+                        frameIndex++;
+                    } else if (nonEmptyLines1.length > 0) {
+                        // Generate last slide with last line
+                        const lastLine = nonEmptyLines1[nonEmptyLines1.length - 1];
+                        const lastSlideCanvas = createLastSlide(lastLine, bgColor, fontFamily, cachedBgImage);
+                        const lastSlideBlob = await new Promise(resolve => lastSlideCanvas.toBlob(resolve, 'image/png', 0.95));
+                        const lastSlideFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                        zip.file(lastSlideFilename, lastSlideBlob);
+                        frameIndex++;
+                    }
+
+                    if (cachedLabelData && cachedLabelData.length > 0) {
+                        const concatContent = generateFfmpegConcat(cachedLabelData);
+                        zip.file('concat.txt', concatContent);
+
+                        const wavFileName = `/Volumes/samsung/bhagavatham/audio/${labelFileName.replace('SB-', '')}.wav`
+                        const pythonScript = `#!/usr/bin/env python3
 import subprocess
 import os
 import sys
@@ -925,322 +1270,339 @@ def main():
 if __name__ == '__main__':
     main()
 `;
-                    zip.file('generate_mp4.py', pythonScript);
-                }
-
-                const zipBlob = await zip.generateAsync({ type: 'blob' });
-                const zipFileName = labelFileName ? `${labelFileName}.zip` : 'slides.zip';
-                downloadBlob(zipBlob, zipFileName);
-
-                document.getElementById('progressFill').textContent = '100%';
-                document.getElementById('progressFill').style.width = '100%';
-
-                const concatMsg = cachedLabelData ? ' + concat.txt' : '';
-                successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as ${zipFileName}!`;
-                successDiv.style.display = 'block';
-                progressDiv.style.display = 'none';
-
-            } catch (err) {
-                console.error('Error:', err);
-                errorDiv.textContent = '✗ Error: ' + err.message;
-                errorDiv.style.display = 'block';
-                progressDiv.style.display = 'none';
-            }
-        }
-
-        function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage, topMargin, leftMargin) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1920;
-            canvas.height = 1080;
-            const ctx = canvas.getContext('2d');
-
-            if (bgImage) {
-                ctx.drawImage(bgImage, 0, 0, 1920, 1080);
-            } else {
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, 1920, 1080);
-            }
-
-            const totalLines = lines1.length;
-            const availableHeight = 1080 - (2 * topMargin);
-
-            let fontSize = baseFontSize;
-            let lineHeight = fontSize * lineHeightMultiplier;
-            let requiredHeight = totalLines * lineHeight;
-            if (requiredHeight > availableHeight) {
-                const scaleFactor = availableHeight / requiredHeight;
-                fontSize = Math.max(12, fontSize * scaleFactor);
-                lineHeight = fontSize * lineHeightMultiplier;
-            }
-
-            ctx.font = `bold ${fontSize}px ${fontFamily}`;
-            ctx.textAlign = 'left';
-
-            const startY = topMargin + fontSize;
-
-            if (isBilingual) {
-                const halfHeight = 540;
-                let yPos1 = startY;
-                let yPos2 = startY;
-
-                for (let i = 0; i < lines1.length; i++) {
-                    if (i < highlightIdx) {
-                        ctx.fillStyle = colorBefore;
-                    } else if (i === highlightIdx) {
-                        ctx.fillStyle = colorHighlight;
-                    } else {
-                        ctx.fillStyle = colorAfter;
+                        zip.file('generate_mp4.py', pythonScript);
                     }
 
-                    ctx.fillText(lines1[i], leftMargin, yPos1);
-                    ctx.fillText(lines2[i], leftMargin, halfHeight + yPos2);
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    const zipFileName = labelFileName ? `${labelFileName}.zip` : 'slides.zip';
+                    downloadBlob(zipBlob, zipFileName);
 
-                    yPos1 += lineHeight;
-                    yPos2 += lineHeight;
+                    document.getElementById('progressFill').textContent = '100%';
+                    document.getElementById('progressFill').style.width = '100%';
+
+                    const concatMsg = cachedLabelData ? ' + concat.txt' : '';
+                    successDiv.textContent = `✓ Generated ${frameIndex} slide images${concatMsg} as ${zipFileName}!`;
+                    successDiv.style.display = 'block';
+                    progressDiv.style.display = 'none';
+
+                } catch (err) {
+                    console.error('Error:', err);
+                    errorDiv.textContent = '✗ Error: ' + err.message;
+                    errorDiv.style.display = 'block';
+                    progressDiv.style.display = 'none';
                 }
-            } else {
-                for (let i = 0; i < lines1.length; i++) {
-                    if (i < highlightIdx) {
-                        ctx.fillStyle = colorBefore;
-                    } else if (i === highlightIdx) {
-                        ctx.fillStyle = colorHighlight;
-                    } else {
-                        ctx.fillStyle = colorAfter;
+            }
+
+            function createSlide(lines1, lines2, highlightIdx, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, bgImage, topMargin, leftMargin) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1920;
+                canvas.height = 1080;
+                const ctx = canvas.getContext('2d');
+
+                if (bgImage) {
+                    ctx.drawImage(bgImage, 0, 0, 1920, 1080);
+                } else {
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, 1920, 1080);
+                }
+
+                const totalLines = lines1.length;
+                const availableHeight = 1080 - (2 * topMargin);
+
+                let fontSize = baseFontSize;
+                let lineHeight = fontSize * lineHeightMultiplier;
+                let requiredHeight = totalLines * lineHeight;
+                if (requiredHeight > availableHeight) {
+                    const scaleFactor = availableHeight / requiredHeight;
+                    fontSize = Math.max(12, fontSize * scaleFactor);
+                    lineHeight = fontSize * lineHeightMultiplier;
+                }
+
+                ctx.font = `bold ${fontSize}px ${fontFamily}`;
+                ctx.textAlign = 'left';
+
+                const startY = topMargin + fontSize;
+
+                if (isBilingual) {
+                    const halfHeight = 540;
+                    let yPos1 = startY;
+                    let yPos2 = startY;
+
+                    for (let i = 0; i < lines1.length; i++) {
+                        if (i < highlightIdx) {
+                            ctx.fillStyle = colorBefore;
+                        } else if (i === highlightIdx) {
+                            ctx.fillStyle = colorHighlight;
+                        } else {
+                            ctx.fillStyle = colorAfter;
+                        }
+
+                        ctx.fillText(lines1[i], leftMargin, yPos1);
+                        ctx.fillText(lines2[i], leftMargin, halfHeight + yPos2);
+
+                        yPos1 += lineHeight;
+                        yPos2 += lineHeight;
+                    }
+                } else {
+                    for (let i = 0; i < lines1.length; i++) {
+                        if (i < highlightIdx) {
+                            ctx.fillStyle = colorBefore;
+                        } else if (i === highlightIdx) {
+                            ctx.fillStyle = colorHighlight;
+                        } else {
+                            ctx.fillStyle = colorAfter;
+                        }
+
+                        ctx.fillText(lines1[i], leftMargin, startY + i * lineHeight);
+                    }
+                }
+
+                return canvas;
+            }
+
+            function downloadBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function createFileList(files) {
+                const dataTransfer = new DataTransfer();
+                files.forEach(file => dataTransfer.items.add(file));
+                return dataTransfer.files;
+            }
+
+            async function loadFileFromUrl(fileUrl) {
+                try {
+                    let url = fileUrl;
+                    if (fileUrl.startsWith('file:///')) {
+                        const filePath = fileUrl.replace('file://', '');
+                        url = filePath;
                     }
 
-                    ctx.fillText(lines1[i], leftMargin, startY + i * lineHeight);
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load file: ${response.status} ${response.statusText}. URL: ${url}`);
+                    }
+                    const blob = await response.blob();
+                    const filename = url.split('/').pop() || 'file';
+                    const file = new File([blob], filename, { type: blob.type });
+                    return file;
+                } catch (error) {
+                    throw new Error(`Cannot load file from URL: ${error.message}`);
                 }
             }
 
-            return canvas;
-        }
+            window.addEventListener('DOMContentLoaded', function () {
+                loadSavedSettings();
 
-        function downloadBlob(blob, filename) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function createFileList(files) {
-            const dataTransfer = new DataTransfer();
-            files.forEach(file => dataTransfer.items.add(file));
-            return dataTransfer.files;
-        }
-
-        async function loadFileFromUrl(fileUrl) {
-            try {
-                let url = fileUrl;
-                if (fileUrl.startsWith('file:///')) {
-                    const filePath = fileUrl.replace('file://', '');
-                    url = filePath;
-                }
-
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Failed to load file: ${response.status} ${response.statusText}. URL: ${url}`);
-                }
-                const blob = await response.blob();
-                const filename = url.split('/').pop() || 'file';
-                const file = new File([blob], filename, { type: blob.type });
-                return file;
-            } catch (error) {
-                throw new Error(`Cannot load file from URL: ${error.message}`);
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', function () {
-            loadSavedSettings();
-
-            const inputs = ['skipLines', 'skipLastLines', 'linesPerSlide', 'topMargin', 'leftMargin', 'fontFamily',
-                'baseFontSize', 'lineHeightMultiplier', 'preserveBlankLines', 'enableIndent',
-                'bgColor', 'colorBefore', 'colorHighlight', 'colorAfter'];
-            inputs.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('change', saveSettings);
-                }
+                const inputs = ['skipLines', 'skipLastLines', 'linesPerSlide', 'topMargin', 'leftMargin', 'fontFamily',
+                    'baseFontSize', 'lineHeightMultiplier', 'preserveBlankLines', 'enableIndent',
+                    'bgColor', 'colorBefore', 'colorHighlight', 'colorAfter', 'cantoNumber', 'chapterNumber', 'cantoName', 'chapterName'];
+                inputs.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', saveSettings);
+                    }
+                });
             });
-        });
 
-        window.slideGeneratorAPI = {
-            setFile1: function (file) {
-                document.getElementById('file1').files = createFileList([file]);
-                console.log('✓ File 1 set');
-            },
-            setFile2: function (file) {
-                document.getElementById('file2').files = createFileList([file]);
-                console.log('✓ File 2 set');
-            },
-            setLabelFile: function (file) {
-                document.getElementById('labelFile').files = createFileList([file]);
-                console.log('✓ Label file set');
-            },
-            setBgImage: function (file) {
-                document.getElementById('bgImage').files = createFileList([file]);
-                console.log('✓ Background image set');
-            },
-            setFile1Url: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setFile1(file);
-                } catch (error) {
-                    console.error('✗ Error loading File 1:', error.message);
+            window.slideGeneratorAPI = {
+                setFile1: function (file) {
+                    document.getElementById('file1').files = createFileList([file]);
+                    console.log('✓ File 1 set');
+                },
+                setFile2: function (file) {
+                    document.getElementById('file2').files = createFileList([file]);
+                    console.log('✓ File 2 set');
+                },
+                setLabelFile: function (file) {
+                    document.getElementById('labelFile').files = createFileList([file]);
+                    console.log('✓ Label file set');
+                },
+                setBgImage: function (file) {
+                    document.getElementById('bgImage').files = createFileList([file]);
+                    console.log('✓ Background image set');
+                },
+                setFile1Url: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setFile1(file);
+                    } catch (error) {
+                        console.error('✗ Error loading File 1:', error.message);
+                    }
+                },
+                setFile2Url: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setFile2(file);
+                    } catch (error) {
+                        console.error('✗ Error loading File 2:', error.message);
+                    }
+                },
+                setLabelFileUrl: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setLabelFile(file);
+                    } catch (error) {
+                        console.error('✗ Error loading Label file:', error.message);
+                    }
+                },
+                setBgImageUrl: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setBgImage(file);
+                    } catch (error) {
+                        console.error('✗ Error loading Background image:', error.message);
+                    }
+                },
+                setStartSlide: function (file) {
+                    document.getElementById('startSlide').files = createFileList([file]);
+                    console.log('✓ Start slide set');
+                },
+                setEndSlide: function (file) {
+                    document.getElementById('endSlide').files = createFileList([file]);
+                    console.log('✓ End slide set');
+                },
+                setStartSlideUrl: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setStartSlide(file);
+                    } catch (error) {
+                        console.error('✗ Error loading Start slide:', error.message);
+                    }
+                },
+                setEndSlideUrl: async function (fileUrl) {
+                    try {
+                        const file = await loadFileFromUrl(fileUrl);
+                        this.setEndSlide(file);
+                    } catch (error) {
+                        console.error('✗ Error loading End slide:', error.message);
+                    }
+                },
+                setSkipLines: function (value) {
+                    document.getElementById('skipLines').value = value;
+                    console.log('✓ Skip lines set to ' + value);
+                },
+                setSkipLastLines: function (value) {
+                    document.getElementById('skipLastLines').value = value;
+                    console.log('✓ Skip last lines set to ' + value);
+                },
+                setLinesPerSlide: function (value) {
+                    document.getElementById('linesPerSlide').value = value;
+                    console.log('✓ Lines per slide set to ' + value);
+                },
+                setTopMargin: function (value) {
+                    document.getElementById('topMargin').value = value;
+                    console.log('✓ Top margin set to ' + value);
+                },
+                setLeftMargin: function (value) {
+                    document.getElementById('leftMargin').value = value;
+                    console.log('✓ Left margin set to ' + value);
+                },
+                setFontFamily: function (value) {
+                    document.getElementById('fontFamily').value = value;
+                    console.log('✓ Font family set to ' + value);
+                },
+                setBaseFontSize: function (value) {
+                    document.getElementById('baseFontSize').value = value;
+                    console.log('✓ Base font size set to ' + value);
+                },
+                setLineHeightMultiplier: function (value) {
+                    document.getElementById('lineHeightMultiplier').value = value;
+                    console.log('✓ Line height multiplier set to ' + value);
+                },
+                setBgColor: function (color) {
+                    document.getElementById('bgColor').value = color;
+                    console.log('✓ Background color set to ' + color);
+                },
+                setColorBefore: function (color) {
+                    document.getElementById('colorBefore').value = color;
+                    console.log('✓ Before color set to ' + color);
+                },
+                setColorHighlight: function (color) {
+                    document.getElementById('colorHighlight').value = color;
+                    console.log('✓ Highlight color set to ' + color);
+                },
+                setColorAfter: function (color) {
+                    document.getElementById('colorAfter').value = color;
+                    console.log('✓ After color set to ' + color);
+                },
+                enableIndent: function (enabled) {
+                    document.getElementById('enableIndent').checked = enabled;
+                    console.log('✓ Indent ' + (enabled ? 'enabled' : 'disabled'));
+                },
+                setPreserveBlankLines: function (enabled) {
+                    document.getElementById('preserveBlankLines').checked = enabled;
+                    console.log('✓ Preserve blank lines ' + (enabled ? 'enabled' : 'disabled'));
+                },
+                setCantoNumber: function (value) {
+                    document.getElementById('cantoNumber').value = value;
+                    console.log('✓ Canto Number set to ' + value);
+                },
+                setChapterNumber: function (value) {
+                    document.getElementById('chapterNumber').value = value;
+                    console.log('✓ Chapter Number set to ' + value);
+                },
+                setCantoName: function (value) {
+                    document.getElementById('cantoName').value = value;
+                    console.log('✓ Canto Name set to ' + value);
+                },
+                setChatperName: function (value) {
+                    document.getElementById('chapterName').value = value;
+                    console.log('✓ Chapter Name set to ' + value);
+                },
+
+                preview: function () {
+                    previewSlide();
+                    console.log('✓ Preview started');
+                },
+                generate: function () {
+                    generateSlideZip();
+                    console.log('✓ Generation started');
+                },
+                applySettings: function (config) {
+                    if (config.skipLines !== undefined) this.setSkipLines(config.skipLines);
+                    if (config.skipLastLines !== undefined) this.setSkipLines(config.skipLastLines);
+                    if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
+                    if (config.topMargin !== undefined) this.setTopMargin(config.topMargin);
+                    if (config.leftMargin !== undefined) this.setLeftMargin(config.leftMargin);
+                    if (config.fontFamily) this.setFontFamily(config.fontFamily);
+                    if (config.baseFontSize) this.setBaseFontSize(config.baseFontSize);
+                    if (config.lineHeightMultiplier) this.setLineHeightMultiplier(config.lineHeightMultiplier);
+                    if (config.bgColor) this.setBgColor(config.bgColor);
+                    if (config.colorBefore) this.setColorBefore(config.colorBefore);
+                    if (config.colorHighlight) this.setColorHighlight(config.colorHighlight);
+                    if (config.colorAfter) this.setColorAfter(config.colorAfter);
+                    if (config.enableIndent !== undefined) this.enableIndent(config.enableIndent);
+                    if (config.preserveBlankLines !== undefined) this.setPreserveBlankLines(config.preserveBlankLines);
+                    console.log('✓ All settings applied');
+                },
+                setAll: function (config) {
+                    if (config.file1) this.setFile1(config.file1);
+                    if (config.file2) this.setFile2(config.file2);
+                    if (config.labelFile) this.setLabelFile(config.labelFile);
+                    if (config.bgImage) this.setBgImage(config.bgImage);
+                    if (config.startSlide) this.setStartSlide(config.startSlide);
+                    if (config.endSlide) this.setEndSlide(config.endSlide);
+                    this.applySettings(config);
+                },
+                setAllUrl: async function (config) {
+                    if (config.file1Url) await this.setFile1Url(config.file1Url);
+                    if (config.file2Url) await this.setFile2Url(config.file2Url);
+                    if (config.labelFileUrl) await this.setLabelFileUrl(config.labelFileUrl);
+                    if (config.bgImageUrl) await this.setBgImageUrl(config.bgImageUrl);
+                    if (config.startSlideUrl) await this.setStartSlideUrl(config.startSlideUrl);
+                    if (config.endSlideUrl) await this.setEndSlideUrl(config.endSlideUrl);
+                    this.applySettings(config);
                 }
-            },
-            setFile2Url: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setFile2(file);
-                } catch (error) {
-                    console.error('✗ Error loading File 2:', error.message);
-                }
-            },
-            setLabelFileUrl: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setLabelFile(file);
-                } catch (error) {
-                    console.error('✗ Error loading Label file:', error.message);
-                }
-            },
-            setBgImageUrl: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setBgImage(file);
-                } catch (error) {
-                    console.error('✗ Error loading Background image:', error.message);
-                }
-            },
-            setStartSlide: function (file) {
-                document.getElementById('startSlide').files = createFileList([file]);
-                console.log('✓ Start slide set');
-            },
-            setEndSlide: function (file) {
-                document.getElementById('endSlide').files = createFileList([file]);
-                console.log('✓ End slide set');
-            },
-            setStartSlideUrl: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setStartSlide(file);
-                } catch (error) {
-                    console.error('✗ Error loading Start slide:', error.message);
-                }
-            },
-            setEndSlideUrl: async function (fileUrl) {
-                try {
-                    const file = await loadFileFromUrl(fileUrl);
-                    this.setEndSlide(file);
-                } catch (error) {
-                    console.error('✗ Error loading End slide:', error.message);
-                }
-            },
-            setSkipLines: function (value) {
-                document.getElementById('skipLines').value = value;
-                console.log('✓ Skip lines set to ' + value);
-            },
-            setSkipLastLines: function (value) {
-                document.getElementById('skipLastLines').value = value;
-                console.log('✓ Skip last lines set to ' + value);
-            },
-            setLinesPerSlide: function (value) {
-                document.getElementById('linesPerSlide').value = value;
-                console.log('✓ Lines per slide set to ' + value);
-            },
-            setTopMargin: function (value) {
-                document.getElementById('topMargin').value = value;
-                console.log('✓ Top margin set to ' + value);
-            },
-            setLeftMargin: function (value) {
-                document.getElementById('leftMargin').value = value;
-                console.log('✓ Left margin set to ' + value);
-            },
-            setFontFamily: function (value) {
-                document.getElementById('fontFamily').value = value;
-                console.log('✓ Font family set to ' + value);
-            },
-            setBaseFontSize: function (value) {
-                document.getElementById('baseFontSize').value = value;
-                console.log('✓ Base font size set to ' + value);
-            },
-            setLineHeightMultiplier: function (value) {
-                document.getElementById('lineHeightMultiplier').value = value;
-                console.log('✓ Line height multiplier set to ' + value);
-            },
-            setBgColor: function (color) {
-                document.getElementById('bgColor').value = color;
-                console.log('✓ Background color set to ' + color);
-            },
-            setColorBefore: function (color) {
-                document.getElementById('colorBefore').value = color;
-                console.log('✓ Before color set to ' + color);
-            },
-            setColorHighlight: function (color) {
-                document.getElementById('colorHighlight').value = color;
-                console.log('✓ Highlight color set to ' + color);
-            },
-            setColorAfter: function (color) {
-                document.getElementById('colorAfter').value = color;
-                console.log('✓ After color set to ' + color);
-            },
-            enableIndent: function (enabled) {
-                document.getElementById('enableIndent').checked = enabled;
-                console.log('✓ Indent ' + (enabled ? 'enabled' : 'disabled'));
-            },
-            setPreserveBlankLines: function (enabled) {
-                document.getElementById('preserveBlankLines').checked = enabled;
-                console.log('✓ Preserve blank lines ' + (enabled ? 'enabled' : 'disabled'));
-            },
-            preview: function () {
-                previewSlide();
-                console.log('✓ Preview started');
-            },
-            generate: function () {
-                generateSlideZip();
-                console.log('✓ Generation started');
-            },
-            applySettings: function (config) {
-                if (config.skipLines !== undefined) this.setSkipLines(config.skipLines);
-                if (config.skipLastLines !== undefined) this.setSkipLines(config.skipLastLines);
-                if (config.linesPerSlide) this.setLinesPerSlide(config.linesPerSlide);
-                if (config.topMargin !== undefined) this.setTopMargin(config.topMargin);
-                if (config.leftMargin !== undefined) this.setLeftMargin(config.leftMargin);
-                if (config.fontFamily) this.setFontFamily(config.fontFamily);
-                if (config.baseFontSize) this.setBaseFontSize(config.baseFontSize);
-                if (config.lineHeightMultiplier) this.setLineHeightMultiplier(config.lineHeightMultiplier);
-                if (config.bgColor) this.setBgColor(config.bgColor);
-                if (config.colorBefore) this.setColorBefore(config.colorBefore);
-                if (config.colorHighlight) this.setColorHighlight(config.colorHighlight);
-                if (config.colorAfter) this.setColorAfter(config.colorAfter);
-                if (config.enableIndent !== undefined) this.enableIndent(config.enableIndent);
-                if (config.preserveBlankLines !== undefined) this.setPreserveBlankLines(config.preserveBlankLines);
-                console.log('✓ All settings applied');
-            },
-            setAll: function (config) {
-                if (config.file1) this.setFile1(config.file1);
-                if (config.file2) this.setFile2(config.file2);
-                if (config.labelFile) this.setLabelFile(config.labelFile);
-                if (config.bgImage) this.setBgImage(config.bgImage);
-                if (config.startSlide) this.setStartSlide(config.startSlide);
-                if (config.endSlide) this.setEndSlide(config.endSlide);
-                this.applySettings(config);
-            },
-            setAllUrl: async function (config) {
-                if (config.file1Url) await this.setFile1Url(config.file1Url);
-                if (config.file2Url) await this.setFile2Url(config.file2Url);
-                if (config.labelFileUrl) await this.setLabelFileUrl(config.labelFileUrl);
-                if (config.bgImageUrl) await this.setBgImageUrl(config.bgImageUrl);
-                if (config.startSlideUrl) await this.setStartSlideUrl(config.startSlideUrl);
-                if (config.endSlideUrl) await this.setEndSlideUrl(config.endSlideUrl);
-                this.applySettings(config);
-            }
-        };
-    </script>
+            };
+        </script>
 </body>
 
 </html>
