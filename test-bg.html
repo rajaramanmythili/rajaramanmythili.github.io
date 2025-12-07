@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Slide Template Designer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h3 {
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        select,
+        input[type="color"],
+        input[type="text"],
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"].hex-input {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #0b7dda;
+        }
+
+        .canvas-container {
+            position: relative;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .text-element {
+            position: absolute;
+            cursor: move;
+            padding: 5px;
+            border: 2px dashed transparent;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .text-element.selected {
+            border-color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .text-element:hover {
+            border-color: #2196F3;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1976D2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .gradient-hidden {
+            display: none;
+        }
+
+        #codeOutput {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #codeOutput textarea {
+            width: 100%;
+            height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .text-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .text-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .text-item:hover {
+            background: #f5f5f5;
+        }
+
+        .text-item.selected {
+            background: #e3f2fd;
+            border-left: 3px solid #2196F3;
+        }
+
+        .text-item button {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .add-text-btn {
+            width: 100%;
+            margin-top: 10px;
+            background: #2196F3;
+        }
+
+        .add-text-btn:hover {
+            background: #0b7dda;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎨 First Slide Template Designer</h1>
+
+        <div class="info">
+            <strong>Design your first slide template:</strong> Customize background, add/edit text elements, drag them
+            around, and generate JavaScript code to paste into your video-generator.html
+        </div>
+
+        <div class="layout">
+            <div class="sidebar">
+                <div class="section">
+                    <h3>Background</h3>
+                    <div class="control-group">
+                        <label for="bgType">Type:</label>
+                        <select id="bgType">
+                            <option value="solid">Solid Color</option>
+                            <option value="linear-vertical">Linear (Vertical)</option>
+                            <option value="linear-horizontal">Linear (Horizontal)</option>
+                            <option value="linear-diagonal">Linear (Diagonal)</option>
+                            <option value="radial">Radial</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="solidColor">Solid Color:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="solidColor" value="#ffffff">
+                            <input type="text" class="hex-input" id="solidColorHex" value="#ffffff" readonly>
+                        </div>
+                    </div>
+
+                    <div class="control-group gradient-control">
+                        <label for="gradientColor1">Start Color:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="gradientColor1" value="#1a1a2e">
+                            <input type="text" class="hex-input" id="gradientColor1Hex" value="#1a1a2e" readonly>
+                        </div>
+                    </div>
+
+                    <div class="control-group gradient-control">
+                        <label for="gradientColor2">End Color:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="gradientColor2" value="#16213e">
+                            <input type="text" class="hex-input" id="gradientColor2Hex" value="#16213e" readonly>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="bgImage">Background Image:</label>
+                        <input type="file" id="bgImage" accept=".png,.jpg,.jpeg">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Chapter Image</h3>
+                    <div class="control-group">
+                        <label for="chapterImage">Upload Image:</label>
+                        <input type="file" id="chapterImage" accept=".png,.jpg,.jpeg">
+                    </div>
+                    <div class="control-group">
+                        <label for="imageX">X Position:</label>
+                        <input type="number" id="imageX" value="70" min="0" max="1920">
+                    </div>
+                    <div class="control-group">
+                        <label for="imageY">Y Position:</label>
+                        <input type="number" id="imageY" value="90" min="0" max="1080">
+                    </div>
+                    <div class="control-group">
+                        <label for="imageWidth">Width:</label>
+                        <input type="number" id="imageWidth" value="600" min="50" max="1920">
+                    </div>
+                    <button onclick="updatePreview()" class="secondary">Update Image</button>
+                </div>
+
+                <div class="section">
+                    <h3>Text Elements</h3>
+                    <div class="text-list" id="textList"></div>
+                    <button class="add-text-btn" onclick="addTextElement()">+ Add Text</button>
+                </div>
+
+                <div class="section" id="textEditor" style="display: none;">
+                    <h3>Edit Selected Text</h3>
+                    <div class="control-group">
+                        <label for="textContent">Content:</label>
+                        <input type="text" id="textContent" placeholder="Text content">
+                    </div>
+                    <div class="control-group">
+                        <label for="textFont">Font:</label>
+                        <select id="textFont">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="textSize">Size:</label>
+                        <input type="number" id="textSize" value="48" min="12" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label for="textWeight">Weight:</label>
+                        <select id="textWeight">
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="textStyle">Style:</label>
+                        <select id="textStyle">
+                            <option value="normal">Normal</option>
+                            <option value="italic">Italic</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="textColor">Color:</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="textColor" value="#333333">
+                            <input type="text" class="hex-input" id="textColorHex" value="#333333" readonly>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="textAlign">Align:</label>
+                        <select id="textAlign">
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <button onclick="updateSelectedText()" class="secondary">Apply Changes</button>
+                    <button onclick="deleteSelectedText()" style="background: #f44336; margin-top: 10px;">Delete
+                        Text</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="canvas-container">
+                    <canvas id="canvas" width="1920" height="1080"></canvas>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="updatePreview()">Refresh Preview</button>
+                    <button onclick="generateCode()" class="secondary">Generate Code</button>
+                </div>
+
+                <div id="codeOutput">
+                    <h3>Generated Code (Copy and paste into video-generator.html)</h3>
+                    <textarea id="codeText" readonly></textarea>
+                    <button onclick="copyCode()" style="margin-top: 10px; width: 100%;">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let textElements = [];
+        let selectedTextId = null;
+        let draggedTextId = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let bgImageData = null;
+        let chapterImageData = null;
+
+        // Initialize with default text elements
+        textElements = [
+            { id: 1, content: 'Srimad Bhagavatham', x: 950, y: 200, font: 'Arial', size: 56, weight: 'bold', style: 'normal', color: '#333333', align: 'left' },
+            { id: 2, content: 'Canto {cantoNumber} - Chapter {chapterNumber}', x: 950, y: 300, font: 'Arial', size: 48, weight: 'bold', style: 'normal', color: '#333333', align: 'left' },
+            { id: 3, content: '{cantoName}', x: 950, y: 380, font: 'Arial', size: 40, weight: 'normal', style: 'italic', color: '#555555', align: 'left' },
+            { id: 4, content: '{chapterName}', x: 950, y: 460, font: 'Arial', size: 44, weight: 'bold', style: 'normal', color: '#333333', align: 'left' }
+        ];
+
+        function updatePreview() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const bgType = document.getElementById('bgType').value;
+            const solidColor = document.getElementById('solidColor').value;
+            const color1 = document.getElementById('gradientColor1').value;
+            const color2 = document.getElementById('gradientColor2').value;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, 1920, 1080);
+
+            // Draw background
+            if (bgImageData) {
+                ctx.drawImage(bgImageData, 0, 0, 1920, 1080);
+            } else if (bgType === 'solid') {
+                ctx.fillStyle = solidColor;
+                ctx.fillRect(0, 0, 1920, 1080);
+            } else {
+                let gradient;
+                if (bgType === 'linear-vertical') {
+                    gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+                } else if (bgType === 'linear-horizontal') {
+                    gradient = ctx.createLinearGradient(0, 0, 1920, 0);
+                } else if (bgType === 'linear-diagonal') {
+                    gradient = ctx.createLinearGradient(0, 0, 1920, 1080);
+                } else if (bgType === 'radial') {
+                    gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
+                }
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1920, 1080);
+            }
+
+            // Draw chapter image
+            if (chapterImageData) {
+                const imgX = parseInt(document.getElementById('imageX').value);
+                const imgY = parseInt(document.getElementById('imageY').value);
+                const imgWidth = parseInt(document.getElementById('imageWidth').value);
+                const targetRatio = 1 / 1.15;
+                const imgHeight = imgWidth / targetRatio;
+
+                // Center crop
+                const sourceRatio = chapterImageData.width / chapterImageData.height;
+                let sourceX = 0, sourceY = 0;
+                let sourceWidth = chapterImageData.width;
+                let sourceHeight = chapterImageData.height;
+
+                if (sourceRatio > targetRatio) {
+                    sourceWidth = chapterImageData.height * targetRatio;
+                    sourceX = (chapterImageData.width - sourceWidth) / 2;
+                } else {
+                    sourceHeight = chapterImageData.width / targetRatio;
+                    sourceY = (chapterImageData.height - sourceHeight) / 2;
+                }
+
+                ctx.drawImage(chapterImageData, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
+            }
+
+            // Draw text elements
+            textElements.forEach(element => {
+                ctx.font = `${element.style} ${element.weight} ${element.size}px ${element.font}`;
+                ctx.fillStyle = element.color;
+                ctx.textAlign = element.align;
+
+                let displayText = element.content;
+                // Replace placeholders with sample data
+                displayText = displayText.replace('{cantoNumber}', '1');
+                displayText = displayText.replace('{chapterNumber}', '5');
+                displayText = displayText.replace('{cantoName}', 'Creation');
+                displayText = displayText.replace('{chapterName}', 'The Activities of Maharaja Prthu');
+
+                ctx.fillText(displayText, element.x, element.y);
+            });
+
+            renderTextList();
+        }
+
+        function renderTextList() {
+            const list = document.getElementById('textList');
+            list.innerHTML = '';
+
+            textElements.forEach(element => {
+                const item = document.createElement('div');
+                item.className = 'text-item' + (element.id === selectedTextId ? ' selected' : '');
+                item.innerHTML = `
+                    <span style="flex: 1;">${element.content.substring(0, 30)}${element.content.length > 30 ? '...' : ''}</span>
+                `;
+                item.onclick = () => selectText(element.id);
+                list.appendChild(item);
+            });
+        }
+
+        function selectText(id) {
+            selectedTextId = id;
+            const element = textElements.find(e => e.id === id);
+
+            if (element) {
+                document.getElementById('textContent').value = element.content;
+                document.getElementById('textFont').value = element.font;
+                document.getElementById('textSize').value = element.size;
+                document.getElementById('textWeight').value = element.weight;
+                document.getElementById('textStyle').value = element.style;
+                document.getElementById('textColor').value = element.color;
+                document.getElementById('textColorHex').value = element.color.toUpperCase();
+                document.getElementById('textAlign').value = element.align;
+                document.getElementById('textEditor').style.display = 'block';
+            }
+
+            renderTextList();
+        }
+
+        function updateSelectedText() {
+            if (selectedTextId === null) return;
+
+            const element = textElements.find(e => e.id === selectedTextId);
+            if (element) {
+                element.content = document.getElementById('textContent').value;
+                element.font = document.getElementById('textFont').value;
+                element.size = parseInt(document.getElementById('textSize').value);
+                element.weight = document.getElementById('textWeight').value;
+                element.style = document.getElementById('textStyle').value;
+                element.color = document.getElementById('textColor').value;
+                element.align = document.getElementById('textAlign').value;
+                updatePreview();
+            }
+        }
+
+        function deleteSelectedText() {
+            if (selectedTextId === null) return;
+            textElements = textElements.filter(e => e.id !== selectedTextId);
+            selectedTextId = null;
+            document.getElementById('textEditor').style.display = 'none';
+            updatePreview();
+        }
+
+        function addTextElement() {
+            const newId = Math.max(0, ...textElements.map(e => e.id)) + 1;
+            textElements.push({
+                id: newId,
+                content: 'New Text',
+                x: 960,
+                y: 540,
+                font: 'Arial',
+                size: 48,
+                weight: 'normal',
+                style: 'normal',
+                color: '#333333',
+                align: 'center'
+            });
+            updatePreview();
+            selectText(newId);
+        }
+
+        // Canvas drag functionality
+        const canvas = document.getElementById('canvas');
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = 1920 / rect.width;
+            const scaleY = 1080 / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            // Find clicked text element
+            for (let i = textElements.length - 1; i >= 0; i--) {
+                const element = textElements[i];
+                const ctx = canvas.getContext('2d');
+                ctx.font = `${element.style} ${element.weight} ${element.size}px ${element.font}`;
+                ctx.textAlign = element.align;
+
+                let displayText = element.content
+                    .replace('{cantoNumber}', '1')
+                    .replace('{chapterNumber}', '5')
+                    .replace('{cantoName}', 'Creation')
+                    .replace('{chapterName}', 'The Activities of Maharaja Prthu');
+
+                const metrics = ctx.measureText(displayText);
+                let textX = element.x;
+                if (element.align === 'center') {
+                    textX -= metrics.width / 2;
+                } else if (element.align === 'right') {
+                    textX -= metrics.width;
+                }
+
+                if (x >= textX && x <= textX + metrics.width &&
+                    y >= element.y - element.size && y <= element.y) {
+                    draggedTextId = element.id;
+                    dragOffsetX = x - element.x;
+                    dragOffsetY = y - element.y;
+                    selectText(element.id);
+                    break;
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (draggedTextId === null) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = 1920 / rect.width;
+            const scaleY = 1080 / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            const element = textElements.find(e => e.id === draggedTextId);
+            if (element) {
+                element.x = Math.round(x - dragOffsetX);
+                element.y = Math.round(y - dragOffsetY);
+                updatePreview();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            draggedTextId = null;
+        });
+
+        // Background type toggle
+        document.getElementById('bgType').addEventListener('change', function () {
+            const gradientControls = document.querySelectorAll('.gradient-control');
+            const isGradient = this.value !== 'solid';
+
+            gradientControls.forEach(control => {
+                control.style.display = isGradient ? 'flex' : 'none';
+            });
+
+            updatePreview();
+        });
+
+        // Color picker updates
+        document.querySelectorAll('input[type="color"]').forEach(input => {
+            input.addEventListener('input', function () {
+                const hexInput = document.getElementById(this.id + 'Hex');
+                if (hexInput) {
+                    hexInput.value = this.value.toUpperCase();
+                }
+                if (this.id === 'textColor') {
+                    updateSelectedText();
+                } else {
+                    updatePreview();
+                }
+            });
+        });
+
+        document.querySelectorAll('.hex-input').forEach(input => {
+            input.addEventListener('click', function () {
+                this.select();
+            });
+        });
+
+        // Image upload handlers
+        document.getElementById('bgImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        bgImageData = img;
+                        updatePreview();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('chapterImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        chapterImageData = img;
+                        updatePreview();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateCode() {
+            const bgType = document.getElementById('bgType').value;
+            const solidColor = document.getElementById('solidColor').value;
+            const color1 = document.getElementById('gradientColor1').value;
+            const color2 = document.getElementById('gradientColor2').value;
+            const imgX = document.getElementById('imageX').value;
+            const imgY = document.getElementById('imageY').value;
+            const imgWidth = document.getElementById('imageWidth').value;
+
+            let code = `function createFirstSlide(firstLine, bgColor, fontFamily, bgImage) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1920;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+`;
+
+            if (bgType === 'solid') {
+                code += `    ctx.fillStyle = '${solidColor}';
+    ctx.fillRect(0, 0, 1920, 1080);
+`;
+            } else {
+                code += `    let gradient;
+`;
+                if (bgType === 'linear-vertical') {
+                    code += `    gradient = ctx.createLinearGradient(0, 0, 0, 1080);\n`;
+                } else if (bgType === 'linear-horizontal') {
+                    code += `    gradient = ctx.createLinearGradient(0, 0, 1920, 0);\n`;
+                } else if (bgType === 'linear-diagonal') {
+                    code += `    gradient = ctx.createLinearGradient(0, 0, 1920, 1080);\n`;
+                } else if (bgType === 'radial') {
+                    code += `    gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);\n`;
+                }
+                code += `    gradient.addColorStop(0, '${color1}');
+    gradient.addColorStop(1, '${color2}');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1920, 1080);
+`;
+            }
+
+            code += `
+    // Draw chapter image if available
+    if (cachedChapterImage) {
+        const targetRatio = 1 / 1.15;
+        const imgX = ${imgX};
+        const imgY = ${imgY};
+        const imgWidth = ${imgWidth};
+        const imgHeight = imgWidth / targetRatio;
+
+        const sourceRatio = cachedChapterImage.width / cachedChapterImage.height;
+        let sourceX = 0, sourceY = 0;
+        let sourceWidth = cachedChapterImage.width;
+        let sourceHeight = cachedChapterImage.height;
+
+        if (sourceRatio > targetRatio) {
+            sourceWidth = cachedChapterImage.height * targetRatio;
+            sourceX = (cachedChapterImage.width - sourceWidth) / 2;
+        } else {
+            sourceHeight = cachedChapterImage.width / targetRatio;
+            sourceY = (cachedChapterImage.height - sourceHeight) / 2;
+        }
+
+        ctx.drawImage(cachedChapterImage, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
+    }
+
+    // Draw text elements
+`;
+
+            textElements.forEach(element => {
+                code += `    ctx.font = '${element.style} ${element.weight} ${element.size}px ${element.font}';
+    ctx.fillStyle = '${element.color}';
+    ctx.textAlign = '${element.align}';
+`;
+
+                if (element.content.includes('{')) {
+                    // Has placeholders
+                    code += `    let text${element.id} = '${element.content}';
+    text${element.id} = text${element.id}.replace('{cantoNumber}', cantoNumber);
+    text${element.id} = text${element.id}.replace('{chapterNumber}', chapterNumber);
+    text${element.id} = text${element.id}.replace('{cantoName}', cantoName);
+    text${element.id} = text${element.id}.replace('{chapterName}', chapterName || firstLine);
+    ctx.fillText(text${element.id}, ${element.x}, ${element.y});
+
+`;
+                } else {
+                    code += `    ctx.fillText('${element.content}', ${element.x}, ${element.y});
+
+`;
+                }
+            });
+
+            code += `    return canvas;
+}`;
+
+            document.getElementById('codeText').value = code;
+            document.getElementById('codeOutput').style.display = 'block';
+        }
+
+        function copyCode() {
+            const textarea = document.getElementById('codeText');
+            textarea.select();
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
+        }
+
+        // Initial render
+        window.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('bgType').value = 'linear-vertical';
+            document.getElementById('bgType').dispatchEvent(new Event('change'));
+            updatePreview();
+        });
+    </script>
+</body>
+
+</html>

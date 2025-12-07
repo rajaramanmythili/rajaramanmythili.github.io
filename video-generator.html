@@ -333,6 +333,12 @@
             </div>
 
             <div class="section">
+                <label>Profile Image (for first slide):</label>
+                <input type="file" id="profileImage" accept=".png,.jpg,.jpeg" value="images/profileW.png">
+                <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1 ratio)</p>
+            </div>
+
+            <div class="section">
                 <label for="linesPerSlide">Lines per Slide:</label>
                 <input type="number" id="linesPerSlide" value="8" min="1" max="20">
             </div>
@@ -461,6 +467,7 @@
             let cachedEndSlide = null;
             let labelFileName = null;
             let cachedChapterImage = null;
+            let cachedProfileImage = null;
             let cantoNumber = '';
             let chapterNumber = '';
             let cantoName = '';
@@ -747,6 +754,53 @@
                 } else {
                     cachedChapterImage = null;
                 }
+
+                const profileImageFile = document.getElementById('profileImage').files[0];
+                if (profileImageFile) {
+                    const profileImageUrl = URL.createObjectURL(profileImageFile);
+                    cachedProfileImage = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load profile image'));
+                        img.src = profileImageUrl;
+                    });
+                } else {
+                    cachedProfileImage = null;
+                }
+            }
+
+            function applyBackground(ctx, width, height, bgColor, bgImage) {
+                if (bgImage) {
+                    ctx.drawImage(bgImage, 0, 0, width, height);
+                } else {
+                    const bgType = document.getElementById('bgType')?.value || 'solid';
+
+                    if (bgType === 'solid') {
+                        ctx.fillStyle = bgColor;
+                        ctx.fillRect(0, 0, width, height);
+                    } else {
+                        const color1 = document.getElementById('gradientColor1')?.value || '#1a1a2e';
+                        const color2 = document.getElementById('gradientColor2')?.value || '#16213e';
+                        let gradient;
+
+                        if (bgType === 'linear-vertical') {
+                            gradient = ctx.createLinearGradient(0, 0, 0, height);
+                            gradient.addColorStop(0, color1);
+                            gradient.addColorStop(1, color2);
+                        } else if (bgType === 'linear-horizontal') {
+                            gradient = ctx.createLinearGradient(0, 0, width, 0);
+                            gradient.addColorStop(0, color1);
+                            gradient.addColorStop(1, color2);
+                        } else if (bgType === 'radial') {
+                            gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, height);
+                            gradient.addColorStop(0, color1);
+                            gradient.addColorStop(1, color2);
+                        }
+
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, width, height);
+                    }
+                }
             }
 
             function createFirstSlide(firstLine, bgColor, fontFamily, bgImage) {
@@ -756,114 +810,94 @@
                 const ctx = canvas.getContext('2d');
 
                 // Background
-                if (bgImage) {
-                    ctx.drawImage(bgImage, 0, 0, 1920, 1080);
-                } else {
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(0, 0, 1920, 1080);
-                }
+                let gradient;
+                gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
+                gradient.addColorStop(0, '#ddf04c');
+                gradient.addColorStop(1, '#f277d7');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1920, 1080);
 
-                // Layout: Left side for image, right side for text
-                const leftWidth = 800;
-                const rightWidth = 1120;
-                const rightX = 800;
-                const textLeftPadding = 80; // Space between image area and text
-
-                // Draw chapter image if available (1:1.15 ratio, cropped to fit)
+                // Draw chapter image if available
                 if (cachedChapterImage) {
-                    const targetRatio = 1 / 1.15; // width / height
-                    const leftMarginImg = 70;
-                    const maxHeight = 900;
-                    const maxWidth = leftWidth - leftMarginImg - 50; // Leave some right padding too
+                    const targetRatio = 1 / 1.15;
+                    const imgX = 1000;
+                    const imgY = 20;
+                    const imgWidth = 900;
+                    const imgHeight = imgWidth / targetRatio;
 
-                    // Calculate target dimensions
-                    let targetHeight = maxHeight;
-                    let targetWidth = targetHeight * targetRatio;
-
-                    if (targetWidth > maxWidth) {
-                        targetWidth = maxWidth;
-                        targetHeight = targetWidth / targetRatio;
-                    }
-
-                    // Calculate source crop dimensions (center crop from original image)
                     const sourceRatio = cachedChapterImage.width / cachedChapterImage.height;
-                    let sourceX = 0;
-                    let sourceY = 0;
+                    let sourceX = 0, sourceY = 0;
                     let sourceWidth = cachedChapterImage.width;
                     let sourceHeight = cachedChapterImage.height;
 
                     if (sourceRatio > targetRatio) {
-                        // Image is wider than target - crop sides
                         sourceWidth = cachedChapterImage.height * targetRatio;
                         sourceX = (cachedChapterImage.width - sourceWidth) / 2;
                     } else {
-                        // Image is taller than target - crop top/bottom
                         sourceHeight = cachedChapterImage.width / targetRatio;
                         sourceY = (cachedChapterImage.height - sourceHeight) / 2;
                     }
 
-                    const imgX = leftMarginImg;
-                    const imgY = (1080 - targetHeight) / 2;
-
-                    ctx.drawImage(
-                        cachedChapterImage,
-                        sourceX, sourceY, sourceWidth, sourceHeight, // Source crop
-                        imgX, imgY, targetWidth, targetHeight // Destination
-                    );
+                    ctx.drawImage(cachedChapterImage, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
                 }
 
-                // Text styling
+                // Draw text elements
+                ctx.font = 'normal bold 120px Arial';
                 ctx.fillStyle = '#333333';
+                ctx.textAlign = 'center';
+                ctx.fillText('ஸ்ரீமத் பாகவதம்', 493, 133);
 
-                // Check alignment preference (add this to your HTML settings if needed)
-                const textAlign = 'left'; // center or right
-                ctx.textAlign = textAlign;
+                ctx.font = 'normal bold 160px Arial';
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                let text2 = '{cantoNumber} - {chapterNumber}';
+                text2 = text2.replace('{cantoNumber}', cantoNumber);
+                text2 = text2.replace('{chapterNumber}', chapterNumber);
+                text2 = text2.replace('{cantoName}', cantoName);
+                text2 = text2.replace('{chapterName}', chapterName || firstLine);
+                ctx.fillText(text2, 491, 482);
 
-                let yPos = 200;
-                const lineSpacing = 80;
-                const textX = textAlign === 'center' ? rightX + (rightWidth / 2) : rightX + textLeftPadding;
-                const maxWidth = rightWidth - (textLeftPadding * 2);
+                ctx.font = 'normal normal 60px Arial';
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                let text3 = '{cantoName}';
+                text3 = text3.replace('{cantoNumber}', cantoNumber);
+                text3 = text3.replace('{chapterNumber}', chapterNumber);
+                text3 = text3.replace('{cantoName}', cantoName);
+                text3 = text3.replace('{chapterName}', chapterName || firstLine);
+                ctx.fillText(text3, 497, 274);
 
-                // "Srimad Bhagavatham"
-                ctx.font = `bold 56px ${fontFamily}`;
-                ctx.fillText('Srimad Bhagavatham', textX, yPos);
-                yPos += lineSpacing;
+                ctx.font = 'normal bold 90px Arial';
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                let text4 = '{chapterName}';
+                text4 = text4.replace('{cantoNumber}', cantoNumber);
+                text4 = text4.replace('{chapterNumber}', chapterNumber);
+                text4 = text4.replace('{cantoName}', cantoName);
+                text4 = text4.replace('{chapterName}', chapterName || firstLine);
+                ctx.fillText(text4, 497, 643);
 
-                // "Canto X - Chapter Y"
-                if (cantoNumber && chapterNumber) {
-                    ctx.font = `bold 48px ${fontFamily}`;
-                    ctx.fillText(`Canto ${cantoNumber} - Chapter ${chapterNumber}`, textX, yPos);
-                    yPos += lineSpacing;
-                }
+                if (cachedProfileImage) {
+                    const targetRatio = 1 / 1;
+                    const imgX = 315;
+                    const imgY = 700;
+                    const imgWidth = 350;
+                    const imgHeight = imgWidth / targetRatio;
 
-                // Canto Name
-                if (cantoName) {
-                    ctx.font = `italic 40px ${fontFamily}`;
-                    ctx.fillText(cantoName, textX, yPos);
-                    yPos += lineSpacing * 0.8;
-                }
+                    const sourceRatio = cachedProfileImage.width / cachedProfileImage.height;
+                    let sourceX = 0, sourceY = 0;
+                    let sourceWidth = cachedProfileImage.width;
+                    let sourceHeight = cachedProfileImage.height;
 
-                // Chapter Name (may wrap)
-                if (chapterName || firstLine) {
-                    ctx.font = `bold 44px ${fontFamily}`;
-                    const chapterText = chapterName || firstLine;
-                    const words = chapterText.split(' ');
-                    let line = '';
-
-                    for (let word of words) {
-                        const testLine = line + word + ' ';
-                        const metrics = ctx.measureText(testLine);
-                        const lineWidth = textAlign === 'center' ? maxWidth : maxWidth - textLeftPadding;
-
-                        if (metrics.width > lineWidth && line !== '') {
-                            ctx.fillText(line, textX, yPos);
-                            line = word + ' ';
-                            yPos += lineSpacing * 0.9;
-                        } else {
-                            line = testLine;
-                        }
+                    if (sourceRatio > targetRatio) {
+                        sourceWidth = cachedProfileImage.height * targetRatio;
+                        sourceX = (cachedProfileImage.width - sourceWidth) / 2;
+                    } else {
+                        sourceHeight = cachedProfileImage.width / targetRatio;
+                        sourceY = (cachedProfileImage.height - sourceHeight) / 2;
                     }
-                    ctx.fillText(line, textX, yPos);
+
+                    ctx.drawImage(cachedProfileImage, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
                 }
 
                 return canvas;
@@ -876,12 +910,7 @@
                 const ctx = canvas.getContext('2d');
 
                 // Background
-                if (bgImage) {
-                    ctx.drawImage(bgImage, 0, 0, 1920, 1080);
-                } else {
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(0, 0, 1920, 1080);
-                }
+                applyBackground(ctx, 1920, 1080, bgColor, bgImage);
 
                 // Center the last line
                 ctx.fillStyle = '#333333';
@@ -1398,8 +1427,18 @@ if __name__ == '__main__':
                 }
             }
 
-            window.addEventListener('DOMContentLoaded', function () {
+            window.addEventListener('DOMContentLoaded', async function () {
                 loadSavedSettings();
+
+                // Load default profile image
+                try {
+                    const response = await fetch('images/profileW.png');
+                    const blob = await response.blob();
+                    const file = new File([blob], 'profileW.png', { type: blob.type });
+                    document.getElementById('profileImage').files = createFileList([file]);
+                } catch (error) {
+                    console.log('Default profile image not found, skipping');
+                }
 
                 const inputs = ['skipLines', 'skipLastLines', 'linesPerSlide', 'topMargin', 'leftMargin', 'fontFamily',
                     'baseFontSize', 'lineHeightMultiplier', 'preserveBlankLines', 'enableIndent',
