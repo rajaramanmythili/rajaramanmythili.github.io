@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Inter:wght@400;700&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
     <title>Slide Generator</title>
     <style>
         * {
@@ -356,14 +359,17 @@
             <div class="section">
                 <label for="fontFamily">Font Family:</label>
                 <select id="fontFamily">
-                    <option value="Arial">Arial</option>
-                    <option value="Helvetica">Helvetica</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Verdana">Verdana</option>
-                    <option value="Comic Sans MS">Comic Sans MS</option>
-                    <option value="Shobhika">Shobhika</option>
+                    <option value="Noto Sans Tamil">Noto Sans Tamil (Tamil)</option>
+                    <option value="Noto Sans Devanagari">Noto Sans Devanagari (Sanskrit)</option>
+                    <option value="Inter">Inter (English)</option>
+                    <option value="Roboto">Roboto (English)</option>
+                    <option value="Noto Sans">Noto Sans (English)</option>
+                    <option value="Arial">Arial (System)</option>
+                    <option value="Helvetica">Helvetica (System)</option>
+                    <option value="Times New Roman">Times New Roman (System)</option>
+                    <option value="Courier New">Courier New (System)</option>
+                    <option value="Georgia">Georgia (System)</option>
+                    <option value="Verdana">Verdana (System)</option>
                 </select>
             </div>
 
@@ -455,6 +461,28 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
         <script>
+            const webFonts = [
+                { family: 'Noto Sans', weight: '400' },
+                { family: 'Noto Sans', weight: '700' },
+                { family: 'Noto Sans Tamil', weight: '400' },
+                { family: 'Noto Sans Tamil', weight: '700' },
+                { family: 'Noto Sans Devanagari', weight: '400' },
+                { family: 'Noto Sans Devanagari', weight: '700' },
+                { family: 'Inter', weight: '400' },
+                { family: 'Inter', weight: '700' },
+                { family: 'Roboto', weight: '400' },
+                { family: 'Roboto', weight: '700' }
+            ];
+
+            // Pre-load fonts for canvas
+            async function loadWebFonts() {
+                const promises = webFonts.map(font => {
+                    return document.fonts.load(`${font.weight} 12px "${font.family}"`);
+                });
+                await Promise.all(promises);
+                console.log('✓ Web fonts loaded for canvas');
+            }
+
             let currentPreviewSlideGroup = 0;
             let currentPreviewHighlight = 0;
             let totalSlideGroups = 0;
@@ -812,8 +840,8 @@
                 // Background
                 let gradient;
                 gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
-                gradient.addColorStop(0, '#ddf04c');
-                gradient.addColorStop(1, '#f277d7');
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, '#6dd5fa');
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 1920, 1080);
 
@@ -842,12 +870,12 @@
                 }
 
                 // Draw text elements
-                ctx.font = 'normal bold 120px Arial';
-                ctx.fillStyle = '#333333';
+                ctx.font = 'normal bold 80px Noto Sans Tamil';
+                ctx.fillStyle = '#808080';
                 ctx.textAlign = 'center';
-                ctx.fillText('ஸ்ரீமத் பாகவதம்', 493, 133);
+                ctx.fillText('ஸ்ரீமத் பாகவதம்', 483, 118);
 
-                ctx.font = 'normal bold 160px Arial';
+                ctx.font = 'normal bold 80px Noto Sans Tamil';
                 ctx.fillStyle = '#000000';
                 ctx.textAlign = 'center';
                 let text2 = '{cantoNumber} - {chapterNumber}';
@@ -855,27 +883,27 @@
                 text2 = text2.replace('{chapterNumber}', chapterNumber);
                 text2 = text2.replace('{cantoName}', cantoName);
                 text2 = text2.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text2, 491, 482);
+                ctx.fillText(text2, 486, 594);
 
-                ctx.font = 'normal normal 60px Arial';
-                ctx.fillStyle = '#000000';
+                ctx.font = 'normal normal 60px Noto Sans Tamil';
+                ctx.fillStyle = '#008000';
                 ctx.textAlign = 'center';
                 let text3 = '{cantoName}';
                 text3 = text3.replace('{cantoNumber}', cantoNumber);
                 text3 = text3.replace('{chapterNumber}', chapterNumber);
                 text3 = text3.replace('{cantoName}', cantoName);
                 text3 = text3.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text3, 497, 274);
+                ctx.fillText(text3, 494, 269);
 
-                ctx.font = 'normal bold 90px Arial';
-                ctx.fillStyle = '#000000';
+                ctx.font = 'normal bold 80px Noto Sans Tamil';
+                ctx.fillStyle = '#ff0000';
                 ctx.textAlign = 'center';
                 let text4 = '{chapterName}';
                 text4 = text4.replace('{cantoNumber}', cantoNumber);
                 text4 = text4.replace('{chapterNumber}', chapterNumber);
                 text4 = text4.replace('{cantoName}', cantoName);
                 text4 = text4.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text4, 497, 643);
+                ctx.fillText(text4, 486, 420);
 
                 if (cachedProfileImage) {
                     const targetRatio = 1 / 1;
@@ -1428,6 +1456,8 @@ if __name__ == '__main__':
             }
 
             window.addEventListener('DOMContentLoaded', async function () {
+                await loadWebFonts();
+
                 loadSavedSettings();
 
                 // Load default profile image

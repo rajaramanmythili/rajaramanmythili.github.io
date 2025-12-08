@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Inter:wght@400;700&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
     <title>First Slide Template Designer</title>
     <style>
         * {
@@ -13,7 +16,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: Noto Sans Tamil, sans-serif;
             background: #f0f0f0;
             padding: 20px;
         }
@@ -280,18 +283,18 @@
                     </div>
 
                     <div class="control-group gradient-control">
-                        <label for="gradientColor1">Start Color:</label>
+                        <label for="gradientColor1">Color Stop 1:</label>
                         <div class="color-picker-wrapper">
-                            <input type="color" id="gradientColor1" value="#1a1a2e">
-                            <input type="text" class="hex-input" id="gradientColor1Hex" value="#1a1a2e" readonly>
+                            <input type="color" id="gradientColor1" value="#ffffff">
+                            <input type="text" class="hex-input" id="gradientColor1Hex" value="#ffffff" readonly>
                         </div>
                     </div>
 
                     <div class="control-group gradient-control">
-                        <label for="gradientColor2">End Color:</label>
+                        <label for="gradientColor2">Color Stop 2:</label>
                         <div class="color-picker-wrapper">
-                            <input type="color" id="gradientColor2" value="#16213e">
-                            <input type="text" class="hex-input" id="gradientColor2Hex" value="#16213e" readonly>
+                            <input type="color" id="gradientColor2" value="#6DD5FA">
+                            <input type="text" class="hex-input" id="gradientColor2Hex" value="#6DD5FA" readonly>
                         </div>
                     </div>
 
@@ -309,15 +312,15 @@
                     </div>
                     <div class="control-group">
                         <label for="imageX">X Position:</label>
-                        <input type="number" id="imageX" value="70" min="0" max="1920">
+                        <input type="number" id="imageX" value="1000" min="0" max="1920">
                     </div>
                     <div class="control-group">
                         <label for="imageY">Y Position:</label>
-                        <input type="number" id="imageY" value="90" min="0" max="1080">
+                        <input type="number" id="imageY" value="20" min="0" max="1080">
                     </div>
                     <div class="control-group">
                         <label for="imageWidth">Width:</label>
-                        <input type="number" id="imageWidth" value="600" min="50" max="1920">
+                        <input type="number" id="imageWidth" value="900" min="50" max="1920">
                     </div>
                     <button onclick="updatePreview()" class="secondary">Update Image</button>
                 </div>
@@ -337,13 +340,17 @@
                     <div class="control-group">
                         <label for="textFont">Font:</label>
                         <select id="textFont">
-                            <option value="Arial">Arial</option>
-                            <option value="Helvetica">Helvetica</option>
-                            <option value="Times New Roman">Times New Roman</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Verdana">Verdana</option>
-                            <option value="Courier New">Courier New</option>
-                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Inter">Inter (English)</option>
+                            <option value="Roboto">Roboto (English)</option>
+                            <option value="Noto Sans">Noto Sans (English)</option>
+                            <option value="Noto Sans Tamil">Noto Sans Tamil (Tamil)</option>
+                            <option value="Noto Sans Devanagari">Noto Sans Devanagari (Sanskrit)</option>
+                            <option value="Arial">Arial (System)</option>
+                            <option value="Helvetica">Helvetica (System)</option>
+                            <option value="Times New Roman">Times New Roman (System)</option>
+                            <option value="Georgia">Georgia (System)</option>
+                            <option value="Verdana">Verdana (System)</option>
+                            <option value="Courier New">Courier New (System)</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -405,6 +412,28 @@
     </div>
 
     <script>
+        const webFonts = [
+            { family: 'Noto Sans', weight: '400' },
+            { family: 'Noto Sans', weight: '700' },
+            { family: 'Noto Sans Tamil', weight: '400' },
+            { family: 'Noto Sans Tamil', weight: '700' },
+            { family: 'Noto Sans Devanagari', weight: '400' },
+            { family: 'Noto Sans Devanagari', weight: '700' },
+            { family: 'Inter', weight: '400' },
+            { family: 'Inter', weight: '700' },
+            { family: 'Roboto', weight: '400' },
+            { family: 'Roboto', weight: '700' }
+        ];
+
+        // Pre-load fonts for canvas
+        async function loadWebFonts() {
+            const promises = webFonts.map(font => {
+                return document.fonts.load(`${font.weight} 12px "${font.family}"`);
+            });
+            await Promise.all(promises);
+            console.log('✓ Web fonts loaded for canvas');
+        }
+
         let textElements = [];
         let selectedTextId = null;
         let draggedTextId = null;
@@ -415,10 +444,10 @@
 
         // Initialize with default text elements
         textElements = [
-            { id: 1, content: 'Srimad Bhagavatham', x: 950, y: 200, font: 'Arial', size: 56, weight: 'bold', style: 'normal', color: '#333333', align: 'left' },
-            { id: 2, content: 'Canto {cantoNumber} - Chapter {chapterNumber}', x: 950, y: 300, font: 'Arial', size: 48, weight: 'bold', style: 'normal', color: '#333333', align: 'left' },
-            { id: 3, content: '{cantoName}', x: 950, y: 380, font: 'Arial', size: 40, weight: 'normal', style: 'italic', color: '#555555', align: 'left' },
-            { id: 4, content: '{chapterName}', x: 950, y: 460, font: 'Arial', size: 44, weight: 'bold', style: 'normal', color: '#333333', align: 'left' }
+            { id: 1, content: 'ஸ்ரீமத் பாகவதம்',                    x: 483, y: 118, font: 'Noto Sans Tamil', size: 80, weight: 'bold', style: 'normal', color: '#808080', align: 'center' },
+            { id: 2, content: '{cantoNumber} - {chapterNumber}', x: 486, y: 594, font: 'Noto Sans Tamil', size: 80, weight: 'bold', style: 'normal', color: '#000000', align: 'center' },
+            { id: 3, content: '{cantoName}',                     x: 494, y: 269, font: 'Noto Sans Tamil', size: 60, weight: 'normal', style: 'normal', color: '#008000', align: 'center' },
+            { id: 4, content: '{chapterName}',                   x: 486, y: 420, font: 'Noto Sans Tamil', size: 80, weight: 'bold', style: 'normal', color: '#ff0000', align: 'center' }
         ];
 
         function updatePreview() {
@@ -488,10 +517,10 @@
 
                 let displayText = element.content;
                 // Replace placeholders with sample data
-                displayText = displayText.replace('{cantoNumber}', '1');
-                displayText = displayText.replace('{chapterNumber}', '5');
-                displayText = displayText.replace('{cantoName}', 'Creation');
-                displayText = displayText.replace('{chapterName}', 'The Activities of Maharaja Prthu');
+                displayText = displayText.replace('{cantoNumber}', '01');
+                displayText = displayText.replace('{chapterNumber}', '01');
+                displayText = displayText.replace('{cantoName}', 'ப்ரதம ஸ்கந்த:');
+                displayText = displayText.replace('{chapterName}', 'ப்ரதம அத்யய');
 
                 ctx.fillText(displayText, element.x, element.y);
             });
@@ -564,7 +593,7 @@
                 content: 'New Text',
                 x: 960,
                 y: 540,
-                font: 'Arial',
+                font: 'Noto Sans Tamil',
                 size: 48,
                 weight: 'normal',
                 style: 'normal',
@@ -811,7 +840,8 @@
 
         // Initial render
         window.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('bgType').value = 'linear-vertical';
+            loadWebFonts();
+            document.getElementById('bgType').value = 'radial';
             document.getElementById('bgType').dispatchEvent(new Event('change'));
             updatePreview();
         });
