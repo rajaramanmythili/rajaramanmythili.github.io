@@ -500,6 +500,7 @@
             let chapterNumber = '';
             let cantoName = '';
             let chapterName = '';
+            let lastLine = '';
 
             function saveSettings() {
                 const settings = {
@@ -657,6 +658,8 @@
 
                 let lines1 = text1.split('\n');
 
+                lastLine = lines1[lines1.length - 1];
+
                 // Skip first N lines
                 if (skipLines > 0) {
                     lines1 = lines1.slice(skipLines);
@@ -801,7 +804,7 @@
                 if (bgImage) {
                     ctx.drawImage(bgImage, 0, 0, width, height);
                 } else {
-                    const bgType = document.getElementById('bgType')?.value || 'solid';
+                    const bgType = document.getElementById('bgType')?.value || 'radial';
 
                     if (bgType === 'solid') {
                         ctx.fillStyle = bgColor;
@@ -837,13 +840,42 @@
                 canvas.height = 1080;
                 const ctx = canvas.getContext('2d');
 
-                // Background
-                let gradient;
-                gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
+                // Define rounded rectangle path
+                const borderWidth = 3;
+                const borderRadius = 30;
+                const padding = 0;
+
+                const x = padding + borderWidth / 2;
+                const y = padding + borderWidth / 2;
+                const width = 1920 - 2 * padding - borderWidth;
+                const height = 1080 - 2 * padding - borderWidth;
+
+                // Create the rounded rectangle path
+                ctx.beginPath();
+                ctx.moveTo(x + borderRadius, y);
+                ctx.lineTo(x + width - borderRadius, y);
+                ctx.arcTo(x + width, y, x + width, y + borderRadius, borderRadius);
+                ctx.lineTo(x + width, y + height - borderRadius);
+                ctx.arcTo(x + width, y + height, x + width - borderRadius, y + height, borderRadius);
+                ctx.lineTo(x + borderRadius, y + height);
+                ctx.arcTo(x, y + height, x, y + height - borderRadius, borderRadius);
+                ctx.lineTo(x, y + borderRadius);
+                ctx.arcTo(x, y, x + borderRadius, y, borderRadius);
+                ctx.closePath();
+
+                // Fill with gradient
+                let gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
                 gradient.addColorStop(0, '#ffffff');
                 gradient.addColorStop(1, '#6dd5fa');
                 ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, 1920, 1080);
+                ctx.fill();
+
+                // Stroke the border
+                ctx.strokeStyle = 'cyan'; // Sky blue
+                ctx.lineWidth = borderWidth;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.stroke();
 
                 // Draw chapter image if available
                 if (cachedChapterImage) {
@@ -873,44 +905,53 @@
                 ctx.font = 'normal bold 80px Noto Sans Tamil';
                 ctx.fillStyle = '#000080';
                 ctx.textAlign = 'center';
-                ctx.fillText('ஸ்ரீமத் பாகவதம்', 483, 118);
-
-                ctx.font = 'normal bold 80px Noto Sans Tamil';
-                ctx.fillStyle = '#000000';
-                ctx.textAlign = 'center';
-                let text2 = '{cantoNumber} - {chapterNumber}';
-                text2 = text2.replace('{cantoNumber}', cantoNumber);
-                text2 = text2.replace('{chapterNumber}', chapterNumber);
-                text2 = text2.replace('{cantoName}', cantoName);
-                text2 = text2.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text2, 486, 594);
+                ctx.fillText('ஸ்ரீமத் பாகவதம்', 483, 120);
 
                 ctx.font = 'normal normal 60px Noto Sans Tamil';
                 ctx.fillStyle = '#008000';
                 ctx.textAlign = 'center';
                 let text3 = '{cantoName}';
-                text3 = text3.replace('{cantoNumber}', cantoNumber);
-                text3 = text3.replace('{chapterNumber}', chapterNumber);
                 text3 = text3.replace('{cantoName}', cantoName);
-                text3 = text3.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text3, 494, 269);
+                ctx.fillText(text3, 494, 240);
 
-                ctx.font = 'normal bold 80px Noto Sans Tamil';
+                ctx.font = 'normal bold 60px Noto Sans Tamil';
                 ctx.fillStyle = '#ff0000';
                 ctx.textAlign = 'center';
                 let text4 = '{chapterName}';
-                text4 = text4.replace('{cantoNumber}', cantoNumber);
-                text4 = text4.replace('{chapterNumber}', chapterNumber);
-                text4 = text4.replace('{cantoName}', cantoName);
                 text4 = text4.replace('{chapterName}', chapterName || firstLine);
-                ctx.fillText(text4, 486, 420);
+                ctx.fillText(text4, 486, 360);
+
+                ctx.font = 'normal bold 120px Noto Sans Tamil';
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                let text2 = '{cantoNumber} - {chapterNumber}';
+                text2 = text2.replace('{cantoNumber}', cantoNumber);
+                text2 = text2.replace('{chapterNumber}', chapterNumber);
+                ctx.fillText(text2, 486, 540);
 
                 if (cachedProfileImage) {
                     const targetRatio = 1 / 1;
                     const imgX = 315;
-                    const imgY = 700;
+                    const imgY = 630;
                     const imgWidth = 350;
-                    const imgHeight = imgWidth / targetRatio;
+                    const imgHeight = imgWidth / targetRatio; // This is 350
+
+                    // --- Start of Circle Clipping Logic ---
+                    const centerX = imgX + imgWidth / 2; // X-coordinate of the circle center
+                    const centerY = imgY + imgHeight / 2; // Y-coordinate of the circle center
+                    const radius = imgWidth / 2; // Radius of the circle (half the drawn width)
+
+                    // 1. Begin a new path
+                    ctx.beginPath();
+
+                    // 2. Define the circular path
+                    // The circle will be drawn centered within the destination rectangle
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
+
+                    // 3. Clip the canvas to this path
+                    // All subsequent drawing operations will only affect the area inside this circle
+                    ctx.clip();
+                    // --- End of Circle Clipping Logic ---
 
                     const sourceRatio = cachedProfileImage.width / cachedProfileImage.height;
                     let sourceX = 0, sourceY = 0;
@@ -925,7 +966,13 @@
                         sourceY = (cachedProfileImage.height - sourceHeight) / 2;
                     }
 
+                    // 4. Draw the image (it will automatically be clipped to the circle)
                     ctx.drawImage(cachedProfileImage, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
+
+                    // IMPORTANT: If you draw anything else after this that should NOT be clipped, 
+                    // you may need to save the canvas state before the clip and restore it afterwards.
+                    // ctx.save(); // place before ctx.clip()
+                    // ctx.restore(); // place after ctx.drawImage()
                 }
 
                 return canvas;
@@ -938,10 +985,15 @@
                 const ctx = canvas.getContext('2d');
 
                 // Background
-                applyBackground(ctx, 1920, 1080, bgColor, bgImage);
+                let gradient;
+                gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 1080);
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, '#6dd5fa');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1920, 1080);
 
                 // Center the last line
-                ctx.fillStyle = '#333333';
+                ctx.fillStyle = '#000000';
                 ctx.textAlign = 'center';
                 ctx.font = `bold 56px ${fontFamily}`;
 
@@ -1082,9 +1134,6 @@
                 }
                 // Check if showing last slide
                 else if (currentPreviewSlideGroup === -2) {
-                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
-                    const lastLine = nonEmptyLines1.length > 0 ? nonEmptyLines1[nonEmptyLines1.length - 1] : '';
-
                     if (cachedEndSlide) {
                         canvas = document.createElement('canvas');
                         canvas.width = 1920;
@@ -1195,6 +1244,9 @@
                     const zip = new JSZip();
                     let frameIndex = 0;
 
+                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                    const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
+
                     // Add custom start slide if provided
                     // Add custom start slide OR generated first slide
                     if (cachedStartSlide) {
@@ -1218,8 +1270,6 @@
                         frameIndex++;
                     }
 
-                    const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
-                    const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
                     const nonEmptyCount = nonEmptyLines1.length;
                     const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
 
@@ -1261,7 +1311,6 @@
                         frameIndex++;
                     } else if (nonEmptyLines1.length > 0) {
                         // Generate last slide with last line
-                        const lastLine = nonEmptyLines1[nonEmptyLines1.length - 1];
                         const lastSlideCanvas = createLastSlide(lastLine, bgColor, fontFamily, cachedBgImage);
                         const lastSlideBlob = await new Promise(resolve => lastSlideCanvas.toBlob(resolve, 'image/png', 0.95));
                         const lastSlideFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
