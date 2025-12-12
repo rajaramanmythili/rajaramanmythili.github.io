@@ -329,16 +329,18 @@
                 </div>
             </div>
 
-            <div class="section">
-                <label>Chapter Image (for first slide):</label>
-                <input type="file" id="chapterImage" accept=".png,.jpg,.jpeg">
-                <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1.15 ratio)</p>
-            </div>
+            <div class="file-inputs">
+                <div class="file-input-group">
+                    <label>Chapter Image (for first slide):</label>
+                    <input type="file" id="chapterImage" accept=".png,.jpg,.jpeg">
+                    <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1.15 ratio)</p>
+                </div>
 
-            <div class="section">
-                <label>Profile Image (for first slide):</label>
-                <input type="file" id="profileImage" accept=".png,.jpg,.jpeg" value="images/profileW.png">
-                <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1 ratio)</p>
+                <div class="file-input-group">
+                    <label>Profile Image (for first slide):</label>
+                    <input type="file" id="profileImage" accept=".png,.jpg,.jpeg" value="images/profileW.png">
+                    <p class="bg-image-note">Upload an image for the first slide (will be displayed in 1:1 ratio)</p>
+                </div>
             </div>
 
             <div class="section">
@@ -361,6 +363,7 @@
                 <select id="fontFamily">
                     <option value="Noto Sans Tamil">Noto Sans Tamil (Tamil)</option>
                     <option value="Noto Sans Devanagari">Noto Sans Devanagari (Sanskrit)</option>
+                    <option value="Shobhika">Shobhika</option>
                     <option value="Inter">Inter (English)</option>
                     <option value="Roboto">Roboto (English)</option>
                     <option value="Noto Sans">Noto Sans (English)</option>
@@ -500,7 +503,8 @@
             let chapterNumber = '';
             let cantoName = '';
             let chapterName = '';
-            let lastLine = '';
+            let lastLine1 = '';
+            let lastLine2 = '';
 
             function saveSettings() {
                 const settings = {
@@ -658,7 +662,7 @@
 
                 let lines1 = text1.split('\n');
 
-                lastLine = lines1[lines1.length - 1];
+                lastLine1 = lines1[lines1.length - 1];
 
                 // Skip first N lines
                 if (skipLines > 0) {
@@ -678,6 +682,8 @@
 
                 if (text2) {
                     let lines2 = text2.split('\n');
+
+                    lastLine2 = lines2[lines2.length - 1];
 
                     // Skip first N lines from file 2 as well
                     if (skipLines > 0) {
@@ -901,11 +907,21 @@
                     ctx.drawImage(cachedChapterImage, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
                 }
 
-                // Draw text elements
-                ctx.font = 'normal bold 80px Noto Sans Tamil';
-                ctx.fillStyle = '#000080';
+                ctx.font = 'normal bold 120px Noto Sans Tamil';
+                ctx.fillStyle = '#000000';
                 ctx.textAlign = 'center';
-                ctx.fillText('ஸ்ரீமத் பாகவதம்', 483, 120);
+                let text2 = '{cantoNumber} - {chapterNumber}';
+                text2 = text2.replace('{cantoNumber}', cantoNumber);
+                text2 = text2.replace('{chapterNumber}', chapterNumber);
+                if (text2.trim() !== '-') {
+                    ctx.fillText(text2, 486, 540);
+
+                    // Draw title
+                    ctx.font = 'normal bold 80px Noto Sans Tamil';
+                    ctx.fillStyle = '#000080';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('ஸ்ரீமத் பாகவதம்', 483, 120);
+                }
 
                 ctx.font = 'normal normal 60px Noto Sans Tamil';
                 ctx.fillStyle = '#008000';
@@ -920,14 +936,6 @@
                 let text4 = '{chapterName}';
                 text4 = text4.replace('{chapterName}', chapterName || firstLine);
                 ctx.fillText(text4, 486, 360);
-
-                ctx.font = 'normal bold 120px Noto Sans Tamil';
-                ctx.fillStyle = '#000000';
-                ctx.textAlign = 'center';
-                let text2 = '{cantoNumber} - {chapterNumber}';
-                text2 = text2.replace('{cantoNumber}', cantoNumber);
-                text2 = text2.replace('{chapterNumber}', chapterNumber);
-                ctx.fillText(text2, 486, 540);
 
                 if (cachedProfileImage) {
                     const targetRatio = 1 / 1;
@@ -978,7 +986,7 @@
                 return canvas;
             }
 
-            function createLastSlide(lastLine, bgColor, fontFamily, bgImage) {
+            function createLastSlide(bgColor, fontFamily, bgImage) {
                 const canvas = document.createElement('canvas');
                 canvas.width = 1920;
                 canvas.height = 1080;
@@ -999,11 +1007,11 @@
 
                 // Word wrap if needed
                 const maxWidth = 1600;
-                const words = lastLine.split(' ');
                 const lines = [];
-                let currentLine = '';
 
-                for (let word of words) {
+                const words1 = lastLine1.split(' ');
+                let currentLine = '';
+                for (let word of words1) {
                     const testLine = currentLine + word + ' ';
                     const metrics = ctx.measureText(testLine);
                     if (metrics.width > maxWidth && currentLine !== '') {
@@ -1014,6 +1022,23 @@
                     }
                 }
                 lines.push(currentLine);
+
+                if (lastLine2 && lastLine2.trim().length > 0) {
+                    lines.push(''); // Add a blank line between the two last lines
+                    const words2 = lastLine2.split(' ');
+                    currentLine = '';
+                    for (let word of words2) {
+                        const testLine = currentLine + word + ' ';
+                        const metrics = ctx.measureText(testLine);
+                        if (metrics.width > maxWidth && currentLine !== '') {
+                            lines.push(currentLine);
+                            currentLine = word + ' ';
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                    lines.push(currentLine);
+                }
 
                 // Draw centered lines
                 const lineHeight = 80;
@@ -1141,7 +1166,7 @@
                         const tempCtx = canvas.getContext('2d');
                         tempCtx.drawImage(cachedEndSlide, 0, 0, 1920, 1080);
                     } else {
-                        canvas = createLastSlide(lastLine, bgColor, fontFamily, cachedBgImage);
+                        canvas = createLastSlide(bgColor, fontFamily, cachedBgImage);
                     }
 
                     // Disable highlight selector for last slide
@@ -1311,7 +1336,7 @@
                         frameIndex++;
                     } else if (nonEmptyLines1.length > 0) {
                         // Generate last slide with last line
-                        const lastSlideCanvas = createLastSlide(lastLine, bgColor, fontFamily, cachedBgImage);
+                        const lastSlideCanvas = createLastSlide(bgColor, fontFamily, cachedBgImage);
                         const lastSlideBlob = await new Promise(resolve => lastSlideCanvas.toBlob(resolve, 'image/png', 0.95));
                         const lastSlideFilename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
                         zip.file(lastSlideFilename, lastSlideBlob);
