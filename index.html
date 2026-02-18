@@ -415,7 +415,10 @@
             text = text.replace(/dh/g, 'd');
             text = text.replace(/ph/g, 'p');
             text = text.replace(/bh/g, 'b');
+            text = text.replace(/ow/g, 'ou');
+            text = text.replace(/uv/g, 'v');
             text = text.replace(/sv/g, 'sw');
+            text = text.replace(/y/g, 'i');
 
             // Remove extra repeated vowels (e.g., shreee → sri)
             text = text.replace(/(a)\1+/g, 'a');
@@ -423,7 +426,7 @@
             text = text.replace(/(u)\1+/g, 'u');
             text = text.replace(/(e)\1+/g, 'e');
             text = text.replace(/(o)\1+/g, 'o');
-            text = text.replace(/(.)\1+/g, '$1');
+            text = text.replace(/([^\d])\1+/g, '$1');
             text = text.replace(/~/g, '');
 
             // Remove extra spaces
