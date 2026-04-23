@@ -2,891 +2,1382 @@
 <html lang="en-US">
 
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>Mythili Rajaraman</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="Keywords"
-        content="Bhagavatham, SriSriAnna, Krishna, Premi, Swamigal, Devotion, Govinda, Radhika, Paranur, Mahatma, ">
-    <meta name="Description" content="Mythili Rajaraman Youtube Channel">
-    <meta property="og:image" content="http://www.mythilirajaraman.com/images/profile.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:description" content="Mythili Rajaraman youtube channel">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        #myInput {
-            width: 100%;
-            border: 1px solid #ddd;
-            margin-bottom: 12px;
-            font-size: 3vh;
-            padding: 10px;
-        }
-
-        #myTable {
-            border-collapse: collapse;
-            border: 1px solid #ddd;
-        }
-
-        #myTable th {
-            text-align: left;
-            padding: 12px;
-            font-size: 2vh;
-        }
-
-        #myTable td {
-            vertical-align: top;
-            padding: 5px;
-        }
-
-        #myTable tr {
-            border-bottom: 1px solid #ddd;
-        }
-
-        #myTable tr.header,
-        #myTable tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        img {
-            padding: 8px 0px 0px 0px;
-        }
-
-        a:link,
-        a:visited {
-            text-decoration: none;
-            display: inline-block;
-            width: 100%;
-        }
-
-        a:hover,
-        a:active {
-            background-color: f1f1f1;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 3vh
-        }
-
-        /* The Modal (background) */
-        .modal {
-            display: none;
-            z-index: 1;
-            width: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .embed-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-        }
-
-        .embed-container iframe,
-        .embed-container object,
-        .embed-container embed {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .left {
-            float: left;
-        }
-
-        button.left {
-            background: greenyellow;
-            color: black;
-            width: 32px;
-            height: 32px;
-        }
-
-        button.playlist {
-            float: left;
-            width: 32px;
-            height: 32px;
-        }
-
-        button.right {
-            float: right;
-            margin-left: 16px;
-            width: 32px;
-            height: 32px;
-        }
-
-        button.end {
-            background: red;
-            color: white;
-        }
-
-        /* The snackbar - position it at the bottom and in the middle of the screen */
-        #snackbar {
-            visibility: hidden;
-            /* Hidden by default. Visible on click */
-            min-width: 250px;
-            /* Set a default minimum width */
-            margin-left: -125px;
-            /* Divide value of min-width by 2 */
-            background-color: #333;
-            /* Black background color */
-            color: #fff;
-            /* White text color */
-            text-align: center;
-            /* Centered text */
-            border-radius: 2px;
-            /* Rounded borders */
-            padding: 16px;
-            /* Padding */
-            position: fixed;
-            /* Sit on top of the screen */
-            z-index: 1;
-            /* Add a z-index if needed */
-            left: 50%;
-            /* Center the snackbar */
-            bottom: 30px;
-            /* 30px from the bottom */
-        }
-
-        /* Show the snackbar when clicking on a button (class added with JavaScript) */
-        #snackbar.show {
-            visibility: visible;
-            /* Show the snackbar */
-            /* Add animation: Take 0.5 seconds to fade in and out the snackbar. */
-            /* However, delay the fade out process for 2.5 seconds */
-            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-
-        /* Animations to fade the snackbar in and out */
-        @-webkit-keyframes fadein {
-            from {
-                bottom: 0;
-                opacity: 0;
-            }
-
-            to {
-                bottom: 30px;
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadein {
-            from {
-                bottom: 0;
-                opacity: 0;
-            }
-
-            to {
-                bottom: 30px;
-                opacity: 1;
-            }
-        }
-
-        @-webkit-keyframes fadeout {
-            from {
-                bottom: 30px;
-                opacity: 1;
-            }
-
-            to {
-                bottom: 0;
-                opacity: 0;
-            }
-        }
-
-        @keyframes fadeout {
-            from {
-                bottom: 30px;
-                opacity: 1;
-            }
-
-            to {
-                bottom: 0;
-                opacity: 0;
-            }
-        }
-
-        /* The Modal (background) */
-        .alert-modal {
-            display: none;
-            /* Hidden by default */
-            position: fixed;
-            /* Stay in place */
-            z-index: 1;
-            /* Sit on top */
-            padding-top: 100px;
-            /* Location of the box */
-            left: 0;
-            top: 0;
-            width: 100%;
-            /* Full width */
-            height: 100%;
-            /* Full height */
-            overflow: auto;
-            /* Enable scroll if needed */
-            background-color: rgb(0, 0, 0);
-            /* Fallback color */
-            background-color: rgba(0, 0, 0, 0.4);
-            /* Black w/ opacity */
-        }
-
-        /* Modal Content */
-        .alert-modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .alert-button {
-            width: 50%;
-            padding: 20px;
-            font-size: 4vh;
-        }
-
-        /* Autoplay Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 32px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            background-image: url();
-            -webkit-transition: .4s;
-            transition: .4s;
-            text-align: right;
-            padding-top: 6px;
-            padding-left: 6px;
-            padding-right: 6px;
-            font-size: 18px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 25px;
-            width: 25px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3;
-            text-align: left;
-        }
-
-        input:focus+.slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-        input:checked+.slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-
-        /* Rounded sliders */
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-
-        /* Tool Tip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            border-bottom: 1px dotted black;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 120px;
-            background-color: black;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 0;
-
-            /* Position the tooltip */
-            position: absolute;
-            z-index: 1;
-            bottom: 100%;
-            left: 50%;
-            margin-left: -60px;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-        }
-
-        .videoTitle {
-            background-color: #EBEBEB;
-            padding: 5px;
-            text-align: left;
-            font-size: 2vh;
-        }
-    </style>
-
-    <script>
-        var modal = null
-        var snackbar = null
-        var jsonData = null
-        var playlistJsonData = null
-        var displayView = 'video'
-        const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>', '<i class="fa fa-sort-alpha-asc"></i>']
-
-        class Queue {
-            constructor() {
-                this.items = []
-            }
-            enqueue(item) {
-                this.items.push(item)
-            }
-            dequeue() {
-                // removing element from the queue
-                // returns underflow when called
-                // on empty queue
-                if (this.isEmpty())
-                    return "Underflow";
-                return this.items.shift();
-            }
-            peek() {
-                // returns the Front element of
-                // the queue without removing it.
-                if (this.isEmpty())
-                    return "No elements in Queue";
-                return this.items[0];
-            }
-            print() {
-                return this.items;
-            }
-            isEmpty() {
-                // return true if the queue is empty.
-                return this.items.length == 0;
-            }
-            clear() {
-                this.items.length = 0
-            }
-        }
-        const queue = new Queue()
-
-        function normalizeText(input) {
-            let text = input.toLowerCase();
-
-            // Replace common variants
-            text = text.replace(/sh/g, 's');
-            text = text.replace(/ee/g, 'i');
-            text = text.replace(/oo/g, 'u');
-            text = text.replace(/kh/g, 'k');
-            text = text.replace(/gh/g, 'g');
-            text = text.replace(/th/g, 't');
-            text = text.replace(/dh/g, 'd');
-            text = text.replace(/ph/g, 'p');
-            text = text.replace(/bh/g, 'b');
-            text = text.replace(/ow/g, 'ou');
-            text = text.replace(/uv/g, 'v');
-            text = text.replace(/sv/g, 'sw');
-            text = text.replace(/y/g, 'i');
-
-            // Remove extra repeated vowels (e.g., shreee → sri)
-            text = text.replace(/(a)\1+/g, 'a');
-            text = text.replace(/(i)\1+/g, 'i');
-            text = text.replace(/(u)\1+/g, 'u');
-            text = text.replace(/(e)\1+/g, 'e');
-            text = text.replace(/(o)\1+/g, 'o');
-            text = text.replace(/([^\d])\1+/g, '$1');
-            text = text.replace(/~/g, '');
-
-            // Remove extra spaces
-            text = text.replace(/-/g, ' ').trim();
-            text = text.replace(/\./g, ' ').trim();
-            text = text.replace(/\s+/g, ' ').trim();
-
-            return text;
-        }
-
-        function filterList() {
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("myInput");
-            filter = normalizeText(input.value).replace(/ /g, '.*');
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[1];
-                if (td) {
-                    txtValue = normalizeText(td.textContent || td.innerText);
-                    if (txtValue.match(new RegExp(filter, 'gmis')) != null) {
-                        tr[i].style.display = "block";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
-        }
-
-        function toggleView() {
-            if ( displayView == 'video' ) {
-                document.getElementById('viewLabel').innerText = 'List of Shorts'
-                displayView = 'shorts'
-                getData()
-            } else if ( displayView == 'shorts' ) {
-                document.getElementById('viewLabel').innerText = 'List of Playlists'
-                displayView = 'playlist'
-                getPlaylistData()
-            } else if ( displayView == 'playlist' ) {
-                document.getElementById('viewLabel').innerText = 'List of Videos'
-                displayView = 'video'
-                getData()
-            }
-        }
-
-        function getData() {
-            const apiUrl = '/data.json'
-
-            if ( jsonData != null ) {
-                buildPage()
-                return;
-            }
-
-            fetch(apiUrl)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error, status = ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then((text) => {
-                    jsonData = JSON.parse(text)
-                    buildPage()
-                })
-                .catch((error) => {
-                    jsonData = '{"1": {"videoId": "Error", "title":"' + error.message + '", "publishedAt": ""}}'
-                    buildPage();
-                });
-        }
-
-        function getPlaylistData() {
-            const apiUrl = '/playlist.json'
-
-            if (playlistJsonData != null) {
-                buildPlaylistPage()
-                return
-            }
-
-            fetch(apiUrl)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error, status = ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then((text) => {
-                    playlistJsonData = JSON.parse(text)
-                    buildPlaylistPage()
-                })
-                .catch((error) => {
-                    playlistJsonData = '{"1": {"playlistId": "Error", "title":"' + error.message + '", "publishedAt": "", "thumbnail": ""}}'
-                    buildPlaylistPage();
-                });
-        }
-
-        function buildPage() {
-            if (jsonData == null) {
-                return;
-            }
-            tab = document.getElementById('myTable')
-            tab.innerHTML = ''
-
-            keys = Object.keys(jsonData)
-            if (displayView === 'video') {
-                // Exclude items with duration "00:01" if in video view
-                keys = keys.filter(k => jsonData[k].duration !== "00:01")
-            } else if (displayView === 'shorts') {
-                // Include items with duration "00:01" if in shorts view
-                keys = keys.filter(k => jsonData[k].duration == "00:01")
-            }
-
-            const btn = document.getElementById('sortBy')
-            if (btn.innerHTML == sortVariations[1]) {
-                keys = keys.reverse()
-            } else {
-                const arr = keys.map(el => {
-                    return jsonData[el]['title'] + '|' + el;
-                });
-                keys = arr.sort().map(el => {
-                    return el.substring(el.lastIndexOf("|") + 1);
-                });
-            }
-
-            for (i = 0; i < keys.length; ++i) {
-                id = keys[i]
-                data = jsonData[id]
-                tr = document.createElement('tr')
-                tr.id = data['videoId']
-                tab.appendChild(tr)
-                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='https://i.ytimg.com/vi/${data['videoId']}/default.jpg' width='32px' onclick='showmodal("${data['videoId']}")'></td><td><a ${(data['duration'] === "00:01")?`href='https://www.youtube.com/shorts/${data['videoId']}'`:`href='http://youtu.be/${data['videoId']}'`} target='_blank'>${data['title']}</a></td>`
-            }
-            filterList()
-        }
-
-        function buildPlaylistPage() {
-            if (playlistJsonData == null) {
-                return;
-            }
-            tab = document.getElementById('myTable')
-            tab.innerHTML = ''
-
-            const btn = document.getElementById('sortBy')
-            if (btn.innerHTML == sortVariations[1]) {
-                keys = Object.keys(playlistJsonData).reverse()
-            } else {
-                const arr = Object.keys(playlistJsonData).map(el => {
-                    return playlistJsonData[el]['title'] + '|' + el;
-                });
-                keys = arr.sort().map(el => {
-                    return el.substring(el.lastIndexOf("|") + 1);
-                });
-            }
-
-            for (i = 0; i < keys.length; ++i) {
-                id = keys[i]
-                data = playlistJsonData[id]
-                tr = document.createElement('tr')
-                tr.id = data['playlistId']
-                tab.appendChild(tr)
-                tr.innerHTML = `<td><img class='video_img' tag='${id}' src='${data['thumbnail']}' width='32px')'></td><td><a href='https://www.youtube.com/playlist?list=${data['playlistId']}' target='_blank'>${data['title']}</a></td>`
-            }
-            filterList()
-        }
-
-        function loadFBPage() {
-            var webUrl = "https://fb.me/mythilirajaraman";
-            if (
-                /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-            ) {
-                window.location = "fb://page/453602601794609";
-                setTimeout(function () {
-                    window.location = webUrl;
-                }, 1000);
-            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                window.location = "fb://page?id=453602601794609";
-                setTimeout(function () {
-                    window.location = webUrl;
-                }, 1000);
-            } else {
-                window.open(webUrl, "_blank");
-            }
-        }
-
-        function openWhatsApp() {
-            window.open("https://chat.whatsapp.com/5m2GfMNdlh6Dwn7HQrmbdo", "_blank");
-        }
-
-        function openYouTube() {
-            window.open("https://www.youtube.com/@mythili.rajaraman", "_blank");
-        }
-
-        function addToQueue(userSelection) {
-            document.getElementById("alertModal").style.display = "none"
-            videoId = document.getElementById("videoId").value
-            if (userSelection) {
-                queue.enqueue(videoId)
-                showToast('Added to Queue')
-            } else {
-                player.loadVideoById(videoId)
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-            }
-        }
-
-        function showmodal(videoId) {
-            if (modal == null) return;
-
-            modal.style.display = "block"
-            if (player.getPlayerState() == YT.PlayerState.PLAYING) {
-                if (!queue.isEmpty()) {
-                    queue.enqueue(videoId)
-                    showToast('Added to Queue')
-                } else {
-                    document.getElementById("videoId").value = videoId
-                    document.getElementById("alertModal").style.display = "block"
-                }
-            } else {
-                player.loadVideoById(videoId)
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-            }
-        }
-
-        function hidemodal() {
-            modal.style.display = "none"
-            queue.clear()
-            stopVideo()
-        }
-
-        // 2. This code loads the IFrame Player API code asynchronously.
-        var tag = document.createElement('script');
-
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // 3. This function creates an <iframe> (and YouTube player)
-        //    after the API code downloads.
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '390',
-                width: '640',
-                videoId: 'M7lc1UVf-VE',
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 1
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        // 4. The API will call this function when the video player is ready.
-        function onPlayerReady(event) {
-            if (modal != null && modal.style.display == "block") {
-                event.target.playVideo();
-            }
-        }
-
-        var done = false;
-        function onPlayerStateChange(event) {
-            const playBtn = document.getElementById('playToggle').querySelector('i')
-            if (event.data == YT.PlayerState.ENDED) {
-                if (!queue.isEmpty()) {
-                    player.loadVideoById(queue.dequeue())
-                } else {
-                    if (document.getElementById('autoplay').checked && displayView == 'video') {
-                        const searchParams = new URLSearchParams(player.getVideoUrl());
-                        if (searchParams.has('v')) {
-                            currentRow = document.getElementById(searchParams.get('v'))
-                            tr = document.getElementById(currentRow.id)
-                            tr = tr.nextSibling
-                            while (tr == null || tr.style.display == "none") {
-                                if (tr == null) {
-                                    tr = document.getElementById('myTable').getElementsByTagName('tr')[0]
-                                } else {
-                                    if (tr.id == currentRow.id) {
-                                        break
-                                    }
-                                    tr = tr.nextSibling
-                                }
-                            }
-                            if (tr != null && tr.style.display != "none") {
-                                player.loadVideoById(tr.id)
-                            }
-                        }
-                    }
-                }
-                playBtn.classList.remove('fa-pause')
-                playBtn.classList.add('fa-play')
-            } else if (event.data == YT.PlayerState.PAUSED) {
-                playBtn.classList.remove('fa-play')
-                playBtn.classList.add('fa-pause')
-                document.getElementById('playToggle').innerHTML = "<i class='fa fa-play'></i>"
-            } else if (event.data == YT.PlayerState.PLAYING) {
-                document.getElementById('videoTitle').innerText = event.target.videoTitle
-                playBtn.classList.remove('fa-play')
-                playBtn.classList.add('fa-pause')
-            }
-        }
-
-        function stopVideo() {
-            player.stopVideo();
-        }
-
-        function playPauseToggle() {
-            if (modal.style.display == "block") {
-                if (player.getPlayerState() == YT.PlayerState.PLAYING) {
-                    player.pauseVideo()
-                } else {
-                    player.playVideo()
-                }
-            }
-        }
-
-        function showToast(message) {
-            // Add the "show" class to DIV
-            snackbar.className = "show";
-
-            // After 3 seconds, remove the show class from DIV
-            setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
-        }
-
-        function onkeydown_title(event) {
-            if (event.keyCode == 13) {
-                event.target.blur();
-                event.preventDefault();
-            }
-        }
-
-        function toggleAutoPlay(checkedState) {
-            autoplay = document.getElementById('autoplay')
-            if (autoplay.checked != checkedState) {
-                autoplay.checked = checkedState
-            }
-            document.getElementById('autoplay_slider').innerHTML = (checkedState) ? '<i class="fa fa-play"></i>' : '<i class="fa fa-pause"></i>'
-            document.getElementById('autoplay_tooltip').innerText = (checkedState) ? 'Auto play is on' : 'Auto play is off'
-            if (typeof (Storage) !== "undefined") {
-                localStorage.setItem('mythilirajaraman.autoPlay', checkedState ? '1' : '0');
-            }
-        }
-
-        function sortBy() {
-            const btn = document.getElementById('sortBy')
-            if (btn.innerHTML == sortVariations[0]) {
-                btn.innerHTML = sortVariations[1]
-            } else {
-                btn.innerHTML = sortVariations[0]
-            }
-            if (displayView == 'video')
-                buildPage()
-            else if (displayView == 'playlist')
-                buildPlaylistPage()
-        }
-
-        window.onload = function () {
-            const searchParams = new URLSearchParams(location.search);
-            const myInput = document.getElementById('myInput')
-            if (searchParams.has('q')) {
-                myInput.value = searchParams.get('q');
-                filterList()
-            }
-            if (searchParams.has('sort') && searchParams.get('sort') === 'name') {
-                const btn = document.getElementById('sortBy')
-                btn.innerHTML = sortVariations[1]
-                sortBy()
-            }
-            if (typeof (Storage) !== "undefined") {
-                if (localStorage.getItem('mythilirajaraman.autoPlay') != null) {
-                    toggleAutoPlay(localStorage.getItem('mythilirajaraman.autoPlay') == '1' ? true : false)
-                }
-            }
-            snackbar = document.getElementById("snackbar");
-            modal = document.getElementById("myModal");
-            document.getElementById("myInput").focus();
-            getData();
-        };
-    </script>
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mythili Rajaraman</title>
+  <meta name="Keywords" content="Bhagavatham, SriSriAnna, Krishna, Premi, Swamigal, Devotion, Govinda, Radhika, Paranur, Mahatma">
+  <meta name="Description" content="Mythili Rajaraman Youtube Channel">
+  <meta property="og:image" content="http://www.mythilirajaraman.com/images/profile.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:description" content="Mythili Rajaraman youtube channel">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:           #FAF8F4;
+      --bg-sidebar:   #F0EBE3;
+      --bg-card:      #FFFFFF;
+      --bg-hover:     #F5F1EB;
+      --text:         #2A1F12;
+      --text-2:       #6B5740;
+      --text-3:       #A8906F;
+      --accent:       #C2581E;
+      --accent-light: #FAEEE6;
+      --accent-hover: #D96526;
+      --border:       #E2D9CE;
+      --border-2:     #C9BDB0;
+      --sidebar-w:    278px;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --font-display: 'Lora', Georgia, serif;
+      --font-ui:      'DM Sans', 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    img { display: block; }
+
+    a { text-decoration: none; }
+
+    /* ── PAGE LAYOUT ── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-2) transparent;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    /* Channel Header */
+    .channel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .channel-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .channel-name {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    .channel-name:hover { color: var(--accent); }
+
+    .social-icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .social-icons img {
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      border-radius: 5px;
+      opacity: 0.82;
+      transition: opacity 0.15s;
+    }
+
+    .social-icons img:hover { opacity: 1; }
+
+    /* Search */
+    .search-wrap {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #myInput {
+      width: 100%;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 8px 11px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg-card);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    #myInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(194, 88, 30, 0.1);
+    }
+
+    #myInput::placeholder { color: var(--text-3); font-weight: 300; }
+
+    /* Mode tabs */
+    .mode-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mode-tab {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-2);
+      text-align: left;
+      width: 100%;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .mode-tab:hover:not(.active) {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .mode-tab.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tab-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .tab-label { flex: 1; }
+
+    .tab-count {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-3);
+      background: rgba(0,0,0,0.06);
+      border-radius: 20px;
+      padding: 1px 8px;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .mode-tab.active .tab-count {
+      background: rgba(194, 88, 30, 0.14);
+      color: var(--accent);
+    }
+
+    /* Sort / count bar */
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-count {
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 300;
+    }
+
+    #sortBy {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--text-2);
+      background: transparent;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.12s, color 0.12s;
+    }
+
+    #sortBy:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Section labels */
+    .section-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+
+    /* Player section */
+    .player-section {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .video-title-bar {
+      font-size: 11px;
+      color: var(--text-2);
+      line-height: 1.45;
+      margin-bottom: 8px;
+      min-height: 14px;
+      font-weight: 400;
+    }
+
+    .embed-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      background: #111;
+      margin-bottom: 9px;
+    }
+
+    .embed-container iframe,
+    .embed-container > div {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Player controls */
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ctrl-btn {
+      font-family: var(--font-ui);
+      background: transparent;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 5px 11px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+    }
+
+    .ctrl-btn:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+    .ctrl-btn.close-btn {
+      border-color: transparent;
+      color: var(--text-3);
+      margin-left: auto;
+      padding: 5px 8px;
+    }
+
+    .ctrl-btn.close-btn:hover { border-color: var(--border-2); color: var(--accent); background: var(--accent-light); }
+
+    /* Autoplay toggle */
+    .autoplay-wrap {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .autoplay-label-text {
+      font-size: 10px;
+      color: var(--text-3);
+      font-weight: 300;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border-2);
+      border-radius: 18px;
+      transition: 0.25s;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 12px; width: 12px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.25s;
+    }
+
+    input:checked + .slider { background: var(--accent); }
+    input:checked + .slider::before { transform: translateX(16px); }
+
+    /* Queue section */
+    .queue-section {
+      padding: 12px 14px;
+      flex: 1;
+    }
+
+    .queue-empty {
+      font-size: 11px;
+      color: var(--text-3);
+      font-style: italic;
+    }
+
+    .queue-item-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .queue-item-row:last-child { border-bottom: none; }
+
+    .queue-thumb {
+      width: 42px;
+      height: 24px;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+      background: var(--border);
+    }
+
+    .queue-item-title {
+      flex: 1;
+      font-size: 11px;
+      color: var(--text-2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .queue-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3);
+      font-size: 10px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: color 0.12s;
+      flex-shrink: 0;
+    }
+
+    .queue-remove:hover { color: var(--accent); }
+
+    /* ── CONTENT AREA ── */
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      height: 100vh;
+      padding: 22px 24px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-2) transparent;
+    }
+
+    .content-area::-webkit-scrollbar { width: 6px; }
+    .content-area::-webkit-scrollbar-track { background: transparent; }
+    .content-area::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+    /* ── CONTENT GRIDS ── */
+    #contentGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    #contentGrid.shorts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    #contentGrid.playlist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── VIDEO CARD ── */
+    .video-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: box-shadow 0.18s, transform 0.18s;
+    }
+
+    .video-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+      transform: translateY(-2px);
+    }
+
+    .card-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .card-thumb.portrait {
+      aspect-ratio: 9 / 16;
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.22s;
+    }
+
+    .video-card:hover .card-thumb img { transform: scale(1.04); }
+
+    /* Play button overlay */
+    .card-play-btn {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .card-thumb:hover .card-play-btn { opacity: 1; }
+
+    .play-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(194, 88, 30, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      padding-left: 3px;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .card-info {
+      padding: 8px 10px 10px;
+    }
+
+    .card-title-text {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: color 0.12s;
+    }
+
+    .card-title-text:hover { color: var(--accent); }
+
+    /* ── PLAYLIST CARD (list style) ── */
+    .playlist-card {
+      display: flex !important;
+      flex-direction: row !important;
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      transform: none !important;
+      box-shadow: none !important;
+      transition: background 0.12s !important;
+      align-items: center;
+    }
+
+    .playlist-card:first-child { border-top: 1px solid var(--border); }
+    .playlist-card:hover { background: var(--bg-hover); }
+
+    .playlist-card .card-thumb {
+      width: 100px;
+      min-width: 100px;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-sm);
+      margin: 9px 0 9px 10px;
+      flex-shrink: 0;
+    }
+
+    .playlist-card .card-info {
+      flex: 1;
+      padding: 10px 14px;
+      min-width: 0;
+    }
+
+    .playlist-card .card-title-text {
+      font-size: 13px;
+      font-weight: 500;
+      -webkit-line-clamp: 2;
+    }
+
+    .playlist-chevron {
+      color: var(--text-3);
+      padding-right: 16px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ── EMPTY / LOADING STATES ── */
+    .state-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-3);
+      font-size: 13px;
+      font-weight: 300;
+    }
+
+    .state-msg i {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    /* ── ALERT MODAL (queue vs play) ── */
+    .alert-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .alert-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 22px 22px 18px;
+      width: 290px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+
+    .alert-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .alert-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .alert-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-2);
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--text);
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .alert-btn:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .alert-btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .alert-btn.primary:hover { background: var(--accent-hover); }
+
+    /* ── SNACKBAR ── */
+    #snackbar {
+      visibility: hidden;
+      min-width: 180px;
+      background: var(--text);
+      color: #fff;
+      text-align: center;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      position: fixed;
+      z-index: 200;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-family: var(--font-ui);
+    }
+
+    #snackbar.show {
+      visibility: visible;
+      animation: sbIn 0.3s, sbOut 0.3s 2.5s;
+    }
+
+    @keyframes sbIn  { from { opacity:0; bottom: 10px; } to { opacity:1; bottom: 28px; } }
+    @keyframes sbOut { from { opacity:1; bottom: 28px; } to { opacity:0; bottom: 10px; } }
+
+    /* ── MOBILE LAYOUT ── */
+    @media (max-width: 767px) {
+
+      .layout { flex-direction: column; }
+
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        position: static;
+        overflow-y: visible;
+      }
+
+      /* Horizontal tabs on mobile */
+      .mode-tabs {
+        flex-direction: row;
+        gap: 0;
+        padding: 0;
+        background: var(--bg-sidebar);
+        border-bottom: 2px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .mode-tab {
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 10px 6px 8px;
+        border-radius: 0;
+        font-size: 11px;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        white-space: nowrap;
+      }
+
+      .mode-tab.active {
+        background: transparent;
+        border-bottom-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .tab-icon { font-size: 16px; width: auto; }
+
+      .tab-count {
+        font-size: 9px;
+        padding: 0 5px;
+      }
+
+      /* Hide queue on mobile */
+      .queue-section { display: none !important; }
+
+      .content-area {
+        height: auto;
+        overflow-y: visible;
+        padding: 12px;
+      }
+
+      #contentGrid {
+        grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+        gap: 10px;
+      }
+
+      #contentGrid.shorts-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 10px;
+      }
+
+      .social-icons img { width: 24px; height: 24px; }
+
+      .channel-header { padding: 12px 14px 10px; }
+
+      .sort-bar { padding: 6px 14px; }
+
+      .player-section { padding: 12px 14px; }
+    }
+  </style>
 </head>
 
 <body>
-    <center>
-        <div style="max-width: 640px;">
-            <div id="snackbar">Added to Queue</div>
-            <div id="alertModal" class="alert-modal">
-                <input type="hidden" id="videoId">
-                <!-- Modal content -->
-                <div class="alert-modal-content" width="100%">
-                    <button class="alert-button" onclick="addToQueue(true)">Queue</button><button class="alert-button"
-                        onclick="addToQueue(false)">Play</button>
-                </div>
-            </div>
-            <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td>
-                        <img src="images/apple-icon-60x60.png" />
-                    </td>
-                    <td width="99%" style="vertical-align: middle;"><a href="about.html">Mythili Rajaraman</a></td>
-                    <td align="right" style="white-space: nowrap;">
-                        <img id="whatsapp-icon" height="32px" src="images/whatsapp-icon.png" onclick="openWhatsApp()" />
-                        <img id="facebook-icon" height="32px" src="images/facebook-icon.png" onclick="loadFBPage()" />
-                        <img id="youtube-icon" height="32px" src="images/youtube-icon.png" onclick="openYouTube()" />
-                    </td>
-                </tr>
-            </table>
 
-            <input type="text" id="myInput" onkeyup="filterList()" placeholder="Search for titles.."
-                onkeydown="onkeydown_title(event)" title="Type in a title" list="sampleList">
-            <datalist id="sampleList">
-                <option value="^Govinda Shatakam">Govinda Shatakam</option>
-                <option value="^Radhika Shatakam">Radhika Shatakam</option>
-                <option value="^Raghava Shatakam">Raghava Shatakam</option>
-                <option value="^Yugala Shatakam">Yugala Shatakam</option>
-                <option value="Laghu">Laghu Sthotra Mala</option>
-                <option value="^Srimad Bhagavatham Canto\s10">Srimad Bhagavatham Canto 10</option>
-                <option value="^Srimad Bhagavatham Canto\s01">Srimad Bhagavatham Canto 01</option>
-                <option value="^Srimad Bhagavatham Canto\s02">Srimad Bhagavatham Canto 02</option>
-                <option value="^Srimad Bhagavatham Canto\s03">Srimad Bhagavatham Canto 03</option>
-                <option value="^Srimad Bhagavatham Canto\s04">Srimad Bhagavatham Canto 04</option>
-                <option value="^Srimad Bhagavatham Canto\s05">Srimad Bhagavatham Canto 05</option>
-                <option value="Premika Guru Keerthanam">Premika Guru Keerthanam</option>
-                <option value="^Godha Prabhandham">Godha Prabhandham</option>
-                <option value="^Tamil Divyanamam">Tamil Divyanamam</option>
-                <option value="^Pillai Tamil">Pillai Tamil</option>
-            </datalist>
+<div class="layout">
 
-            <!-- The Modal -->
-            <div id="myModal" class="modal">
-                <center id="model-content">
-                    <div class='videoTitle' id="videoTitle">Video Title</div>
-                    <!-- Modal content -->
-                    <div class='embed-container'>
-                        <div id="player"></div>
-                    </div>
-                    <button id="playToggle" onclick="playPauseToggle()" class="left"><i
-                            class="fa fa-pause"></i></button>
-                    <span style="padding-left: 10px" class="left">&nbsp;</span>
-                    <span class="tooltip left">
-                        <span id="autoplay_tooltip" class="tooltiptext">Auto play is on</span>
-                        <label class="switch">
-                            <input id="autoplay" type="checkbox" checked onclick="toggleAutoPlay(this.checked)">
-                            <span id="autoplay_slider" class="slider round"><i class="fa fa-play"></i></span>
-                        </label>
-                    </span>
-                    <button onclick="hidemodal()" class="right end">&#9932;</button>
-                </center>
-            </div>
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
 
-            <div>
-                <button id='showplaylist' onclick="toggleView()" class="playlist"><i class="fa fa-file-text-o"></i></button>
-                <label id="viewLabel">List of Videos</label>
-                <button id='sortBy' onclick="sortBy()" class="right"><i class="fa fa-sort-alpha-asc"></i></button>
-            </div>
-            <table width="100%" id="myTable">
-                <!-- Video list starts from here -->
-            </table>
+    <!-- Channel header -->
+    <div class="channel-header">
+      <div class="channel-name-row">
+        <a href="about.html"><img src="images/apple-icon-60x60.png" /></a>
+        <div class="social-icons">
+          <img src="images/youtube-icon.png"   onclick="openYouTube()"  alt="YouTube"  title="YouTube Channel" />
+          <img src="images/facebook-icon.png"  onclick="loadFBPage()"   alt="Facebook" title="Facebook Page" />
+          <img src="images/whatsapp-icon.png"  onclick="openWhatsApp()" alt="WhatsApp" title="WhatsApp Group" />
         </div>
-    </center>
-</body>
+      </div>
+      <div><a href="about.html" class="channel-name">Mythili Rajaraman</a></div>
+    </div>
 
+    <!-- Search -->
+    <div class="search-wrap">
+      <input type="text" id="myInput"
+             onkeyup="filterList()"
+             onkeydown="onkeydown_title(event)"
+             placeholder="Search titles… (regex supported)"
+             title="Type a title or a regex pattern"
+             list="sampleList" />
+      <datalist id="sampleList">
+        <option value="^Govinda Shatakam">Govinda Shatakam</option>
+        <option value="^Radhika Shatakam">Radhika Shatakam</option>
+        <option value="^Raghava Shatakam">Raghava Shatakam</option>
+        <option value="^Yugala Shatakam">Yugala Shatakam</option>
+        <option value="Laghu">Laghu Sthotra Mala</option>
+        <option value="^Srimad Bhagavatham Canto\s10">Srimad Bhagavatham Canto 10</option>
+        <option value="^Srimad Bhagavatham Canto\s01">Srimad Bhagavatham Canto 01</option>
+        <option value="^Srimad Bhagavatham Canto\s02">Srimad Bhagavatham Canto 02</option>
+        <option value="^Srimad Bhagavatham Canto\s03">Srimad Bhagavatham Canto 03</option>
+        <option value="^Srimad Bhagavatham Canto\s04">Srimad Bhagavatham Canto 04</option>
+        <option value="^Srimad Bhagavatham Canto\s05">Srimad Bhagavatham Canto 05</option>
+        <option value="Premika Guru Keerthanam">Premika Guru Keerthanam</option>
+        <option value="^Godha Prabhandham">Godha Prabhandham</option>
+        <option value="^Tamil Divyanamam">Tamil Divyanamam</option>
+        <option value="^Pillai Tamil">Pillai Tamil</option>
+      </datalist>
+    </div>
+
+    <!-- Mode tabs (Videos / Shorts / Playlists) -->
+    <nav class="mode-tabs">
+      <button class="mode-tab active" id="tab-video" onclick="setMode('video')">
+        <span class="tab-icon"><i class="fa fa-film"></i></span>
+        <span class="tab-label">Videos</span>
+        <span class="tab-count" id="count-video">—</span>
+      </button>
+      <button class="mode-tab" id="tab-shorts" onclick="setMode('shorts')">
+        <span class="tab-icon"><i class="fa fa-bolt"></i></span>
+        <span class="tab-label">Shorts</span>
+        <span class="tab-count" id="count-shorts">—</span>
+      </button>
+      <button class="mode-tab" id="tab-playlist" onclick="setMode('playlist')">
+        <span class="tab-icon"><i class="fa fa-list"></i></span>
+        <span class="tab-label">Playlists</span>
+        <span class="tab-count" id="count-playlist">—</span>
+      </button>
+    </nav>
+
+    <!-- Sort / count bar -->
+    <div class="sort-bar">
+      <span class="result-count" id="resultCount">Loading…</span>
+      <button id="sortBy" onclick="sortBy()"><i class="fa fa-sort-amount-desc"></i></button>
+    </div>
+
+    <!-- Player section (hidden until a video is selected) -->
+    <div class="player-section" id="playerSection" style="display:none;">
+      <div class="section-label">Now Playing</div>
+      <div class="video-title-bar" id="videoTitle">—</div>
+      <div class="embed-container">
+        <div id="player"></div>
+      </div>
+      <div class="player-controls">
+        <button id="playToggle" class="ctrl-btn" onclick="playPauseToggle()">
+          <i class="fa fa-pause"></i>
+        </button>
+        <div class="autoplay-wrap">
+          <span class="autoplay-label-text" id="autoplay_tooltip" title="Toggle autoplay">Auto</span>
+          <label class="switch">
+            <input id="autoplay" type="checkbox" checked onclick="toggleAutoPlay(this.checked)">
+            <span id="autoplay_slider" class="slider"></span>
+          </label>
+        </div>
+        <button class="ctrl-btn close-btn" onclick="hidePlayer()" title="Stop &amp; close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Queue section (hidden until items are added) -->
+    <div class="queue-section" id="queueSection" style="display:none;">
+      <div class="section-label">Up Next</div>
+      <div id="queueList"></div>
+    </div>
+
+  </aside>
+
+  <!-- ── CONTENT AREA ── -->
+  <main class="content-area">
+    <div id="contentGrid">
+      <div class="state-msg"><i class="fa fa-spinner fa-spin"></i>Loading…</div>
+    </div>
+  </main>
+
+</div>
+
+<!-- Alert modal: queue vs play -->
+<div id="alertModal" class="alert-overlay">
+  <input type="hidden" id="videoId">
+  <div class="alert-card">
+    <div class="alert-title">A video is already playing. What would you like to do?</div>
+    <div class="alert-btns">
+      <button class="alert-btn" onclick="addToQueue(true)">
+        <i class="fa fa-plus"></i> Add to Queue
+      </button>
+      <button class="alert-btn primary" onclick="addToQueue(false)">
+        <i class="fa fa-play"></i> Play Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Snackbar -->
+<div id="snackbar">Added to queue</div>
+
+
+<script>
+  /* ── State ── */
+  var snackbar     = null;
+  var modal        = null;   // points to playerSection after player is ready (kept for onPlayerReady compat)
+  var jsonData     = null;
+  var playlistJsonData = null;
+  var displayView  = 'video';
+  var playerReady  = false;
+  var pendingVideoId = null;
+  const sortVariations = ['<i class="fa fa-sort-amount-desc"></i>', '<i class="fa fa-sort-alpha-asc"></i>'];
+
+  /* ── Queue ── */
+  class Queue {
+    constructor() { this.items = []; }
+    enqueue(item) { this.items.push(item); updateQueueUI(); }
+    dequeue() {
+      if (this.isEmpty()) return 'Underflow';
+      const v = this.items.shift();
+      updateQueueUI();
+      return v;
+    }
+    peek()    { return this.isEmpty() ? 'No elements in Queue' : this.items[0]; }
+    print()   { return this.items; }
+    isEmpty() { return this.items.length === 0; }
+    clear()   { this.items = []; updateQueueUI(); }
+  }
+  const queue = new Queue();
+
+  /* ── Queue UI ── */
+  function updateQueueUI() {
+    const section = document.getElementById('queueSection');
+    const list    = document.getElementById('queueList');
+    if (queue.isEmpty()) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+    list.innerHTML = queue.items.map((vid, idx) =>
+      `<div class="queue-item-row">
+         <img class="queue-thumb" src="https://i.ytimg.com/vi/${vid}/default.jpg" alt="" loading="lazy">
+         <span class="queue-item-title">${vid}</span>
+         <button class="queue-remove" onclick="removeFromQueue(${idx})" title="Remove">
+           <i class="fa fa-times"></i>
+         </button>
+       </div>`
+    ).join('');
+  }
+
+  function removeFromQueue(index) {
+    queue.items.splice(index, 1);
+    updateQueueUI();
+  }
+
+  /* ── Text normalisation (preserved exactly) ── */
+  function normalizeText(input) {
+    let text = input.toLowerCase();
+    text = text.replace(/sh/g,  's');
+    text = text.replace(/ee/g,  'i');
+    text = text.replace(/oo/g,  'u');
+    text = text.replace(/kh/g,  'k');
+    text = text.replace(/gh/g,  'g');
+    text = text.replace(/th/g,  't');
+    text = text.replace(/dh/g,  'd');
+    text = text.replace(/ph/g,  'p');
+    text = text.replace(/bh/g,  'b');
+    text = text.replace(/ow/g,  'ou');
+    text = text.replace(/uv/g,  'v');
+    text = text.replace(/sv/g,  'sw');
+    text = text.replace(/y/g,   'i');
+    text = text.replace(/(a)\1+/g, 'a');
+    text = text.replace(/(i)\1+/g, 'i');
+    text = text.replace(/(u)\1+/g, 'u');
+    text = text.replace(/(e)\1+/g, 'e');
+    text = text.replace(/(o)\1+/g, 'o');
+    text = text.replace(/([^\d])\1+/g, '$1');
+    text = text.replace(/~/g,   '');
+    text = text.replace(/-/g,   ' ').trim();
+    text = text.replace(/\./g,  ' ').trim();
+    text = text.replace(/\s+/g, ' ').trim();
+    return text;
+  }
+
+  /* ── Filter (updated for card grid) ── */
+  function filterList() {
+    const input  = document.getElementById('myInput');
+    const filter = normalizeText(input.value).replace(/ /g, '.*');
+    const cards  = document.getElementById('contentGrid').querySelectorAll('.video-card');
+    let visible  = 0;
+
+    for (let i = 0; i < cards.length; i++) {
+      const titleEl = cards[i].querySelector('.card-title-text');
+      if (titleEl) {
+        const txtValue = normalizeText(titleEl.textContent || titleEl.innerText);
+        const match    = txtValue.match(new RegExp(filter, 'gmis')) != null;
+        cards[i].style.display = match ? '' : 'none';
+        if (match) visible++;
+      }
+    }
+
+    const total = cards.length;
+    document.getElementById('resultCount').textContent =
+      total === 0 ? 'Loading…' :
+      visible === total ? total + ' results' :
+      visible + ' of ' + total;
+  }
+
+  /* ── Set mode (replaces toggleView) ── */
+  function setMode(mode) {
+    displayView = mode;
+    ['video', 'shorts', 'playlist'].forEach(m => {
+      document.getElementById('tab-' + m).classList.toggle('active', m === mode);
+    });
+    if (mode === 'playlist') {
+      getPlaylistData();
+    } else {
+      getData();
+    }
+  }
+
+  /* ── Data loading ── */
+  function getData() {
+    if (jsonData != null) { buildPage(); return; }
+    fetch('/data.json')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP error, status = ${r.status}`);
+        return r.text();
+      })
+      .then(text => { jsonData = JSON.parse(text); buildPage(); })
+      .catch(err => {
+        jsonData = { err: { videoId: 'error', title: err.message, publishedAt: '', duration: '' } };
+        buildPage();
+      });
+  }
+
+  function getPlaylistData() {
+    if (playlistJsonData != null) { buildPlaylistPage(); return; }
+    fetch('/playlist.json')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP error, status = ${r.status}`);
+        return r.text();
+      })
+      .then(text => { playlistJsonData = JSON.parse(text); buildPlaylistPage(); })
+      .catch(err => {
+        playlistJsonData = { err: { playlistId: 'error', title: err.message, publishedAt: '', thumbnail: '' } };
+        buildPlaylistPage();
+      });
+  }
+
+  /* ── Build video / shorts page ── */
+  function buildPage() {
+    if (jsonData == null) return;
+
+    let keys = Object.keys(jsonData);
+
+    // Update tab counts (do once when data first loads)
+    const videoKeys   = keys.filter(k => jsonData[k].duration !== '00:01');
+    const shortsKeys  = keys.filter(k => jsonData[k].duration === '00:01');
+    document.getElementById('count-video').textContent  = videoKeys.length;
+    document.getElementById('count-shorts').textContent = shortsKeys.length;
+
+    // Filter to current view
+    if (displayView === 'video')  keys = videoKeys;
+    else if (displayView === 'shorts') keys = shortsKeys;
+
+    // Sort
+    const btn = document.getElementById('sortBy');
+    if (btn.innerHTML === sortVariations[1]) {
+      keys = keys.slice().reverse();
+    } else {
+      const arr = keys.map(el => jsonData[el]['title'] + '|' + el);
+      keys = arr.sort().map(el => el.substring(el.lastIndexOf('|') + 1));
+    }
+
+    // Render
+    const grid = document.getElementById('contentGrid');
+    grid.className = displayView === 'shorts' ? 'shorts-grid' : '';
+    grid.innerHTML = '';
+
+    if (keys.length === 0) {
+      grid.innerHTML = '<div class="state-msg"><i class="fa fa-inbox"></i>No items found.</div>';
+      document.getElementById('resultCount').textContent = '0 results';
+      return;
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+      const id      = keys[i];
+      const data    = jsonData[id];
+      const isShort = data['duration'] === '00:01';
+      const url     = isShort
+        ? `https://www.youtube.com/shorts/${data['videoId']}`
+        : `http://youtu.be/${data['videoId']}`;
+
+      const card = document.createElement('div');
+      card.className = 'video-card';
+      card.id        = data['videoId'];
+
+      card.innerHTML =
+        `<div class="card-thumb${isShort ? ' portrait' : ''}">
+           <img src="https://i.ytimg.com/vi/${data['videoId']}/mqdefault.jpg"
+                alt="${esc(data['title'])}" loading="lazy">
+           <button class="card-play-btn" onclick="showPlayer('${data['videoId']}')" title="Play in player">
+             <div class="play-circle"><i class="fa fa-play"></i></div>
+           </button>
+         </div>
+         <div class="card-info">
+           <a href="${url}" target="_blank" class="card-title-text">${esc(data['title'])}</a>
+         </div>`;
+
+      grid.appendChild(card);
+    }
+
+    filterList();
+  }
+
+  /* ── Build playlist page ── */
+  function buildPlaylistPage() {
+    if (playlistJsonData == null) return;
+
+    let keys = Object.keys(playlistJsonData);
+    document.getElementById('count-playlist').textContent = keys.length;
+
+    const btn = document.getElementById('sortBy');
+    if (btn.innerHTML === sortVariations[1]) {
+      keys = keys.slice().reverse();
+    } else {
+      const arr = keys.map(el => playlistJsonData[el]['title'] + '|' + el);
+      keys = arr.sort().map(el => el.substring(el.lastIndexOf('|') + 1));
+    }
+
+    const grid = document.getElementById('contentGrid');
+    grid.className = 'playlist-list';
+    grid.innerHTML  = '';
+
+    if (keys.length === 0) {
+      grid.innerHTML = '<div class="state-msg"><i class="fa fa-inbox"></i>No playlists found.</div>';
+      document.getElementById('resultCount').textContent = '0 results';
+      return;
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+      const id   = keys[i];
+      const data = playlistJsonData[id];
+
+      const card = document.createElement('div');
+      card.className = 'video-card playlist-card';
+      card.id        = data['playlistId'];
+
+      card.innerHTML =
+        `<div class="card-thumb">
+           <img src="${data['thumbnail']}" alt="${esc(data['title'])}" loading="lazy">
+         </div>
+         <div class="card-info">
+           <a href="https://www.youtube.com/playlist?list=${data['playlistId']}"
+              target="_blank" class="card-title-text">${esc(data['title'])}</a>
+         </div>
+         <span class="playlist-chevron"><i class="fa fa-chevron-right"></i></span>`;
+
+      grid.appendChild(card);
+    }
+
+    filterList();
+  }
+
+  /* ── Player ── */
+  function showPlayer(videoId) {
+    const section = document.getElementById('playerSection');
+    section.style.display = 'block';
+
+    if (!playerReady) {
+      pendingVideoId = videoId;
+      return;
+    }
+
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+      if (!queue.isEmpty()) {
+        queue.enqueue(videoId);
+        showToast('Added to queue');
+      } else {
+        document.getElementById('videoId').value = videoId;
+        document.getElementById('alertModal').style.display = 'flex';
+      }
+    } else {
+      player.loadVideoById(videoId);
+      // On mobile, scroll up so the player is visible
+      if (window.innerWidth < 768) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  // Keep showmodal as alias (referenced indirectly by old autoplay logic pattern)
+  function showmodal(videoId) { showPlayer(videoId); }
+
+  function hidePlayer() {
+    document.getElementById('playerSection').style.display = 'none';
+    queue.clear();
+    stopVideo();
+  }
+
+  // Kept for any lingering references
+  function hidemodal() { hidePlayer(); }
+
+  /* ── Alert actions ── */
+  function addToQueue(userSelection) {
+    document.getElementById('alertModal').style.display = 'none';
+    const videoId = document.getElementById('videoId').value;
+    if (userSelection) {
+      queue.enqueue(videoId);
+      showToast('Added to queue');
+    } else {
+      player.loadVideoById(videoId);
+      if (window.innerWidth < 768) {
+        document.getElementById('playerSection').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }
+
+  /* ── Toast ── */
+  function showToast(message) {
+    const sb = document.getElementById('snackbar');
+    sb.textContent = message;
+    sb.className = 'show';
+    setTimeout(() => { sb.className = sb.className.replace('show', ''); }, 3000);
+  }
+
+  /* ── Helpers ── */
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function onkeydown_title(event) {
+    if (event.keyCode == 13) { event.target.blur(); event.preventDefault(); }
+  }
+
+  /* ── Autoplay toggle ── */
+  function toggleAutoPlay(checkedState) {
+    const autoplay = document.getElementById('autoplay');
+    if (autoplay.checked !== checkedState) autoplay.checked = checkedState;
+    if (typeof Storage !== 'undefined') {
+      localStorage.setItem('mythilirajaraman.autoPlay', checkedState ? '1' : '0');
+    }
+  }
+
+  /* ── Sort ── */
+  function sortBy() {
+    const btn = document.getElementById('sortBy');
+    btn.innerHTML = (btn.innerHTML === sortVariations[0]) ? sortVariations[1] : sortVariations[0];
+    if (displayView === 'playlist') buildPlaylistPage();
+    else buildPage();
+  }
+
+  /* ── Social links ── */
+  function loadFBPage() {
+    const webUrl = 'https://fb.me/mythilirajaraman';
+    if (/Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      window.location = 'fb://page/453602601794609';
+      setTimeout(() => { window.location = webUrl; }, 1000);
+    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.location = 'fb://page?id=453602601794609';
+      setTimeout(() => { window.location = webUrl; }, 1000);
+    } else {
+      window.open(webUrl, '_blank');
+    }
+  }
+
+  function openWhatsApp() {
+    window.open('https://chat.whatsapp.com/5m2GfMNdlh6Dwn7HQrmbdo', '_blank');
+  }
+
+  function openYouTube() {
+    window.open('https://www.youtube.com/@mythili.rajaraman', '_blank');
+  }
+
+  /* ── YouTube IFrame API ── */
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.getElementsByTagName('script')[0].parentNode.insertBefore(tag, document.getElementsByTagName('script')[0]);
+
+  var player;
+
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      height: '390',
+      width: '640',
+      videoId: 'M7lc1UVf-VE',   // placeholder; hidden until a card is clicked
+      playerVars: { 'playsinline': 1, 'controls': 1 },
+      events: {
+        'onReady':       onPlayerReady,
+        'onStateChange': onPlayerStateChange
+      }
+    });
+  }
+
+  function onPlayerReady(event) {
+    playerReady = true;
+    modal = document.getElementById('playerSection'); // alias kept for safety
+    // If user clicked a card before the API was ready, play it now
+    if (pendingVideoId) {
+      player.loadVideoById(pendingVideoId);
+      pendingVideoId = null;
+    }
+  }
+
+  var done = false;
+
+  function onPlayerStateChange(event) {
+    const playBtn = document.getElementById('playToggle').querySelector('i');
+
+    if (event.data == YT.PlayerState.ENDED) {
+      if (!queue.isEmpty()) {
+        player.loadVideoById(queue.dequeue());
+      } else if (document.getElementById('autoplay').checked && displayView === 'video') {
+        // Autoplay: find the next visible card
+        const searchParams = new URLSearchParams(player.getVideoUrl());
+        if (searchParams.has('v')) {
+          let currentCard = document.getElementById(searchParams.get('v'));
+          let next = currentCard ? currentCard.nextElementSibling : null;
+          // skip hidden cards
+          while (next != null && next.style.display === 'none') {
+            next = next.nextElementSibling;
+          }
+          // wrap around to first visible card
+          if (next == null) {
+            const cards = document.querySelectorAll('#contentGrid .video-card');
+            for (let c of cards) {
+              if (c.style.display !== 'none') { next = c; break; }
+            }
+          }
+          if (next && next.id && next.style.display !== 'none') {
+            player.loadVideoById(next.id);
+          }
+        }
+      }
+      playBtn.classList.remove('fa-pause');
+      playBtn.classList.add('fa-play');
+
+    } else if (event.data == YT.PlayerState.PAUSED) {
+      playBtn.classList.remove('fa-pause');
+      playBtn.classList.add('fa-play');
+
+    } else if (event.data == YT.PlayerState.PLAYING) {
+      document.getElementById('videoTitle').innerText = event.target.videoTitle;
+      playBtn.classList.remove('fa-play');
+      playBtn.classList.add('fa-pause');
+    }
+  }
+
+  function stopVideo() {
+    if (playerReady) player.stopVideo();
+  }
+
+  function playPauseToggle() {
+    if (!playerReady) return;
+    if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
+  }
+
+  /* ── Init ── */
+  window.onload = function () {
+    snackbar = document.getElementById('snackbar');
+
+    const searchParams = new URLSearchParams(location.search);
+    const myInput = document.getElementById('myInput');
+
+    if (searchParams.has('q')) {
+      myInput.value = searchParams.get('q');
+      // filterList() will run at end of buildPage()
+    }
+
+    if (searchParams.has('sort') && searchParams.get('sort') === 'name') {
+      document.getElementById('sortBy').innerHTML = sortVariations[1];
+    }
+
+    if (typeof Storage !== 'undefined') {
+      const saved = localStorage.getItem('mythilirajaraman.autoPlay');
+      if (saved != null) toggleAutoPlay(saved === '1');
+    }
+
+    myInput.focus();
+    getData();
+  };
+</script>
+
+</body>
 </html>
