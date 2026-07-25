@@ -604,14 +604,16 @@
                     currentSourceLine += 1;
                 }
 
+                const repeatRanges = ranges.map(range => ({ start: range.start, end: range.end, repeatCount: 2 }));
+
                 for (let outputIndex = 0; outputIndex < nonEmptyCount; outputIndex++) {
                     const sourceLineNumber = sourceLineNumbers[outputIndex] || outputIndex + 1;
-                    const matchingRange = ranges.find(range => sourceLineNumber >= range.start && sourceLineNumber <= range.end);
+                    const matchingRange = repeatRanges.find(range => sourceLineNumber >= range.start && sourceLineNumber <= range.end);
 
                     if (matchingRange) {
-                        const repeatBase = sourceLineNumbers[outputIndex - 1] || 0;
                         const repeatOffset = sourceLineNumber - matchingRange.start;
-                        plan.push(repeatBase + (repeatOffset % 2));
+                        const repeatedLineIndex = outputIndex + repeatOffset;
+                        plan.push(repeatedLineIndex);
                     } else {
                         plan.push(outputIndex);
                     }
@@ -1364,6 +1366,7 @@
                     const nonEmptyCount = nonEmptyLines1.length;
                     const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
                     const highlightLinePlan = buildHighlightLinePlan(cachedLines1, nonEmptyCount);
+                    const repeatRanges = parseRepeatHighlightRanges(document.getElementById('repeatHighlightRanges').value || '');
 
                     for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
                         const startIdx = slideIdx * linesPerSlide;
@@ -1389,6 +1392,28 @@
                             const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalGroups * linesPerSlide) * 100);
                             document.getElementById('progressFill').textContent = progress + '%';
                             document.getElementById('progressFill').style.width = progress + '%';
+                        }
+
+                        if (repeatRanges.length > 0) {
+                            const rangeStart = startIdx + 1;
+                            const rangeEnd = endIdx;
+                            const matchingRange = repeatRanges.find(range => rangeStart <= range.end && rangeEnd >= range.start);
+                            if (matchingRange) {
+                                const repeatStartLine = matchingRange.start;
+                                const repeatEndLine = matchingRange.end;
+                                const shouldRepeatThisGroup = rangeStart <= repeatEndLine && rangeEnd >= repeatStartLine;
+                                if (shouldRepeatThisGroup) {
+                                    const extraSlideCount = 2;
+                                    for (let extraIdx = 0; extraIdx < extraSlideCount; extraIdx++) {
+                                        const extraHighlightIndex = extraIdx % actualLinesInThisSlide;
+                                        const canvas = createSlide(slideLines1, slideLines2, extraHighlightIndex, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
+                                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                                        const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                                        zip.file(filename, blob);
+                                        frameIndex++;
+                                    }
+                                }
+                            }
                         }
                     }
 
