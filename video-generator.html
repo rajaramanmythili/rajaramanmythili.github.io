@@ -587,32 +587,34 @@
                 });
             }
 
-            function buildHighlightLinePlan(nonEmptyCount) {
+            function buildHighlightLinePlan(rawLines, nonEmptyCount) {
                 const ranges = parseRepeatHighlightRanges(document.getElementById('repeatHighlightRanges').value || '');
                 const plan = [];
-                let nextLineIndex = 0;
-                let activeRange = null;
+                const sourceLineNumbers = [];
+                let currentSourceLine = 1;
+
+                for (let i = 0; i < rawLines.length; i++) {
+                    const line = rawLines[i];
+                    if (line === undefined) continue;
+                    if (line.length === 0) {
+                        currentSourceLine += 1;
+                        continue;
+                    }
+                    sourceLineNumbers.push(currentSourceLine);
+                    currentSourceLine += 1;
+                }
 
                 for (let outputIndex = 0; outputIndex < nonEmptyCount; outputIndex++) {
-                    const slideNumber = outputIndex + 1;
-                    const matchingRange = ranges.find(range => slideNumber >= range.start && slideNumber <= range.end);
-
-                    if (activeRange && slideNumber <= activeRange.end) {
-                        const offset = slideNumber - activeRange.start;
-                        plan.push(activeRange.base + (offset % 2));
-                        continue;
-                    }
+                    const sourceLineNumber = sourceLineNumbers[outputIndex] || outputIndex + 1;
+                    const matchingRange = ranges.find(range => sourceLineNumber >= range.start && sourceLineNumber <= range.end);
 
                     if (matchingRange) {
-                        activeRange = { ...matchingRange, base: nextLineIndex };
-                        plan.push(activeRange.base);
-                        nextLineIndex = activeRange.base + 2;
-                        continue;
+                        const repeatBase = sourceLineNumbers[outputIndex - 1] || 0;
+                        const repeatOffset = sourceLineNumber - matchingRange.start;
+                        plan.push(repeatBase + (repeatOffset % 2));
+                    } else {
+                        plan.push(outputIndex);
                     }
-
-                    activeRange = null;
-                    plan.push(nextLineIndex);
-                    nextLineIndex += 1;
                 }
 
                 return plan;
@@ -1238,7 +1240,7 @@
 
                     const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
                     const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
-                    const highlightLinePlan = buildHighlightLinePlan(nonEmptyLines1.length);
+                    const highlightLinePlan = buildHighlightLinePlan(cachedLines1, nonEmptyLines1.length);
 
                     const startIdx = currentPreviewSlideGroup * linesPerSlide;
                     const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyLines1.length);
@@ -1361,7 +1363,7 @@
 
                     const nonEmptyCount = nonEmptyLines1.length;
                     const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
-                    const highlightLinePlan = buildHighlightLinePlan(nonEmptyCount);
+                    const highlightLinePlan = buildHighlightLinePlan(cachedLines1, nonEmptyCount);
 
                     for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
                         const startIdx = slideIdx * linesPerSlide;
