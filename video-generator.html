@@ -350,7 +350,7 @@
 
             <div class="section">
                 <label for="repeatHighlightRanges">Repeat Highlight Ranges (optional):</label>
-                <input type="text" id="repeatHighlightRanges" value="" placeholder="e.g. 30-31,50-53">
+                <input type="text" id="repeatHighlightRanges" value="" placeholder="e.g. 30-31,50-53 (add :2 for 2 extra repeats, e.g. 30-31:2)">
                 <p class="bg-image-note">Use 1-based slide numbers. When a slide falls in a range, the generator repeats the current pair of highlighted lines for that range.</p>
             </div>
 
@@ -495,6 +495,8 @@
             let currentPreviewSlideGroup = 0;
             let currentPreviewHighlight = 0;
             let totalSlideGroups = 0;
+            let previewFramePlan = [];
+            let groupFrameIndices = [];
             let linesPerSlide = 8;
             let cachedLines1 = [];
             let cachedLines2 = [];
@@ -571,32 +573,49 @@
                 if (!inputValue || !inputValue.trim()) return [];
 
                 return inputValue.split(',').map(part => part.trim()).filter(Boolean).map(range => {
-                    const match = range.match(/^(\d+)(?:-(\d+))?$/);
+                    const match = range.match(/^(\d+)(?:-(\d+))?(?::(\d+))?$/);
                     if (!match) {
                         throw new Error(`Invalid repeat highlight range: ${range}`);
                     }
 
                     const start = parseInt(match[1], 10);
                     const end = match[2] ? parseInt(match[2], 10) : start;
+                    // Optional :N suffix = how many EXTRA times to repeat (default 1 = shown twice total)
+                    const repeatCount = match[3] ? parseInt(match[3], 10) : 1;
 
-                    if (start < 1 || end < start) {
+                    if (start < 1 || end < start || repeatCount < 1) {
                         throw new Error(`Invalid repeat highlight range: ${range}`);
                     }
 
-                    return { start, end };
+                    return { start, end, repeatCount };
                 });
             }
 
-            function buildHighlightLinePlan(rawLines, nonEmptyCount) {
-                const ranges = parseRepeatHighlightRanges(document.getElementById('repeatHighlightRanges').value || '');
-                const plan = [];
+            // Builds the ordered sequence of output-line indices (into nonEmptyLines1) that should
+            // become frames, expanding repeat ranges in place. A repeat range is matched against the
+            // ORIGINAL source line numbers (i.e. the line numbers you'd count in the raw text file,
+            // BEFORE any "Skip First/Last N Lines" is applied - skipLinesOffset corrects for that),
+            // not the slide-group span, so a couplet like "30-31" repeats exactly those two lines
+            // together, immediately after they first appear - regardless of how many lines fit in a
+            // slide group. Each entry is {index, repeatPass}: repeatPass 0 = first/original showing,
+            // 1..N = which repeat pass it belongs to (used to label the preview selector).
+            function buildRepeatFramePlan(rawLines, nonEmptyCount, repeatRanges, skipLinesOffset) {
                 const sourceLineNumbers = [];
-                let currentSourceLine = 1;
+                // rawLines has already had the first skipLinesOffset lines removed (see loadFiles),
+                // so its first entry is really physical line (skipLinesOffset + 1) in the original
+                // file. Start counting from there so range numbers keep meaning "physical line in
+                // the file you uploaded" no matter what Skip First N Lines is set to.
+                let currentSourceLine = (skipLinesOffset || 0) + 1;
 
                 for (let i = 0; i < rawLines.length; i++) {
                     const line = rawLines[i];
                     if (line === undefined) continue;
-                    if (line.length === 0) {
+                    // Use trim() here (not raw .length) so this matches the blank-line
+                    // detection used everywhere else (nonEmptyLines1 filtering). Files with
+                    // CRLF line endings leave a trailing "\r" on blank lines, so a raw
+                    // length check never treats them as blank - that desyncs source line
+                    // numbers from physical file lines, worse the further into the file you go.
+                    if (line.trim().length === 0) {
                         currentSourceLine += 1;
                         continue;
                     }
@@ -604,22 +623,54 @@
                     currentSourceLine += 1;
                 }
 
-                const repeatRanges = ranges.map(range => ({ start: range.start, end: range.end, repeatCount: 2 }));
+                const plan = [];
 
                 for (let outputIndex = 0; outputIndex < nonEmptyCount; outputIndex++) {
-                    const sourceLineNumber = sourceLineNumbers[outputIndex] || outputIndex + 1;
-                    const matchingRange = repeatRanges.find(range => sourceLineNumber >= range.start && sourceLineNumber <= range.end);
+                    plan.push({ index: outputIndex, repeatPass: 0 });
 
-                    if (matchingRange) {
-                        const repeatOffset = sourceLineNumber - matchingRange.start;
-                        const repeatedLineIndex = outputIndex + repeatOffset;
-                        plan.push(repeatedLineIndex);
-                    } else {
-                        plan.push(outputIndex);
+                    const sourceLineNumber = sourceLineNumbers[outputIndex] || outputIndex + 1;
+                    // Only fire once we've reached the LAST line of the range, so multi-line
+                    // ranges (e.g. a two-line sloka) repeat as a whole, in order.
+                    const range = repeatRanges.find(r => sourceLineNumber === r.end);
+
+                    if (range) {
+                        let startOutputIndex = sourceLineNumbers.findIndex(sl => sl === range.start);
+                        if (startOutputIndex === -1) startOutputIndex = outputIndex;
+
+                        for (let rep = 1; rep <= range.repeatCount; rep++) {
+                            for (let k = startOutputIndex; k <= outputIndex; k++) {
+                                plan.push({ index: k, repeatPass: rep });
+                            }
+                        }
                     }
                 }
 
                 return plan;
+            }
+
+            // Recomputes previewFramePlan + groupFrameIndices (which plan entries belong to which
+            // slide group) so the interactive preview walks the exact same sequence, including
+            // repeats, as generateSlideZip does.
+            function computePreviewPlan() {
+                const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
+                const nonEmptyCount = nonEmptyLines1.length;
+
+                let repeatRanges = [];
+                try {
+                    repeatRanges = parseRepeatHighlightRanges(document.getElementById('repeatHighlightRanges').value || '');
+                } catch (e) {
+                    repeatRanges = [];
+                }
+
+                previewFramePlan = buildRepeatFramePlan(cachedLines1, nonEmptyCount, repeatRanges, parseInt(document.getElementById('skipLines').value) || 0);
+
+                groupFrameIndices = Array.from({ length: totalSlideGroups }, () => []);
+                previewFramePlan.forEach((entry, planIdx) => {
+                    const groupIdx = Math.floor(entry.index / linesPerSlide);
+                    if (groupFrameIndices[groupIdx]) {
+                        groupFrameIndices[groupIdx].push(planIdx);
+                    }
+                });
             }
 
             function parseAudacityLabels(labelText) {
@@ -1118,10 +1169,8 @@
 
             function populateDropdowns() {
                 const slideSelector = document.getElementById('slideSelector');
-                const highlightSelector = document.getElementById('highlightSelector');
 
                 slideSelector.innerHTML = '';
-                highlightSelector.innerHTML = '';
 
                 // Add "First Slide" option
                 const firstOption = document.createElement('option');
@@ -1143,20 +1192,40 @@
                 lastOption.textContent = 'Last Slide';
                 slideSelector.appendChild(lastOption);
 
-                // Populate highlight selector
-                for (let i = 0; i < linesPerSlide; i++) {
+                slideSelector.value = currentPreviewSlideGroup;
+                populateHighlightSelector();
+            }
+
+            // Populates the "Highlight" selector with the frames that belong to the CURRENT slide
+            // group, in the order they actually play - including any repeats, labelled as such.
+            function populateHighlightSelector() {
+                const highlightSelector = document.getElementById('highlightSelector');
+                highlightSelector.innerHTML = '';
+
+                if (currentPreviewSlideGroup < 0) return;
+
+                const frames = groupFrameIndices[currentPreviewSlideGroup] || [];
+                const startIdx = currentPreviewSlideGroup * linesPerSlide;
+
+                frames.forEach((planIdx, i) => {
+                    const entry = previewFramePlan[planIdx];
+                    const localLine = entry.index - startIdx + 1;
                     const option = document.createElement('option');
                     option.value = i;
-                    option.textContent = `${i + 1} / ${linesPerSlide}`;
+                    option.textContent = entry.repeatPass === 0
+                        ? `Line ${localLine} / ${frames.length}`
+                        : `Line ${localLine} (repeat ${entry.repeatPass})`;
                     highlightSelector.appendChild(option);
-                }
+                });
 
-                slideSelector.value = currentPreviewSlideGroup;
+                currentPreviewHighlight = Math.max(0, Math.min(currentPreviewHighlight, frames.length - 1));
                 highlightSelector.value = currentPreviewHighlight;
             }
 
             function jumpToSlide() {
                 currentPreviewSlideGroup = parseInt(document.getElementById('slideSelector').value);
+                currentPreviewHighlight = 0;
+                populateHighlightSelector();
                 updatePreview();
             }
 
@@ -1174,6 +1243,7 @@
 
                 try {
                     await loadFiles();
+                    computePreviewPlan();
                     currentPreviewSlideGroup = -1; // Start with first slide
                     currentPreviewHighlight = 0;
                     populateDropdowns();
@@ -1242,16 +1312,18 @@
 
                     const nonEmptyLines1 = cachedLines1.filter(l => l.trim().length > 0);
                     const nonEmptyLines2 = cachedLines2 ? cachedLines2.filter(l => l.trim().length > 0) : null;
-                    const highlightLinePlan = buildHighlightLinePlan(cachedLines1, nonEmptyLines1.length);
 
                     const startIdx = currentPreviewSlideGroup * linesPerSlide;
                     const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyLines1.length);
                     const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
                     const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
                     const isBilingual = !!cachedLines2;
-                    const globalHighlightIndex = Math.min(startIdx + currentPreviewHighlight, nonEmptyLines1.length - 1);
-                    const highlightLineIndex = highlightLinePlan[globalHighlightIndex] ?? globalHighlightIndex;
-                    const highlightLocalIndex = highlightLineIndex - startIdx;
+
+                    const frames = groupFrameIndices[currentPreviewSlideGroup] || [];
+                    const safeHighlight = Math.max(0, Math.min(currentPreviewHighlight, frames.length - 1));
+                    const planIdx = frames[safeHighlight];
+                    const outputIndex = planIdx !== undefined ? previewFramePlan[planIdx].index : startIdx;
+                    const highlightLocalIndex = outputIndex - startIdx;
                     const safeHighlightLocalIndex = Math.max(0, Math.min(highlightLocalIndex, slideLines1.length - 1));
 
                     canvas = createSlide(slideLines1, slideLines2, safeHighlightLocalIndex, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
@@ -1268,14 +1340,17 @@
                 if (currentPreviewSlideGroup === -1) {
                     currentPreviewSlideGroup = 0;
                     currentPreviewHighlight = 0;
+                    populateHighlightSelector();
                 }
                 // If on content slides
                 else if (currentPreviewSlideGroup >= 0 && currentPreviewSlideGroup < totalSlideGroups) {
-                    if (currentPreviewHighlight < linesPerSlide - 1) {
+                    const frames = groupFrameIndices[currentPreviewSlideGroup] || [];
+                    if (currentPreviewHighlight < frames.length - 1) {
                         currentPreviewHighlight++;
                     } else if (currentPreviewSlideGroup < totalSlideGroups - 1) {
                         currentPreviewSlideGroup++;
                         currentPreviewHighlight = 0;
+                        populateHighlightSelector();
                     } else {
                         // Go to last slide
                         currentPreviewSlideGroup = -2;
@@ -1291,7 +1366,9 @@
                 // If on last slide, go to last content slide
                 if (currentPreviewSlideGroup === -2) {
                     currentPreviewSlideGroup = totalSlideGroups - 1;
-                    currentPreviewHighlight = linesPerSlide - 1;
+                    populateHighlightSelector();
+                    const frames = groupFrameIndices[currentPreviewSlideGroup] || [];
+                    currentPreviewHighlight = Math.max(frames.length - 1, 0);
                 }
                 // If on content slides
                 else if (currentPreviewSlideGroup >= 0) {
@@ -1299,7 +1376,9 @@
                         currentPreviewHighlight--;
                     } else if (currentPreviewSlideGroup > 0) {
                         currentPreviewSlideGroup--;
-                        currentPreviewHighlight = linesPerSlide - 1;
+                        populateHighlightSelector();
+                        const frames = groupFrameIndices[currentPreviewSlideGroup] || [];
+                        currentPreviewHighlight = Math.max(frames.length - 1, 0);
                     } else {
                         // Go to first slide
                         currentPreviewSlideGroup = -1;
@@ -1364,57 +1443,29 @@
                     }
 
                     const nonEmptyCount = nonEmptyLines1.length;
-                    const totalGroups = Math.ceil(nonEmptyCount / linesPerSlide);
-                    const highlightLinePlan = buildHighlightLinePlan(cachedLines1, nonEmptyCount);
                     const repeatRanges = parseRepeatHighlightRanges(document.getElementById('repeatHighlightRanges').value || '');
+                    const framePlan = buildRepeatFramePlan(cachedLines1, nonEmptyCount, repeatRanges, parseInt(document.getElementById('skipLines').value) || 0);
 
-                    for (let slideIdx = 0; slideIdx < totalGroups; slideIdx++) {
-                        const startIdx = slideIdx * linesPerSlide;
+                    for (let planIdx = 0; planIdx < framePlan.length; planIdx++) {
+                        const outputIndex = framePlan[planIdx].index;
+                        const startIdx = Math.floor(outputIndex / linesPerSlide) * linesPerSlide;
                         const endIdx = Math.min(startIdx + linesPerSlide, nonEmptyCount);
                         const slideLines1 = nonEmptyLines1.slice(startIdx, endIdx);
                         const slideLines2 = nonEmptyLines2 ? nonEmptyLines2.slice(startIdx, endIdx) : null;
                         const isBilingual = !!cachedLines2;
+                        const highlightLocalIndex = outputIndex - startIdx;
+                        const safeHighlightLocalIndex = Math.max(0, Math.min(highlightLocalIndex, slideLines1.length - 1));
 
-                        const actualLinesInThisSlide = slideLines1.length;
+                        const canvas = createSlide(slideLines1, slideLines2, safeHighlightLocalIndex, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
 
-                        for (let highlightIdx = 0; highlightIdx < actualLinesInThisSlide; highlightIdx++) {
-                            const globalHighlightIndex = startIdx + highlightIdx;
-                            const highlightLineIndex = highlightLinePlan[globalHighlightIndex] ?? globalHighlightIndex;
-                            const highlightLocalIndex = highlightLineIndex - startIdx;
-                            const safeHighlightLocalIndex = Math.max(0, Math.min(highlightLocalIndex, slideLines1.length - 1));
-                            const canvas = createSlide(slideLines1, slideLines2, safeHighlightLocalIndex, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                        const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
+                        zip.file(filename, blob);
+                        frameIndex++;
 
-                            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
-                            const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
-                            zip.file(filename, blob);
-                            frameIndex++;
-
-                            const progress = Math.round((slideIdx * linesPerSlide + highlightIdx + 1) / (totalGroups * linesPerSlide) * 100);
-                            document.getElementById('progressFill').textContent = progress + '%';
-                            document.getElementById('progressFill').style.width = progress + '%';
-                        }
-
-                        if (repeatRanges.length > 0) {
-                            const rangeStart = startIdx + 1;
-                            const rangeEnd = endIdx;
-                            const matchingRange = repeatRanges.find(range => rangeStart <= range.end && rangeEnd >= range.start);
-                            if (matchingRange) {
-                                const repeatStartLine = matchingRange.start;
-                                const repeatEndLine = matchingRange.end;
-                                const shouldRepeatThisGroup = rangeStart <= repeatEndLine && rangeEnd >= repeatStartLine;
-                                if (shouldRepeatThisGroup) {
-                                    const extraSlideCount = 2;
-                                    for (let extraIdx = 0; extraIdx < extraSlideCount; extraIdx++) {
-                                        const extraHighlightIndex = extraIdx % actualLinesInThisSlide;
-                                        const canvas = createSlide(slideLines1, slideLines2, extraHighlightIndex, isBilingual, bgColor, colorBefore, colorHighlight, colorAfter, fontFamily, baseFontSize, lineHeightMultiplier, cachedBgImage, topMargin, leftMargin);
-                                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
-                                        const filename = `${labelFileName}-Slide${String(frameIndex).padStart(4, '0')}.png`;
-                                        zip.file(filename, blob);
-                                        frameIndex++;
-                                    }
-                                }
-                            }
-                        }
+                        const progress = Math.round((planIdx + 1) / framePlan.length * 100);
+                        document.getElementById('progressFill').textContent = progress + '%';
+                        document.getElementById('progressFill').style.width = progress + '%';
                     }
 
                     // Add custom end slide if provided
