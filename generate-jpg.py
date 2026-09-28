@@ -3,6 +3,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 import shutil
+import sys
 
 # CONFIG
 # based on macOS and Windows, set FONT_PATH_SANSKRIT and FONT_PATH_TAMIL accordingly
@@ -14,24 +15,24 @@ if os.name == 'nt': # Windows
     FONT_PATH_TAMIL = "C:/Windows/Fonts/Nirmala.ttf"
 FONT_SIZE_SANSKRIT = 55
 FONT_SIZE_TAMIL = 45
-LINES_PER_SLIDE = 5
+LINES_PER_SLIDE = 4
 SLIDE_WIDTH = 1920
 SLIDE_HEIGHT = 1080
 LINE_SPACING = 100
-MARGIN_LEFT = 725
-MARGIN_TOP_SANSKRIT = 90
-MARGIN_TOP_TAMIL = 620
-ASTRING = "sri-krishna-suprabhatam"
-SKIP_LINES = 2  # Number of lines to skip at the start of each file
+MARGIN_LEFT = 400
+MARGIN_TOP_SANSKRIT = 70
+MARGIN_TOP_TAMIL = 580
+ASTRING = sys.argv[1]
+SKIP_LINES = 0 # Number of lines to skip at the start of each file
 
 # get home folder from os env which works in macOS and Windows powershell too
 HOME = os.path.expanduser("~")
 
 # Load text
-with open(HOME + f"/books/srisrianna/laghustotramala/{ASTRING}-sanskrit.txt", "r", encoding="utf-8") as f:
+with open(HOME + f"/books/srisrianna/krishna-bhakthi-rasodayam/{ASTRING}-sanskrit.txt", "r", encoding="utf-8") as f:
     sanskrit_lines = [line.strip() for i, line in enumerate(f) if i >= SKIP_LINES]
 
-with open(HOME + f"/books/srisrianna/laghustotramala/{ASTRING}-tamil.txt", "r", encoding="utf-8") as f:
+with open(HOME + f"/books/srisrianna/krishna-bhakthi-rasodayam/{ASTRING}-tamil.txt", "r", encoding="utf-8") as f:
     tamil_lines = [line.strip() for i, line in enumerate(f) if i >= SKIP_LINES]
 
 assert len(sanskrit_lines) == len(tamil_lines), "Line count mismatch."
@@ -44,6 +45,12 @@ os.makedirs(HOME + "/Downloads/" + ASTRING, exist_ok=True)
 # Load fonts
 font_sanskrit = ImageFont.truetype(FONT_PATH_SANSKRIT, FONT_SIZE_SANSKRIT)
 font_tamil = ImageFont.truetype(FONT_PATH_TAMIL, FONT_SIZE_TAMIL)
+number_font = ImageFont.truetype(FONT_PATH_SANSKRIT, 128)
+
+song_number = ASTRING.replace("kbr0","").replace("kbr","")
+left_margin_number = 150
+if len(song_number) == 2:
+    left_margin_number = 120
 
 def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=False):
     # Skip slide if the highlighted line is blank in either language
@@ -52,16 +59,18 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
 
     # Load and cache the background image only once
     if not hasattr(draw_slide, "background"):
-        draw_slide.background = Image.open(HOME + "/Downloads/" + ASTRING + "_background.png").convert("RGB").resize((SLIDE_WIDTH, SLIDE_HEIGHT))
+        draw_slide.background = Image.open(f"{HOME}/Downloads/kbr/kbr.002.jpeg").convert("RGB").resize((SLIDE_WIDTH, SLIDE_HEIGHT))
     img = draw_slide.background.copy()
     draw = ImageDraw.Draw(img)
 
     first_line_fill = (0, 0, 255)
-    text_fill = (255, 255, 255)
-    text_highlight_fill = (255, 255, 0)
+    text_fill = (0, 0, 0)
+    text_highlight_fill = (180, 0, 0)
     text_shadow_fill = (0, 0, 0)
     text_shadow_highlight_fill = (0, 0, 0)
     text_highlight_background = False
+    
+    draw.text((left_margin_number, 280), song_number, font=number_font, fill=text_fill)
 
     no_blanks = first_line_title and len(s_chunk) == LINES_PER_SLIDE and all(line.strip() for line in s_chunk)
     def draw_lines(chunk, font, margin_top):
@@ -94,13 +103,17 @@ def draw_slide(s_chunk, t_chunk, highlight_idx, slide_num, first_line_title=Fals
     draw_lines(s_chunk, font_sanskrit, MARGIN_TOP_SANSKRIT)
     draw_lines(t_chunk, font_tamil, MARGIN_TOP_TAMIL)
 
-    img.save(HOME + f"/Downloads/{ASTRING}/{ASTRING}-Slide{slide_num:04d}.png", "PNG")
+    print(f"Creating {HOME}/Downloads/{ASTRING}/{ASTRING}-Slide{slide_num:04d}.png")
+    img.save(f"{HOME}/Downloads/{ASTRING}/{ASTRING}-Slide{slide_num:04d}.png", "PNG")
 
-if os.path.exists(HOME + "/Downloads/" + ASTRING + "_cover.png"):
-    shutil.copy(HOME + "/Downloads/" + ASTRING + "_cover.png", HOME + "/Downloads/" + ASTRING + "/" + ASTRING + "-Slide0001.png")
+if os.path.exists(f"{HOME}/Downloads/kbr/kbr.001.jpeg"):
+    img = Image.open(f"{HOME}/Downloads/kbr/kbr.001.jpeg").convert("RGB").resize((SLIDE_WIDTH, SLIDE_HEIGHT)).copy()
+    draw = ImageDraw.Draw(img)
+    draw.text((1080, 210), song_number, font=ImageFont.truetype(FONT_PATH_SANSKRIT, 188), fill=(0,0,0), anchor="mm")
+    img.save(f"{HOME}/Downloads/{ASTRING}/{ASTRING}-Slide0001.png", "PNG")
 
 # Generate slides
-slide_num = 2
+slide_num = 2 #SKIP_LINES + 1
 for i in range(0, len(sanskrit_lines), LINES_PER_SLIDE):
     s_chunk = sanskrit_lines[i:i+LINES_PER_SLIDE]
     t_chunk = tamil_lines[i:i+LINES_PER_SLIDE]

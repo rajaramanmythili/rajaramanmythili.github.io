@@ -1,6 +1,10 @@
 import numpy as np
 from scipy.io import wavfile
 import sys
+import os
+
+# get home folder from os env which works in macOS and Windows powershell too
+HOME = os.path.expanduser("~")
 
 def filter_close(onsets, min_gap=2.5):
     """
@@ -133,8 +137,8 @@ def generate_point_labels(wav_file, output_file="labels.txt"):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python sloka_markers.py <input.wav>")
+        print("Usage: python generate-label.py <input.wav>")
         sys.exit(1)
     
     wav_path = sys.argv[1]
-    generate_point_labels(wav_path)
+    generate_point_labels(wav_path, f'{HOME}/Downloads/{os.path.basename(wav_path).replace('.wav','.txt')}')

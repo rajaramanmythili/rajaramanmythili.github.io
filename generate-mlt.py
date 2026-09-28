@@ -55,7 +55,7 @@ def get_label_in_out(filename):
 #
 # Main Code Starts
 #
-ASTRING='sri-krishna-suprabhatam'
+ASTRING=sys.argv[1]
 
 wavefilename=HOME + "/lmms/projects/" + ASTRING + ".wav"
 if not os.path.exists(wavefilename):
