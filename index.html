@@ -543,6 +543,8 @@
       align-items: center;
     }
 
+    .playlist-card.filtered-out { display: none !important; }
+
     .playlist-card:first-child { border-top: 1px solid var(--border); }
     .playlist-card:hover { background: var(--bg-hover); }
 
@@ -977,12 +979,18 @@
     const cards  = document.getElementById('contentGrid').querySelectorAll('.video-card');
     let visible  = 0;
 
+    // Guard against incomplete regex while typing, e.g. "(" or "["
+    let re;
+    try { re = new RegExp(filter, 'mis'); }
+    catch (e) { re = new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'mis'); }
+
     for (let i = 0; i < cards.length; i++) {
       const titleEl = cards[i].querySelector('.card-title-text');
       if (titleEl) {
         const txtValue = normalizeText(titleEl.textContent || titleEl.innerText);
-        const match    = txtValue.match(new RegExp(filter, 'gmis')) != null;
+        const match    = re.test(txtValue);
         cards[i].style.display = match ? '' : 'none';
+        cards[i].classList.toggle('filtered-out', !match);
         if (match) visible++;
       }
     }
@@ -994,12 +1002,28 @@
       visible + ' of ' + total;
   }
 
+  /* ── Adapt the shared search box to the current tab ── */
+  function updateSearchUI(mode) {
+    const input = document.getElementById('myInput');
+    const hints = {
+      video:    'Search titles… (regex supported)',
+      shorts:   'Search shorts… (regex supported)',
+      playlist: 'Search playlists… (regex supported)'
+    };
+    input.placeholder = hints[mode] || hints.video;
+    // Title suggestions only make sense for videos
+    if (mode === 'video') input.setAttribute('list', 'sampleList');
+    else input.removeAttribute('list');
+    input.focus();
+  }
+
   /* ── Set mode (replaces toggleView) ── */
   function setMode(mode) {
     displayView = mode;
     ['video', 'shorts', 'playlist'].forEach(m => {
       document.getElementById('tab-' + m).classList.toggle('active', m === mode);
     });
+    updateSearchUI(mode);
     if (mode === 'playlist') {
       getPlaylistData();
     } else {
