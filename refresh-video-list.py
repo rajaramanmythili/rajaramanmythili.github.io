@@ -23,10 +23,10 @@ def list_videos():
                 print(title)
 
 def get_video_json():
-    f = open(VIDEOS_JSON_FILE, 'r', encoding="UTF-8")
-    videos_json = json.load(f)
-    f.close()
-    return videos_json
+    if not os.path.exists(VIDEOS_JSON_FILE):
+        return {}
+    with open(VIDEOS_JSON_FILE, 'r', encoding="UTF-8") as f:
+        return json.load(f)
 
 def is_short(duration_iso8601):
     """
