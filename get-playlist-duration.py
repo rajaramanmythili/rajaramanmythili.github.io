@@ -11,33 +11,29 @@ PLAYLIST_ID = 'PLdBTiOEoG70n_aTSZgIGi3pOtyO7D2Tky'
 VIDEOS_JSON_FILE = '/Users/rajaramaniyer/rajaramanmythili.github.io/playlist.json'
 
 def get_list_of_playlist():
-    # Build the YouTube service
     youtube = build('youtube', 'v3', developerKey=API_KEY)
-
-    # Fetch the playlist items
+    playlists = []
     next_page_token = None
-    with open(VIDEOS_JSON_FILE, "w", encoding="UTF-8") as write_file:
-        write_file.write("[")
-
     while True:
-        playlist_request = youtube.playlists().list(
+        resp = youtube.playlists().list(
             part='snippet,contentDetails',
-            maxResults=50,  # Max results per page
+            maxResults=50,
             pageToken=next_page_token,
             channelId='UCLbwWE1OTFQyfXT7O3u6pbw'
-        )
-        playlist_response = playlist_request.execute()
-
-        with open(VIDEOS_JSON_FILE, "a", encoding="UTF-8") as write_file:
-            for item in playlist_response['items']:
-                write_file.write('{"playlistId":"%s","title":"%s","publishedAt":"%s","thumbnail":"%s"},' % (item['id'], item['snippet']['title'], item['snippet']['publishedAt'], item['snippet']['thumbnails']['default']['url']))
-
-        next_page_token = playlist_response.get('nextPageToken')
+        ).execute()
+        for item in resp['items']:
+            playlists.append({
+                'playlistId': item['id'],
+                'title': item['snippet']['title'],
+                'publishedAt': item['snippet']['publishedAt'],
+                'thumbnail': item['snippet']['thumbnails']['default']['url'],
+            })
+        next_page_token = resp.get('nextPageToken')
         if not next_page_token:
             break
-
-    with open(VIDEOS_JSON_FILE, "a", encoding="UTF-8") as write_file:
-        write_file.write("]")
+    with open(VIDEOS_JSON_FILE, 'w', encoding='UTF-8') as f:
+        json.dump(playlists, f, indent=2, ensure_ascii=False)
+    print(f'Wrote {len(playlists)} playlists')
 
 def get_playlist_videos_duration(playlist_id):
     # Usage

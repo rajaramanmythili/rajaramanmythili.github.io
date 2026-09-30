@@ -1060,6 +1060,16 @@
       });
   }
 
+  function preloadPlaylistCount() {
+    fetch('/playlist.json')
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => {
+        if (playlistJsonData == null) playlistJsonData = data;
+        document.getElementById('count-playlist').textContent = Object.keys(data).length;
+      })
+      .catch(() => {});
+  }
+
   /* ── Build video / shorts page ── */
   function buildPage() {
     if (jsonData == null) return;
@@ -1400,6 +1410,7 @@
 
     myInput.focus();
     getData();
+    preloadPlaylistCount();
   };
 </script>
 
